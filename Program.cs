@@ -17,7 +17,7 @@ namespace AFayedFarm
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
-
+			
 			builder.Services.AddDbContext<FarmContext>(
 				option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 			builder.Services.AddIdentity<ApplicationUser,IdentityRole>(
@@ -26,6 +26,10 @@ namespace AFayedFarm
 					 option.Password.RequireNonAlphanumeric = false;
 					 option.Password.RequiredLength = 5;
 				 }).AddEntityFrameworkStores<FarmContext>();
+			builder.Services.AddCors(options =>
+			{
+				options.AddPolicy("AllowAll", builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
+			});
 
 
 			var app = builder.Build();
@@ -37,8 +41,8 @@ namespace AFayedFarm
 				app.UseSwaggerUI();
 			}
 
+			app.UseCors("AllowAll");
 			app.UseAuthorization();
-
 
 			app.MapControllers();
 
