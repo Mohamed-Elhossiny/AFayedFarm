@@ -1,5 +1,6 @@
 
 using AFayedFarm.Model;
+using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,8 @@ namespace AFayedFarm
 			{
 				options.AddPolicy("AllowAll", builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 			});
+
+			builder.Services.AddScoped<IFarmsRepo, FarmsRepo>();
 
 
 			var app = builder.Build();

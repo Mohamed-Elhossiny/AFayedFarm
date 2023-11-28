@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AFayedFarm.Model
 {
-    [PrimaryKey(nameof(SupplierID),nameof(CategoryID))]
-	public class SupplyCategory
+    [PrimaryKey(nameof(FarmsID),nameof(CategoryID))]
+	public class FarmsCategory
 	{
-		[ForeignKey("Supplier")]
-        public int? SupplierID { get; set; }
+		[ForeignKey("Farms")]
+        public int? FarmsID { get; set; }
         [ForeignKey("Category")]
         public int? CategoryID { get; set; }
-        public virtual Supplier? Supplier { get; set; }
+        public virtual Farms? Farms { get; set; }
         public virtual Category? Category { get; set; }
     }
 }

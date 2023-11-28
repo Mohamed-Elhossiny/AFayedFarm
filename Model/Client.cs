@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AFayedFarm.Model
 {
-	public class Customer
+	public class Client
 	{
 		[Key]
-        public int CustomerID { get; set; }
-        public string? CustomerName { get; set; }
+        public int ClientID { get; set; }
+        public string? ClientName { get; set; }
 
         /// <summary>
         /// 1 ==> Export OutSide

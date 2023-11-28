@@ -12,7 +12,7 @@ namespace AFayedFarm.Model
 
 		[Column(TypeName = "nvarchar(MAX)")]
 		public string? CategoryNotes { get; set; }
-		public virtual ICollection<SupplyCategory>? SupplyCategory { get; set; }
+		public virtual ICollection<FarmsCategory>? FarmsCategory { get; set; }
 		[ForeignKey("Store")]
 		public int? StoreID { get; set; }
 		public virtual Store? Store { get; set; }
