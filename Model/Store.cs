@@ -9,5 +9,6 @@ namespace AFayedFarm.Model
         public virtual ICollection<Supplier>? Suppliers { get; set; }
         public virtual ICollection<Category>? Categories { get; set; }
         public virtual ICollection<Customer>? Customers { get; set; }
+        public virtual ICollection<Expense>? Expenses { get; set; }
     }
 }

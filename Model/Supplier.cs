@@ -21,5 +21,8 @@ namespace AFayedFarm.Model
         public decimal? Remaining { get; set; }
 		[Column(TypeName = "nvarchar(MAX)")]
 		public string? SupplierNotes { get; set; }
+        [ForeignKey("Store")]
+        public int? StoreID { get; set; }
+        public virtual Store? Store { get; set; }
     }
 }
