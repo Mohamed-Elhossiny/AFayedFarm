@@ -1,5 +1,6 @@
 
 using AFayedFarm.Model;
+using AFayedFarm.Repositories.Clients;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,7 @@ namespace AFayedFarm
 			});
 
 			builder.Services.AddScoped<IFarmsRepo, FarmsRepo>();
+			builder.Services.AddScoped<IClientRepo, ClientRepo>();
 
 
 			var app = builder.Build();
