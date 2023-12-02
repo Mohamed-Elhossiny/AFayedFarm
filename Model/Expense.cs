@@ -11,9 +11,16 @@ namespace AFayedFarm.Model
 		[ForeignKey("ExpenseType")]
 		public int ExpenseTypeId { get; set; }
 		public virtual TypeOfExpense? ExpenseType { get; set; }
-		[DataType(DataType.Date)]
+
+        public string? ExpenseName { get; set; }
+
+        [DataType(DataType.Date)]
 		[Column(TypeName = "Date")]
 		public DateTime ExpenseDate { get; set; }
+
+		[DataType(DataType.Date)]
+		[Column(TypeName = "Date")]
+		public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }
 		public decimal? Price { get; set; }
 		public decimal? AdditionalQuantity { get; set; }

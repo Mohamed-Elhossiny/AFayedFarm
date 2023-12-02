@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231201074656_v3")]
+    partial class v3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,10 +104,30 @@ namespace AFayedFarm.Migrations
                     b.Property<string>("ClientName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("Created_Date")
+                        .HasColumnType("Date");
+
                     b.Property<int?>("Export")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("GetPaied")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Remaining")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("ShippingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("StoreID")
+                        .HasColumnType("int");
+
                     b.HasKey("ClientID");
+
+                    b.HasIndex("StoreID");
 
                     b.ToTable("Clients");
                 });
@@ -128,9 +151,6 @@ namespace AFayedFarm.Migrations
 
                     b.Property<DateTime>("ExpenseDate")
                         .HasColumnType("Date");
-
-                    b.Property<string>("ExpenseName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExpenseNotes")
                         .HasColumnType("nvarchar(MAX)");
@@ -173,33 +193,14 @@ namespace AFayedFarm.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FarmsID"));
 
-                    b.Property<string>("FarmsName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("FarmsID");
-
-                    b.ToTable("Farms");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.FarmsProduct", b =>
-                {
-                    b.Property<int>("FarmProductID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FarmProductID"));
-
-                    b.Property<int?>("CarNumber")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("Created_Date")
                         .HasColumnType("Date");
 
                     b.Property<decimal?>("Discount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("FarmsID")
-                        .HasColumnType("int");
+                    b.Property<string>("FarmsName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FarmsNotes")
                         .HasColumnType("nvarchar(MAX)");
@@ -210,17 +211,14 @@ namespace AFayedFarm.Migrations
                     b.Property<decimal?>("Paied")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("ProductID")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("Quantity")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Remaining")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("StoreID")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("SupplyDate")
                         .HasColumnType("Date");
@@ -228,9 +226,22 @@ namespace AFayedFarm.Migrations
                     b.Property<decimal?>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("FarmProductID");
+                    b.HasKey("FarmsID");
 
-                    b.HasIndex("FarmsID");
+                    b.HasIndex("StoreID");
+
+                    b.ToTable("Farms");
+                });
+
+            modelBuilder.Entity("AFayedFarm.Model.FarmsProduct", b =>
+                {
+                    b.Property<int?>("FarmsID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.HasKey("FarmsID", "ProductID");
 
                     b.HasIndex("ProductID");
 
@@ -257,7 +268,12 @@ namespace AFayedFarm.Migrations
                     b.Property<decimal?>("ProductUnitPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("StoreID")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductID");
+
+                    b.HasIndex("StoreID");
 
                     b.ToTable("Products");
                 });
@@ -276,89 +292,6 @@ namespace AFayedFarm.Migrations
                     b.HasKey("StoreID");
 
                     b.ToTable("Stores");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.StoreProduct", b =>
-                {
-                    b.Property<int>("StoreProductID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StoreProductID"));
-
-                    b.Property<DateTime?>("Created_Date")
-                        .HasColumnType("Date");
-
-                    b.Property<int?>("FarmsID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ProductID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("StoreID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SupplyDate")
-                        .HasColumnType("Date");
-
-                    b.Property<decimal?>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("StoreProductID");
-
-                    b.HasIndex("FarmsID");
-
-                    b.HasIndex("ProductID");
-
-                    b.HasIndex("StoreID");
-
-                    b.ToTable("StoreProducts");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.Transaction", b =>
-                {
-                    b.Property<int>("TransactionID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionID"));
-
-                    b.Property<int>("ClientID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Created_Date")
-                        .HasColumnType("Date");
-
-                    b.Property<decimal?>("GetPaied")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Remaining")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("ShippingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("StoreID")
-                        .HasColumnType("int");
-
-                    b.HasKey("TransactionID");
-
-                    b.HasIndex("ClientID");
-
-                    b.HasIndex("ProductID");
-
-                    b.HasIndex("StoreID");
-
-                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.TypeOfExpense", b =>
@@ -510,6 +443,15 @@ namespace AFayedFarm.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AFayedFarm.Model.Client", b =>
+                {
+                    b.HasOne("AFayedFarm.Model.Store", "Store")
+                        .WithMany("Clients")
+                        .HasForeignKey("StoreID");
+
+                    b.Navigation("Store");
+                });
+
             modelBuilder.Entity("AFayedFarm.Model.Expense", b =>
                 {
                     b.HasOne("AFayedFarm.Model.TypeOfExpense", "ExpenseType")
@@ -527,65 +469,39 @@ namespace AFayedFarm.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("AFayedFarm.Model.FarmsProduct", b =>
+            modelBuilder.Entity("AFayedFarm.Model.Farms", b =>
                 {
-                    b.HasOne("AFayedFarm.Model.Farms", "Farms")
-                        .WithMany("FarmsProducts")
-                        .HasForeignKey("FarmsID");
-
-                    b.HasOne("AFayedFarm.Model.Product", "Product")
-                        .WithMany("FarmsProducts")
-                        .HasForeignKey("ProductID");
-
-                    b.Navigation("Farms");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.StoreProduct", b =>
-                {
-                    b.HasOne("AFayedFarm.Model.Farms", "Farms")
-                        .WithMany()
-                        .HasForeignKey("FarmsID");
-
-                    b.HasOne("AFayedFarm.Model.Product", "Product")
-                        .WithMany("StoreProducts")
-                        .HasForeignKey("ProductID");
-
                     b.HasOne("AFayedFarm.Model.Store", "Store")
-                        .WithMany("StoreProducts")
+                        .WithMany("Farms")
                         .HasForeignKey("StoreID");
-
-                    b.Navigation("Farms");
-
-                    b.Navigation("Product");
 
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("AFayedFarm.Model.Transaction", b =>
+            modelBuilder.Entity("AFayedFarm.Model.FarmsProduct", b =>
                 {
-                    b.HasOne("AFayedFarm.Model.Client", "Client")
-                        .WithMany("Transactions")
-                        .HasForeignKey("ClientID")
+                    b.HasOne("AFayedFarm.Model.Farms", "Farms")
+                        .WithMany("FarmsProducts")
+                        .HasForeignKey("FarmsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AFayedFarm.Model.Product", "Product")
-                        .WithMany("Transactions")
+                        .WithMany("FarmsProduct")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AFayedFarm.Model.Store", "Store")
-                        .WithMany("Transactions")
-                        .HasForeignKey("StoreID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
+                    b.Navigation("Farms");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("AFayedFarm.Model.Product", b =>
+                {
+                    b.HasOne("AFayedFarm.Model.Store", "Store")
+                        .WithMany("Products")
+                        .HasForeignKey("StoreID");
 
                     b.Navigation("Store");
                 });
@@ -641,11 +557,6 @@ namespace AFayedFarm.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AFayedFarm.Model.Client", b =>
-                {
-                    b.Navigation("Transactions");
-                });
-
             modelBuilder.Entity("AFayedFarm.Model.Farms", b =>
                 {
                     b.Navigation("FarmsProducts");
@@ -653,20 +564,18 @@ namespace AFayedFarm.Migrations
 
             modelBuilder.Entity("AFayedFarm.Model.Product", b =>
                 {
-                    b.Navigation("FarmsProducts");
-
-                    b.Navigation("StoreProducts");
-
-                    b.Navigation("Transactions");
+                    b.Navigation("FarmsProduct");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Store", b =>
                 {
+                    b.Navigation("Clients");
+
                     b.Navigation("Expenses");
 
-                    b.Navigation("StoreProducts");
+                    b.Navigation("Farms");
 
-                    b.Navigation("Transactions");
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.TypeOfExpense", b =>

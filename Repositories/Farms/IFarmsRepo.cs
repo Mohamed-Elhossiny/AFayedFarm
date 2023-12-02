@@ -1,4 +1,5 @@
 ﻿using AFayedFarm.Dtos;
+using AFayedFarm.Global;
 
 namespace AFayedFarm.Repositories.Supplier
 {
@@ -9,6 +10,8 @@ namespace AFayedFarm.Repositories.Supplier
 		Task<List<FarmDto>> GetFarmsAsync();
 		Task<FarmDto> GetFarmById(int id);
 		Task<FarmDto> UpdateFarm(int id,AddFarmDto farmDto);
+		Task<RequestResponse<bool>> AddFarmRecord(AddFarmRecordDto farmDto);
+		Task<RequestResponse<List<FarmRecordDto>>> GetAllFarmRecords(int farmID);
 
 	}
 }

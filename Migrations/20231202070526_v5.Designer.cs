@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231202070526_v5")]
+    partial class v5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,9 +192,6 @@ namespace AFayedFarm.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FarmProductID"));
 
-                    b.Property<int?>("CarNumber")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("Created_Date")
                         .HasColumnType("Date");
 
@@ -208,9 +208,6 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Paied")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("ProductID")

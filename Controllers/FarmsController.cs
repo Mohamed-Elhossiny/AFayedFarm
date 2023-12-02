@@ -16,6 +16,7 @@ namespace AFayedFarm.Controllers
 		{
 			this.farmsRepo = farmsRepo;
 		}
+		
 		[HttpPost]
 		public async Task<IActionResult> AddFarmAsync(AddFarmDto farmDto)
 		{
@@ -58,6 +59,28 @@ namespace AFayedFarm.Controllers
 
 			var farmUpdated = await farmsRepo.UpdateFarm(id,farmDto);
 			return Ok(farmUpdated);
+		}
+
+		[HttpPost("AddFarmRecord")]
+		public async Task<IActionResult> AddFarmRecordAsync([FromBody] AddFarmRecordDto farmdto)
+		{
+			if (farmdto.FarmsID == 0 || farmdto.ProductID == 0)
+				return BadRequest("Please Enter Farm And Product");
+			var response = await farmsRepo.AddFarmRecord(farmdto);
+			if (response.ResponseID == 1)
+				return Ok(farmdto);
+			else
+				return BadRequest();
+		}
+
+		[HttpGet("GetAllFarmsRecord")]
+		public async Task<IActionResult> GetAllFarmsRecord(int id)
+		{
+			var response = await farmsRepo.GetAllFarmRecords(id);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound("No Data Found");
 		}
 	}
 }

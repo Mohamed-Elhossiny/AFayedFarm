@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AFayedFarm.Model
 {
@@ -6,9 +7,13 @@ namespace AFayedFarm.Model
 	{
 		[Key]
         public int StoreID { get; set; }
-        public virtual ICollection<Farms>? Farms { get; set; }
-        public virtual ICollection<Category>? Categories { get; set; }
-        public virtual ICollection<Client>? Clients { get; set; }
-        public virtual ICollection<Expense>? Expenses { get; set; }
-    }
+
+		[DataType(DataType.Date)]
+		[Column(TypeName = "Date")]
+		public DateTime? Created_Date { get; set; }
+		public virtual ICollection<StoreProduct>? StoreProducts { get; set; }
+		public virtual ICollection<Transaction>? Transactions { get; set; }
+		public virtual ICollection<Expense>? Expenses { get; set; }
+
+	}
 }
