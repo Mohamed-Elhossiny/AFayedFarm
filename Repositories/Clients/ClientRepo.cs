@@ -15,21 +15,21 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<ClientDto> AddClientAsync(AddClientDto clientDto)
 		{
 			var client = new ClientDto();
-			var clientdb = context.Clients.Where(f => f.ClientName.ToLower() == clientDto.ClientName.ToLower()).FirstOrDefault();
+			var clientdb = context.Clients.Where(f => f.ClientName.ToLower() == clientDto.Name.ToLower()).FirstOrDefault();
 			if (clientdb == null)
 			{
 				var Client = new Client()
 				{
-					ClientName = clientDto.ClientName,
+					ClientName = clientDto.Name,
 				};
 				await context.Clients.AddAsync(Client);
 				await context.SaveChangesAsync();
-				client.ClientName = Client.ClientName;
-				client.ClientID = Client.ClientID;
+				client.Name = Client.ClientName;
+				client.ID = Client.ClientID;
 				return client;
 			}
 
-			client.ClientID = 0;
+			client.ID = 0;
 			return client;
 		}
 
@@ -37,8 +37,8 @@ namespace AFayedFarm.Repositories.Clients
 		{
 			var clientsDb = await context.Clients.Select(c => new ClientDto
 			{
-				ClientID = c.ClientID,
-				ClientName = c.ClientName
+				ID = c.ClientID,
+				Name = c.ClientName
 			}).ToListAsync();
 			return clientsDb;
 		}
@@ -50,12 +50,12 @@ namespace AFayedFarm.Repositories.Clients
 			{
 				var Client = new ClientDto()
 				{
-					ClientName = clientDb.ClientName,
-					ClientID = clientDb.ClientID,
+					Name = clientDb.ClientName,
+					ID = clientDb.ClientID,
 				};
 				return Client;
 			}
-			return new ClientDto { ClientID = 0 };
+			return new ClientDto { ID = 0 };
 		}
 
 		public async Task<ClientDto> GetClientByName(string clientName)
@@ -66,22 +66,22 @@ namespace AFayedFarm.Repositories.Clients
 			{
 				var Client = new ClientDto()
 				{
-					ClientName = clientdb.ClientName,
-					ClientID = clientdb.ClientID,
+					Name = clientdb.ClientName,
+					ID = clientdb.ClientID,
 				};
 				return Client;
 			}
-			client.ClientID = 0;
+			client.ID = 0;
 			return client;
 		}
 
 		public async Task<ClientDto> UpdateClient(int id, AddClientDto clientDto)
 		{
 			var clientDb = await context.Clients.SingleOrDefaultAsync(c => c.ClientID == id);
-			clientDb.ClientName = clientDto.ClientName;
+			clientDb.ClientName = clientDto.Name;
 			await context.SaveChangesAsync();
 
-			return new ClientDto { ClientID = clientDb.ClientID, ClientName = clientDb.ClientName };
+			return new ClientDto { ID = clientDb.ClientID, Name = clientDb.ClientName };
 		}
 	}
 }

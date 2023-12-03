@@ -23,7 +23,7 @@ namespace AFayedFarm.Controllers
 			if (farmDto == null)
 				return BadRequest("Please Enter Farm Name");
 			var farm = await farmsRepo.AddFarmAsync(farmDto);
-			if (farm.FarmID != 0)
+			if (farm.ID != 0)
 			{
 				return Ok(farm);
 			}
@@ -43,7 +43,7 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetFarmById(int id)
 		{
 			var farmdb = await farmsRepo.GetFarmById(id);
-			if (farmdb.FarmID == 0)
+			if (farmdb.ID == 0)
 				return NotFound($"No Farm Found By ID {id}");
 			return Ok(farmdb);
 		}
@@ -52,9 +52,9 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> UpdateFarm(int id, [FromBody]AddFarmDto farmDto)
 		{
 			var farmDb = await farmsRepo.GetFarmById(id);
-			if (farmDb.FarmID == 0)
+			if (farmDb.ID == 0)
 				return NotFound($"No farm found by this {id}");
-			if (farmDto.FarmName == "")
+			if (farmDto.Name == "")
 				return BadRequest("Please Enter Farm Name");
 
 			var farmUpdated = await farmsRepo.UpdateFarm(id,farmDto);

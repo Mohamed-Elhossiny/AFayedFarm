@@ -19,7 +19,7 @@ namespace AFayedFarm.Controllers
 		[HttpPost]
 		public async Task<IActionResult> AddExpenseAsync(AddExpenseDto expenseDto)
 		{
-			if (expenseDto.ExpenseName == null || expenseDto.ExpenseName == "")
+			if (expenseDto.Name == null || expenseDto.Name == "")
 				return BadRequest("Please Enter Expene Name");
 			if (expenseDto?.ExpenseTypeId == null || expenseDto.ExpenseTypeId == 0)
 				return BadRequest("Please Enter Expene Type");
@@ -56,7 +56,7 @@ namespace AFayedFarm.Controllers
 			var response = await expenseRepo.GetExpenseByID(id);
 			if (response.ResponseID == 0)
 				return NotFound($"No expense found by this {id}");
-			if (expenseDto.ExpenseName == "")
+			if (expenseDto.Name == "")
 				return BadRequest("Please enter expense name");
 
 			var requestResponse = await expenseRepo.UpdateExpenseAsync(id, expenseDto);
@@ -64,5 +64,28 @@ namespace AFayedFarm.Controllers
 				return Ok(requestResponse.ResponseValue);
 			return Conflict("Can't Updated Expense");
 		}
+
+		[HttpPost("ExpenseType")]
+		public async Task<IActionResult> AddExpenseTypeAsync(AddExpenseTypeDto dto)
+		{
+			if (dto.ExpenseTypeName == null || dto.ExpenseTypeName == "")
+				return BadRequest("Please enter type name");
+			var response = await expenseRepo.AddExpenseTypeAsync(dto);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound();
+		}
+
+		[HttpGet("GetAllExpensetypes")]
+		public async Task<IActionResult> GetAllExepenseTypes()
+		{
+			var response = await expenseRepo.GetAllExpenseTypes();
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound("No Data Found");
+		}
+
 	}
 }

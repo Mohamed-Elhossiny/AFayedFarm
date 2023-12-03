@@ -16,21 +16,21 @@ namespace AFayedFarm.Repositories.Supplier
 		public async Task<FarmDto> AddFarmAsync(AddFarmDto farmDto)
 		{
 			var farm = new FarmDto();
-			var farmdb = context.Farms.Where(f => f.FarmsName.ToLower() == farmDto.FarmName.ToLower()).FirstOrDefault();
+			var farmdb = context.Farms.Where(f => f.FarmsName.ToLower() == farmDto.Name.ToLower()).FirstOrDefault();
 			if (farmdb == null)
 			{
 				var Farm = new Farms()
 				{
-					FarmsName = farmDto.FarmName,
+					FarmsName = farmDto.Name,
 				};
 				await context.Farms.AddAsync(Farm);
 				await context.SaveChangesAsync();
-				farm.FarmName = Farm.FarmsName;
-				farm.FarmID = Farm.FarmsID;
+				farm.Name = Farm.FarmsName;
+				farm.ID = Farm.FarmsID;
 				return farm;
 			}
 
-			farm.FarmID = 0;
+			farm.ID = 0;
 			return farm;
 		}
 
@@ -40,7 +40,7 @@ namespace AFayedFarm.Repositories.Supplier
 			var farmProduct = new FarmsProduct();
 			if (farmDto != null)
 			{
-				var remaining = (farmDto.TotalPrice - farmDto.Paied);
+				var remaining = (farmDto.Total - farmDto.Paied);
 
 				farmProduct.FarmsID = farmDto.FarmsID;
 				farmProduct.ProductID = farmDto.ProductID;
@@ -50,7 +50,7 @@ namespace AFayedFarm.Repositories.Supplier
 				farmProduct.CarNumber = farmDto.CarNumber;
 				farmProduct.Discount = farmDto.Discount;
 				farmProduct.Price = farmDto.Price;
-				farmProduct.TotalPrice = farmDto.TotalPrice;
+				farmProduct.TotalPrice = farmDto.Total;
 				farmProduct.Paied = farmDto.Paied;
 				farmProduct.FarmsNotes = farmDto.FarmsNotes;
 				farmProduct.Remaining = remaining;
@@ -69,8 +69,10 @@ namespace AFayedFarm.Repositories.Supplier
 			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).Where(c => c.FarmsID == farmID).ToListAsync();
 			if (records.Count != 0)
 			{
+				decimal? remaining = 0;
 				foreach (var item in records)
 				{
+					remaining = item.TotalPrice - item.Paied;
 					var record = new FarmRecordDto();
 					record.FarmsID = item.Farms.FarmsID;
 					record.FarmsName = item.Farms.FarmsName;
@@ -81,8 +83,10 @@ namespace AFayedFarm.Repositories.Supplier
 					record.Discount = item.Discount;
 					record.NetQuantity = item.NetQuantity;
 					record.Price = item.Price;
-					record.TotalPrice = item.TotalPrice;
+					record.Total = item.TotalPrice;
 					record.Paied = item.Paied;
+					record.Remaining = remaining;
+					record.FarmsNotes = item.FarmsNotes;
 
 					farmsRecord.Add(record);
 				}
@@ -101,12 +105,12 @@ namespace AFayedFarm.Repositories.Supplier
 			{
 				var Farm = new FarmDto()
 				{
-					FarmName = farmDb.FarmsName,
-					FarmID = farmDb.FarmsID,
+					Name = farmDb.FarmsName,
+					ID = farmDb.FarmsID,
 				};
 				return Farm;
 			}
-			return new FarmDto { FarmID = 0 };
+			return new FarmDto { ID = 0 };
 		}
 
 		public async Task<FarmDto> GetFarmByName(string farmName)
@@ -117,12 +121,12 @@ namespace AFayedFarm.Repositories.Supplier
 			{
 				var Farm = new FarmDto()
 				{
-					FarmName = farmdb.FarmsName,
-					FarmID = farmdb.FarmsID,
+					Name = farmdb.FarmsName,
+					ID = farmdb.FarmsID,
 				};
 				return Farm;
 			}
-			farm.FarmID = 0;
+			farm.ID = 0;
 			return farm;
 		}
 
@@ -130,8 +134,8 @@ namespace AFayedFarm.Repositories.Supplier
 		{
 			var farmsDb = await context.Farms.Select(f => new FarmDto
 			{
-				FarmID = f.FarmsID,
-				FarmName = f.FarmsName
+				ID = f.FarmsID,
+				Name = f.FarmsName
 			}).ToListAsync();
 			return farmsDb;
 		}
@@ -139,10 +143,10 @@ namespace AFayedFarm.Repositories.Supplier
 		public async Task<FarmDto> UpdateFarm(int id, AddFarmDto farmDto)
 		{
 			var farmDb = await context.Farms.SingleOrDefaultAsync(m => m.FarmsID == id);
-			farmDb.FarmsName = farmDto.FarmName;
+			farmDb.FarmsName = farmDto.Name;
 			await context.SaveChangesAsync();
 
-			return new FarmDto { FarmID = farmDb.FarmsID, FarmName = farmDb.FarmsName };
+			return new FarmDto { ID = farmDb.FarmsID, Name = farmDb.FarmsName };
 		}
 	}
 }

@@ -19,7 +19,7 @@ namespace AFayedFarm.Dtos
 		public decimal? Discount { get; set; }
 		public decimal? NetQuantity { get; set; }
         public decimal? Price { get; set; }
-        public decimal? TotalPrice { get; set; }
+        public decimal? Total { get; set; }
 		public decimal? Paied { get; set; }
 		public string? FarmsNotes { get; set; }
 	}

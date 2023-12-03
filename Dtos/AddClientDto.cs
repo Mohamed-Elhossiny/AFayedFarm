@@ -5,6 +5,6 @@ namespace AFayedFarm.Dtos
 	public class AddClientDto
 	{
 		[Required(ErrorMessage = "Please Enter Farm Name")]
-		public string ClientName { get; set; }
+		public string Name { get; set; }
 	}
 }

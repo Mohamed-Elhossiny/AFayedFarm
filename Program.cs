@@ -5,6 +5,8 @@ using AFayedFarm.Repositories.Expenses;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 
 namespace AFayedFarm
 {
@@ -20,7 +22,7 @@ namespace AFayedFarm
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
-			
+
 			builder.Services.AddDbContext<FarmContext>(
 				option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 			builder.Services.AddIdentity<ApplicationUser,IdentityRole>(
@@ -33,7 +35,7 @@ namespace AFayedFarm
 			{
 				options.AddPolicy("AllowAll", builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 			});
-
+			
 			builder.Services.AddScoped<IFarmsRepo, FarmsRepo>();
 			builder.Services.AddScoped<IClientRepo, ClientRepo>();
 			builder.Services.AddScoped<IExpenseRepo, ExpenseRepo>();

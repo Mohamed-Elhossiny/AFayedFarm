@@ -23,7 +23,7 @@ namespace AFayedFarm.Controllers
 			if (clientDto == null)
 				return BadRequest("Please Enter Farm Name");
 			var client = await clientRepo.AddClientAsync(clientDto);
-			if (client.ClientID != 0)
+			if (client.ID != 0)
 			{
 				return Ok(client);
 			}
@@ -43,7 +43,7 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetClientById(int id)
 		{
 			var clientdb = await clientRepo.GetClientById(id);
-			if (clientdb.ClientID == 0)
+			if (clientdb.ID == 0)
 				return NotFound($"No Farm Found By ID {id}");
 			return Ok(clientdb);
 		}
@@ -52,9 +52,9 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> UpdateClient(int id, [FromBody] AddClientDto clientDto)
 		{
 			var clientDb = await clientRepo.GetClientById(id);
-			if (clientDb.ClientID == 0)
+			if (clientDb.ID == 0)
 				return NotFound($"No farm found by this {id}");
-			if (clientDto.ClientName == "")
+			if (clientDto.Name == "")
 				return BadRequest("Please Enter Farm Name");
 
 			var clientUpdated = await clientRepo.UpdateClient(id, clientDto);
