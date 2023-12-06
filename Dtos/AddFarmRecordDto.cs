@@ -12,7 +12,7 @@ namespace AFayedFarm.Dtos
 		}
 		public int FarmsID { get; set; }
 		public int ProductID { get; set; }
-        public int? CarNumber { get; set; }
+        public string? CarNumber { get; set; }
         public DateTime? SupplyDate { get; set; }
 		public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }
@@ -22,5 +22,6 @@ namespace AFayedFarm.Dtos
         public decimal? Total { get; set; }
 		public decimal? Paied { get; set; }
 		public string? FarmsNotes { get; set; }
-	}
+		//public List<ExpenseRecordDto>? ExpenseList { get; set; } = new List<ExpenseRecordDto>();
+    }
 }

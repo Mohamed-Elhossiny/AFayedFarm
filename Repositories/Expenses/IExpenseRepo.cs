@@ -11,5 +11,8 @@ namespace AFayedFarm.Repositories.Expenses
 		Task<RequestResponse<ExpenseDto>> UpdateExpenseAsync(int id, AddExpenseDto expenseDto);
 		Task<RequestResponse<ExpenseTypeDto>> AddExpenseTypeAsync(AddExpenseTypeDto dto);
 		Task<RequestResponse<List<ExpenseTypeDto>>> GetAllExpenseTypes();
+		Task<RequestResponse<ExpenseRecordDto>> AddExpenseRecordAsync(AddExpenseRecordDto dto);
+		Task<RequestResponse<ExpenseRecordDto>> GetExpenseRecordById(int id);
+		Task<RequestResponse<ExpenseRecordDto>> UpdateExpenseRecord(int id, AddExpenseRecordDto dto);
 	}
 }

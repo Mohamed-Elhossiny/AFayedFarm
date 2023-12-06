@@ -26,7 +26,10 @@ namespace AFayedFarm.Model
 		[DataType(DataType.Date)]
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
+        public decimal? Quantity { get; set; }
+        public decimal? Total { get; set; }
 		public decimal? GetPaied { get; set; }
 		public decimal? Remaining { get; set; }
-	}
+        public string? Notes { get; set; }
+    }
 }

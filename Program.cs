@@ -2,6 +2,7 @@
 using AFayedFarm.Model;
 using AFayedFarm.Repositories.Clients;
 using AFayedFarm.Repositories.Expenses;
+using AFayedFarm.Repositories.Store;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ namespace AFayedFarm
 
 			builder.Services.AddDbContext<FarmContext>(
 				option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-			builder.Services.AddIdentity<ApplicationUser,IdentityRole>(
+			builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
 				 option =>
 				 {
 					 option.Password.RequireNonAlphanumeric = false;
@@ -35,20 +36,21 @@ namespace AFayedFarm
 			{
 				options.AddPolicy("AllowAll", builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 			});
-			
+
 			builder.Services.AddScoped<IFarmsRepo, FarmsRepo>();
 			builder.Services.AddScoped<IClientRepo, ClientRepo>();
 			builder.Services.AddScoped<IExpenseRepo, ExpenseRepo>();
+			builder.Services.AddScoped<IStoreRepo, StoreRepo>();
 
 
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
-			{
-				app.UseSwagger();
-				app.UseSwaggerUI();
-			}
+			//if (app.Environment.IsDevelopment())
+			//{
+			app.UseSwagger();
+			app.UseSwaggerUI();
+			//}
 
 			app.UseCors("AllowAll");
 			app.UseAuthorization();

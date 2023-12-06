@@ -2,7 +2,8 @@
 {
 	public class FarmRecordDto
 	{
-		public int FarmsID { get; set; }
+        public int? FarmRecordID { get; set; }
+        public int FarmsID { get; set; }
 		public string? FarmsName { get; set; }
 		public int? ProductID { get; set; }
 		public string? ProductName { get; set; }
@@ -16,6 +17,6 @@
 		public decimal? Paied { get; set; }
 		public decimal? Remaining { get; set; }
 		public string? FarmsNotes { get; set; }
-        public int? CarNumber { get; set; }
+        public string? CarNumber { get; set; }
     }
 }

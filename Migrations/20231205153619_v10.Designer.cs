@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231205153619_v10")]
+    partial class v10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,16 +146,16 @@ namespace AFayedFarm.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExpenseRecordId"));
 
-                    b.Property<string>("AdditionalNotes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal?>("AdditionalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("AdditionalQuantity")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("Created_Date")
                         .HasColumnType("Date");
 
-                    b.Property<DateTime?>("ExpenseDate")
+                    b.Property<DateTime>("ExpenseDate")
                         .HasColumnType("Date");
 
                     b.Property<int?>("ExpenseID")
@@ -180,9 +183,6 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("Total")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("Value")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ExpenseRecordId");
@@ -369,14 +369,8 @@ namespace AFayedFarm.Migrations
                     b.Property<decimal?>("GetPaied")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Remaining")
                         .HasColumnType("decimal(18,2)");
@@ -386,9 +380,6 @@ namespace AFayedFarm.Migrations
 
                     b.Property<int>("StoreID")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("Total")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TransactionID");
 

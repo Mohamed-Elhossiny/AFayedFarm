@@ -30,7 +30,7 @@ namespace AFayedFarm.Model
 		public decimal? Remaining { get; set; }
 		[Column(TypeName = "nvarchar(MAX)")]
 		public string? FarmsNotes { get; set; }
-
-        public int? CarNumber { get; set; }
+        public string? CarNumber { get; set; }
+        public virtual ICollection<ExpenseRecord>? ExpeneseRecordList { get; set; }
     }
 }

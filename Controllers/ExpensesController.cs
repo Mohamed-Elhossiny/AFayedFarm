@@ -16,7 +16,7 @@ namespace AFayedFarm.Controllers
         {
 			this.expenseRepo = expenseRepo;
 		}
-		[HttpPost]
+		[HttpPost("~/AddExpense")]
 		public async Task<IActionResult> AddExpenseAsync(AddExpenseDto expenseDto)
 		{
 			if (expenseDto.Name == null || expenseDto.Name == "")
@@ -32,16 +32,16 @@ namespace AFayedFarm.Controllers
 			return BadRequest("There is Exepnse exists with the same name");
 		}
 
-		[HttpGet]
+		[HttpGet("~/GetAllExpenses")]
 		public async Task<IActionResult> GetAllExpenses()
 		{
 			var response = await expenseRepo.GetExpenseAsync();
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
-			return NotFound("No Data Found");
+			return NotFound(response.ResponseValue);
 		}
 
-		[HttpGet("id:int")]
+		[HttpGet("~/GetExpenseById")]
 		public async Task<IActionResult> GetExpenseById(int id)
 		{
 			var response = await expenseRepo.GetExpenseByID(id);
@@ -50,7 +50,7 @@ namespace AFayedFarm.Controllers
 			return Ok(response.ResponseValue);
 		}
 
-		[HttpPut("id:int")]
+		[HttpPut("~/UpdateExpense")]
 		public async Task<IActionResult> UpdateExpense(int id, [FromBody] AddExpenseDto expenseDto)
 		{
 			var response = await expenseRepo.GetExpenseByID(id);
@@ -65,7 +65,7 @@ namespace AFayedFarm.Controllers
 			return Conflict("Can't Updated Expense");
 		}
 
-		[HttpPost("ExpenseType")]
+		[HttpPost("~/AddExpenseType")]
 		public async Task<IActionResult> AddExpenseTypeAsync(AddExpenseTypeDto dto)
 		{
 			if (dto.ExpenseTypeName == null || dto.ExpenseTypeName == "")
@@ -77,7 +77,7 @@ namespace AFayedFarm.Controllers
 				return NotFound();
 		}
 
-		[HttpGet("GetAllExpensetypes")]
+		[HttpGet("~/GetAllExpensetypes")]
 		public async Task<IActionResult> GetAllExepenseTypes()
 		{
 			var response = await expenseRepo.GetAllExpenseTypes();
@@ -85,6 +85,44 @@ namespace AFayedFarm.Controllers
 				return Ok(response.ResponseValue);
 			else
 				return NotFound("No Data Found");
+		}
+		
+		[HttpPost("~/AddExpenseRecord")]
+		public async Task<IActionResult> AddExpenseRecord(AddExpenseRecordDto dto)
+		{
+			if (dto.ExpenseID == 0 || dto.ExpenseID == null)
+				return BadRequest();
+			if (dto == null)
+				return BadRequest();
+			var response = await expenseRepo.AddExpenseRecordAsync(dto);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound(dto);
+		}
+
+		[HttpGet("~/GetExpenseRecordById")]
+		public async Task<IActionResult> GetExpenseRecordById(int id)
+		{
+			var response = await expenseRepo.GetExpenseRecordById(id);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound($"No Expense Record with ID {id}");
+		}
+
+		[HttpPut("~/UpdateExpenseRecord")]
+		public async Task<IActionResult> UpdateExpenseRecord(int id, AddExpenseRecordDto dto)
+		{
+			if (id == 0 || id == null)
+				return BadRequest();
+			if (dto.ExpenseID == null || dto.ExpenseID == 0)
+				return BadRequest();
+			var response = await expenseRepo.UpdateExpenseRecord(id,dto);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound(dto); 
 		}
 
 	}

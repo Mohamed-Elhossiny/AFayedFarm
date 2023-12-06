@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231204222251_v8")]
+    partial class v8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,49 +120,26 @@ namespace AFayedFarm.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExpenseID"));
 
-                    b.Property<string>("ExpenseName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ExpenseTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("StoreID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ExpenseID");
-
-                    b.HasIndex("ExpenseTypeId");
-
-                    b.HasIndex("StoreID");
-
-                    b.ToTable("Expenses");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.ExpenseRecord", b =>
-                {
-                    b.Property<int>("ExpenseRecordId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExpenseRecordId"));
-
-                    b.Property<string>("AdditionalNotes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal?>("AdditionalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("AdditionalQuantity")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("Created_Date")
                         .HasColumnType("Date");
 
-                    b.Property<DateTime?>("ExpenseDate")
+                    b.Property<DateTime>("ExpenseDate")
                         .HasColumnType("Date");
 
-                    b.Property<int?>("ExpenseID")
-                        .HasColumnType("int");
+                    b.Property<string>("ExpenseName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExpenseNotes")
                         .HasColumnType("nvarchar(MAX)");
+
+                    b.Property<int>("ExpenseTypeId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("FarmRecordID")
                         .HasColumnType("int");
@@ -179,21 +159,18 @@ namespace AFayedFarm.Migrations
                     b.Property<int?>("StoreID")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Total")
+                    b.Property<decimal?>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("Value")
-                        .HasColumnType("decimal(18,2)");
+                    b.HasKey("ExpenseID");
 
-                    b.HasKey("ExpenseRecordId");
-
-                    b.HasIndex("ExpenseID");
+                    b.HasIndex("ExpenseTypeId");
 
                     b.HasIndex("FarmRecordID");
 
                     b.HasIndex("StoreID");
 
-                    b.ToTable("ExpenseRecords");
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Farms", b =>
@@ -369,14 +346,8 @@ namespace AFayedFarm.Migrations
                     b.Property<decimal?>("GetPaied")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Remaining")
                         .HasColumnType("decimal(18,2)");
@@ -386,9 +357,6 @@ namespace AFayedFarm.Migrations
 
                     b.Property<int>("StoreID")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("Total")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TransactionID");
 
@@ -558,28 +526,15 @@ namespace AFayedFarm.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AFayedFarm.Model.Store", null)
+                    b.HasOne("AFayedFarm.Model.FarmsProduct", "FarmRecord")
+                        .WithMany("RecordExpenses")
+                        .HasForeignKey("FarmRecordID");
+
+                    b.HasOne("AFayedFarm.Model.Store", "Store")
                         .WithMany("Expenses")
                         .HasForeignKey("StoreID");
 
                     b.Navigation("ExpenseType");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.ExpenseRecord", b =>
-                {
-                    b.HasOne("AFayedFarm.Model.Expense", "Expense")
-                        .WithMany("ExpenseRecords")
-                        .HasForeignKey("ExpenseID");
-
-                    b.HasOne("AFayedFarm.Model.FarmsProduct", "FarmRecord")
-                        .WithMany("ExpeneseRecordList")
-                        .HasForeignKey("FarmRecordID");
-
-                    b.HasOne("AFayedFarm.Model.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreID");
-
-                    b.Navigation("Expense");
 
                     b.Navigation("FarmRecord");
 
@@ -705,11 +660,6 @@ namespace AFayedFarm.Migrations
                     b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("AFayedFarm.Model.Expense", b =>
-                {
-                    b.Navigation("ExpenseRecords");
-                });
-
             modelBuilder.Entity("AFayedFarm.Model.Farms", b =>
                 {
                     b.Navigation("FarmsProducts");
@@ -717,7 +667,7 @@ namespace AFayedFarm.Migrations
 
             modelBuilder.Entity("AFayedFarm.Model.FarmsProduct", b =>
                 {
-                    b.Navigation("ExpeneseRecordList");
+                    b.Navigation("RecordExpenses");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Product", b =>

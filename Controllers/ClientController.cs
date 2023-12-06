@@ -17,7 +17,7 @@ namespace AFayedFarm.Controllers
 			this.clientRepo = clientRepo;
 		}
 
-		[HttpPost]
+		[HttpPost("~/AddClient")]
 		public async Task<IActionResult> AddClientAsync(AddClientDto clientDto)
 		{
 			if (clientDto == null)
@@ -30,7 +30,7 @@ namespace AFayedFarm.Controllers
 			return Conflict("There is farm exists with the same name");
 		}
 
-		[HttpGet]
+		[HttpGet("~/GetAllClients")]
 		public async Task<IActionResult> GetAllClients()
 		{
 			var allClients = await clientRepo.GetClientAsync();
@@ -39,7 +39,7 @@ namespace AFayedFarm.Controllers
 			return Conflict("No Data Found");
 		}
 
-		[HttpGet("id:int")]
+		[HttpGet("~/GetClientById")]
 		public async Task<IActionResult> GetClientById(int id)
 		{
 			var clientdb = await clientRepo.GetClientById(id);
@@ -48,7 +48,7 @@ namespace AFayedFarm.Controllers
 			return Ok(clientdb);
 		}
 
-		[HttpPut("id:int")]
+		[HttpPut("~/UpdateClient")]
 		public async Task<IActionResult> UpdateClient(int id, [FromBody] AddClientDto clientDto)
 		{
 			var clientDb = await clientRepo.GetClientById(id);
@@ -59,6 +59,25 @@ namespace AFayedFarm.Controllers
 
 			var clientUpdated = await clientRepo.UpdateClient(id, clientDto);
 			return Ok(clientUpdated);
+		}
+
+		[HttpPost("~/AddTransaction")]
+		public async Task<IActionResult> AddTransaction(AddTransactionDto dto)
+		{
+			if (dto.ProductID == 0 || dto.ProductID == null)
+				return BadRequest("You must enter product");
+			if (dto.ClientID == 0 || dto.ClientID == null)
+				return BadRequest("You must enter clientID");
+
+			var response = await clientRepo.AddTransaction(dto);
+			if (response.ResponseID == 2)
+				return NotFound($"There is no quantity for this product {dto.ProductID}");
+			if (response.ResponseID == 3)
+				return NotFound($"There is no enough quantit for this product {dto.ProductID} in our store");
+			if (response.ResponseID == 0)
+				return NotFound();
+			else
+				return Ok(response.ResponseValue);
 		}
 	}
 }

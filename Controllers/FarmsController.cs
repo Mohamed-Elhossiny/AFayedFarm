@@ -17,7 +17,7 @@ namespace AFayedFarm.Controllers
 			this.farmsRepo = farmsRepo;
 		}
 
-		[HttpPost]
+		[HttpPost("~/AddFarm")]
 		public async Task<IActionResult> AddFarmAsync(AddFarmDto farmDto)
 		{
 			if (farmDto == null)
@@ -30,7 +30,7 @@ namespace AFayedFarm.Controllers
 			return Conflict("There is farm exists with the same name");
 		}
 
-		[HttpGet]
+		[HttpGet("~/GetAllFarms")]
 		public async Task<IActionResult> GetAllFarms()
 		{
 			var allFarms = await farmsRepo.GetFarmsAsync();
@@ -39,7 +39,7 @@ namespace AFayedFarm.Controllers
 			return Conflict("No Data Found");
 		}
 
-		[HttpGet("id:int")]
+		[HttpGet("~/GetFarmById")]
 		public async Task<IActionResult> GetFarmById(int id)
 		{
 			var farmdb = await farmsRepo.GetFarmById(id);
@@ -48,7 +48,7 @@ namespace AFayedFarm.Controllers
 			return Ok(farmdb);
 		}
 
-		[HttpPut("id:int")]
+		[HttpPut("~/UpdateFarm")]
 		public async Task<IActionResult> UpdateFarm(int id, [FromBody] AddFarmDto farmDto)
 		{
 			var farmDb = await farmsRepo.GetFarmById(id);
@@ -61,7 +61,7 @@ namespace AFayedFarm.Controllers
 			return Ok(farmUpdated);
 		}
 
-		[HttpPost("AddFarmRecord")]
+		[HttpPost("~/AddFarmRecord")]
 		public async Task<IActionResult> AddFarmRecordAsync([FromBody] AddFarmRecordDto farmdto)
 		{
 			if (farmdto.FarmsID == 0 || farmdto.ProductID == 0)
@@ -73,17 +73,17 @@ namespace AFayedFarm.Controllers
 				return BadRequest();
 		}
 
-		[HttpGet("GetAllFarmsRecord")]
-		public async Task<IActionResult> GetAllFarmsRecord(int id)
+		[HttpGet("~/GetAllFarmRecords")]
+		public async Task<IActionResult> GetAllFarmsRecord(int farmid)
 		{
-			var response = await farmsRepo.GetAllFarmRecords(id);
+			var response = await farmsRepo.GetAllFarmRecordsWithTotal(farmid);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else
 				return NotFound("No Data Found");
 		}
 
-		[HttpGet("GetFarmsRecord")]
+		[HttpGet("~/GetFarmRecord")]
 		public async Task<IActionResult> GetFarmsRecord(int recordId)
 		{
 			var response = await farmsRepo.GetFarmRecordByID(recordId);
@@ -93,10 +93,10 @@ namespace AFayedFarm.Controllers
 				return NotFound("No Data Found");
 		}
 
-		[HttpPut("UpdateFarmRecord")]
+		[HttpPut("~/UpdateFarmRecord")]
 		public async Task<IActionResult> UpdateRecordFarm(int recordId, [FromBody] AddFarmRecordDto farmdto)
 		{
-			if (recordId == 0 || recordId == null)
+			if (recordId == 0)
 				return BadRequest("Please Select ID to update");
 			var response = await farmsRepo.UpdateFarmRecordAsync(recordId, farmdto);
 			if (response.ResponseID == 1)
@@ -105,7 +105,7 @@ namespace AFayedFarm.Controllers
 				return BadRequest(farmdto);
 		}
 
-		[HttpPost("GetTotalRemaining")]
+		[HttpPost("~/GetTotalRemaining")]
 		public async Task<IActionResult> GetTotalRemaining(int farmID)
 		{
 			var response = await farmsRepo.GetTotalRemaining(farmID);
@@ -113,6 +113,16 @@ namespace AFayedFarm.Controllers
 				return Ok(response.ResponseValue);
 			else
 				return NotFound(response.ResponseValue);
+		}
+
+		[HttpGet("~/GetFarmRecordWithData")]
+		public async Task<IActionResult> GetFarmsRecordWithData(int recordId)
+		{
+			var response = await farmsRepo.GetFarmRecordWithFarmDataByID(recordId);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound();
 		}
 	}
 }
