@@ -146,12 +146,14 @@ namespace AFayedFarm.Repositories.Supplier
 		public async Task<FarmDto> GetFarmById(int id)
 		{
 			var farmDb = await context.Farms.FindAsync(id);
+			var total = await GetTotalRemaining(id);
 			if (farmDb != null)
 			{
 				var Farm = new FarmDto()
 				{
 					Name = farmDb.FarmsName,
 					ID = farmDb.FarmsID,
+					Total = total.ResponseValue
 				};
 				return Farm;
 			}
