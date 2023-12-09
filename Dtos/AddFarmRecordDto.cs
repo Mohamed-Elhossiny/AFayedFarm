@@ -22,6 +22,6 @@ namespace AFayedFarm.Dtos
         public decimal? Total { get; set; }
 		public decimal? Paied { get; set; }
 		public string? FarmsNotes { get; set; }
-		//public List<ExpenseRecordDto>? ExpenseList { get; set; } = new List<ExpenseRecordDto>();
-    }
+		public bool? isPercentage { get; set; }
+	}
 }

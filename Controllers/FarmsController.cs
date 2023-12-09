@@ -68,7 +68,7 @@ namespace AFayedFarm.Controllers
 				return BadRequest("Please Enter Farm And Product");
 			var response = await farmsRepo.AddFarmRecord(farmdto);
 			if (response.ResponseID == 1)
-				return Ok(farmdto);
+				return Ok(response.ResponseValue);
 			else
 				return BadRequest();
 		}
@@ -121,8 +121,10 @@ namespace AFayedFarm.Controllers
 			var response = await farmsRepo.GetFarmRecordWithFarmDataByID(recordId);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
+			else if (response.ResponseValue.ID == 0)
+				return NotFound($"NO Farm With this {recordId}");
 			else
-				return NotFound();
+				return Ok(response.ResponseValue);
 		}
 	}
 }

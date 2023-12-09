@@ -125,5 +125,29 @@ namespace AFayedFarm.Controllers
 				return NotFound(dto); 
 		}
 
+		[HttpGet("~/GetExpensesForFarmRecord")]
+		public async Task<IActionResult> GetExpensesForFarmRecord(int id)
+		{
+			if (id == 0)
+				return BadRequest("Please enter valid record id");
+			var response = await expenseRepo.GetExpensesForFarmRecord(id);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound(response.ResponseValue);
+		}
+
+		[HttpGet("~/GetExpensesWithData")]
+		public async Task<IActionResult> GetExpensesWithData(int id)
+		{
+			if (id == 0)
+				return BadRequest("There is no data for this id");
+			var response = await expenseRepo.GetExpensesRecordsWithDataByExpenseId(id);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return Ok(response.ResponseValue);
+		}
+
 	}
 }

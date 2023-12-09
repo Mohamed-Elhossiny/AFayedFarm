@@ -34,10 +34,10 @@ namespace AFayedFarm.Repositories.Clients
 			return client;
 		}
 
-		public async Task<RequestResponse<TransactionDto>> GetTransactionById(int id)
+		public async Task<RequestResponse<TransactionDto>> GetTransactionByRecordId(int recordid)
 		{
 			var response = new RequestResponse<TransactionDto> { ResponseID = 0, ResponseValue = new TransactionDto() };
-			var transaction = await context.Transactions.Where(c => c.TransactionID == id).Include(c => c.Product).Include(c => c.Client).FirstOrDefaultAsync();
+			var transaction = await context.Transactions.Where(c => c.TransactionID == recordid).Include(c => c.Product).Include(c => c.Client).FirstOrDefaultAsync();
 			if (transaction != null)
 			{
 				var transactionDto = new TransactionDto();
@@ -101,7 +101,7 @@ namespace AFayedFarm.Repositories.Clients
 
 			// TO DO ==> Get Transaction Record
 
-			var transactionDto = await GetTransactionById(transaction.TransactionID);
+			var transactionDto = await GetTransactionByRecordId(transaction.TransactionID);
 			if (transactionDto.ResponseID == 1)
 			{
 				response.ResponseID = 1;
@@ -178,6 +178,43 @@ namespace AFayedFarm.Repositories.Clients
 			}
 			return response;
 
+		}
+
+		public async Task<RequestResponse<List<TransactionDto>>> GetTransactionsByClientId(int clientId)
+		{
+			var response = new RequestResponse<List<TransactionDto>> { ResponseID = 0, ResponseValue = new List<TransactionDto>() };
+			var transactions = await context.Transactions
+				.Include(c => c.Product)
+				.Include(c => c.Client)
+				.Where(c => c.ClientID == clientId)
+				.ToListAsync();
+			if (transactions.Count != 0)
+			{
+				var transactionListDto = new List<TransactionDto>();
+
+				foreach (var item in transactions)
+				{
+					var transactionDto = new TransactionDto();
+					transactionDto.TransactionID = item.TransactionID;
+					transactionDto.StoreID = item.StoreID;
+					transactionDto.ClientID = item.ClientID;
+					transactionDto.ClientName = item?.Client?.ClientName ?? "";
+					transactionDto.ProductID = item?.ProductID;
+					transactionDto.ProductName = item?.Product?.ProductName ?? "";
+					transactionDto.ShippingDate = item?.ShippingDate;
+					transactionDto.Created_Date = item?.Created_Date ?? DateTime.Now;
+					transactionDto.Quantity = item?.Quantity;
+					transactionDto.Total = item?.Total;
+					transactionDto.GetPaied = item?.GetPaied;
+					transactionDto.Remaining = item?.Remaining;
+					transactionDto.Notes = item?.Notes;
+
+					transactionListDto.Add(transactionDto);
+				}
+				response.ResponseID = 1;
+				response.ResponseValue = transactionListDto;
+			}
+			return response;
 		}
 	}
 }

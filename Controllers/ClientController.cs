@@ -79,5 +79,17 @@ namespace AFayedFarm.Controllers
 			else
 				return Ok(response.ResponseValue);
 		}
+
+		[HttpGet("~/GetTransactionByCleintID")]
+		public async Task<IActionResult> GetTransactionByCleintID(int clientID)
+		{
+			if (clientID == 0)
+				return BadRequest();
+			var response = await clientRepo.GetTransactionsByClientId(clientID);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound("There is no transactions for that client");
+		}
 	}
 }

@@ -34,9 +34,9 @@ namespace AFayedFarm.Repositories.Supplier
 			return farm;
 		}
 
-		public async Task<RequestResponse<bool>> AddFarmRecord(AddFarmRecordDto farmDto)
+		public async Task<RequestResponse<FarmRecordDto>> AddFarmRecord(AddFarmRecordDto farmDto)
 		{
-			var response = new RequestResponse<bool> { ResponseID = 0 };
+			var response = new RequestResponse<FarmRecordDto> { ResponseID = 0 };
 			var farmProduct = new FarmsProduct();
 			if (farmDto != null)
 			{
@@ -54,12 +54,16 @@ namespace AFayedFarm.Repositories.Supplier
 				farmProduct.Paied = farmDto.Paied;
 				farmProduct.FarmsNotes = farmDto.FarmsNotes;
 				farmProduct.Remaining = remaining;
+				farmProduct.isPercentage = farmDto.isPercentage;
 				await context.FarmsProducts.AddAsync(farmProduct);
 				await context.SaveChangesAsync();
-				response.ResponseID = 1;
 
 				await AddProductToStore(farmDto);
 
+				var farmrecordDto = await GetFarmRecordByID(farmProduct.FarmProductID);
+
+				response.ResponseID = 1;
+				response.ResponseValue = farmrecordDto.ResponseValue;
 			}
 			return response;
 
@@ -91,6 +95,7 @@ namespace AFayedFarm.Repositories.Supplier
 					record.Remaining = remaining;
 					record.FarmsNotes = item.FarmsNotes;
 					record.CarNumber = item.CarNumber;
+					record.isPercentage = item.isPercentage;
 
 					farmsRecord.Add(record);
 				}
@@ -129,6 +134,7 @@ namespace AFayedFarm.Repositories.Supplier
 					record.Remaining = remaining;
 					record.FarmsNotes = item?.FarmsNotes;
 					record.CarNumber = item?.CarNumber;
+					record.isPercentage = item.isPercentage;
 
 					farmsRecord.Add(record);
 				}
@@ -199,6 +205,7 @@ namespace AFayedFarm.Repositories.Supplier
 				record.Remaining = recordDb.Remaining;
 				record.FarmsNotes = recordDb.FarmsNotes;
 				record.CarNumber = recordDb.CarNumber;
+				record.isPercentage = recordDb.isPercentage;
 
 				response.ResponseID = 1;
 				response.ResponseValue = record;
@@ -219,6 +226,7 @@ namespace AFayedFarm.Repositories.Supplier
 				{
 					remaining = item.TotalPrice - item.Paied;
 					var record = new FarmRecordDto();
+					record.FarmRecordID = item.FarmProductID;
 					record.FarmsID = item.Farms.FarmsID;
 					record.FarmsName = item.Farms.FarmsName;
 					record.ProductID = item.Product.ProductID;
@@ -233,20 +241,28 @@ namespace AFayedFarm.Repositories.Supplier
 					record.Remaining = remaining;
 					record.FarmsNotes = item.FarmsNotes;
 					record.CarNumber = item.CarNumber;
+					record.isPercentage = item.isPercentage;
 
 					farmsRecord.Add(record);
 				}
-				var farmData = await GetFarmById(farmID);
-				var TotalRemaining = await GetTotalRemaining(farmID);
+				var farmDataWithRecord = await GetFarmById(farmID);
+				var TotalRemainingWithRecord = await GetTotalRemaining(farmID);
 
-				response.ResponseValue.Name = farmData.Name;
-				response.ResponseValue.ID = farmData.ID;
-				response.ResponseValue.Total = TotalRemaining.ResponseValue;
+				response.ResponseValue.Name = farmDataWithRecord.Name;
+				response.ResponseValue.ID = farmDataWithRecord.ID;
+				response.ResponseValue.Total = TotalRemainingWithRecord.ResponseValue;
 				response.ResponseValue.FarmRecords = farmsRecord;
 
 				response.ResponseID = 1;
 				return response;
 			}
+			var farmData = await GetFarmById(farmID);
+			var TotalRemaining = await GetTotalRemaining(farmID);
+
+			response.ResponseValue.Name = farmData.Name;
+			response.ResponseValue.ID = farmData.ID;
+			response.ResponseValue.Total = TotalRemaining.ResponseValue;
+			response.ResponseValue.FarmRecords = farmsRecord;
 			return response;
 		}
 
@@ -317,6 +333,7 @@ namespace AFayedFarm.Repositories.Supplier
 				recordDb.Paied = farmDto.Paied;
 				recordDb.FarmsNotes = farmDto.FarmsNotes;
 				recordDb.Remaining = remaining;
+				recordDb.isPercentage = farmDto.isPercentage;
 
 				context.FarmsProducts.Update(recordDb);
 				await context.SaveChangesAsync();
