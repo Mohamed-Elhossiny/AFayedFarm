@@ -8,5 +8,6 @@ namespace AFayedFarm.Repositories.Products
 		Task<RequestResponse<List<ProductDto>>> GetAllProducts();
 		Task<RequestResponse<ProductDto>> AddProduct(AddProductDto dto);
 		Task<RequestResponse<ProductDto>> UpdateProduct(int id, AddProductDto dto);
+
 	}
 }

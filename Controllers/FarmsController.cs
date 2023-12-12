@@ -126,5 +126,16 @@ namespace AFayedFarm.Controllers
 			else
 				return Ok(response.ResponseValue);
 		}
+
+		[HttpGet("~/AllProductsDetails")]
+		public async Task<IActionResult> AllProductsDetails()
+		{
+			var response = await farmsRepo.GetProducts();
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound(response.ResponseValue);
+
+		}
 	}
 }

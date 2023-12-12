@@ -5,6 +5,7 @@
 		public List<ExpenseRecordDto>? ExpensesList { get; set; } = new List<ExpenseRecordDto>();
         public int? ID { get; set; }
 		public string? Name { get; set; }
+		public string? ExpenseTypeName { get; set; }
 		public decimal? Total { get; set; }
 	}
 }

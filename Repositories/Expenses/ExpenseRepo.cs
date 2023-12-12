@@ -216,6 +216,7 @@ namespace AFayedFarm.Repositories.Expenses
 					expesnseRecordDto.ExpenseID = item.ExpenseID;
 					expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 					expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
+					expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
 					expesnseRecordDto.ExpenseDate = item.ExpenseDate.Value != null ? item.ExpenseDate.Value.Date : null;
 					expesnseRecordDto.Created_Date = item.Created_Date.Value != null ? item.Created_Date.Value.Date : null;
 					expesnseRecordDto.Quantity = item.Quantity;
@@ -238,6 +239,7 @@ namespace AFayedFarm.Repositories.Expenses
 			response.ResponseValue.Name = expnesesData?.ResponseValue?.Name;
 			response.ResponseValue.ID = expnesesData?.ResponseValue?.ID;
 			response.ResponseValue.Total = expnesesData?.ResponseValue?.TotalRemaining;
+			response.ResponseValue.ExpenseTypeName = expnesesData?.ResponseValue?.ExpenseTypeName;
 			return response;
 		}
 
@@ -325,7 +327,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var expenseRecordList = await context.ExpenseRecords
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
 				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
-				.Where(c => c.ExpenseID == farmRecordID).ToListAsync();
+				.Where(c => c.FarmRecordID == farmRecordID).ToListAsync();
 			if (expenseRecordList.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
@@ -378,6 +380,7 @@ namespace AFayedFarm.Repositories.Expenses
 					expesnseRecordDto.ExpenseID = item.ExpenseID;
 					expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 					expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
+					expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
 					expesnseRecordDto.ExpenseDate = item.ExpenseDate.Value != null ? item.ExpenseDate.Value.Date : null;
 					expesnseRecordDto.Created_Date = item.Created_Date.Value != null ? item.Created_Date.Value.Date : null;
 					expesnseRecordDto.Quantity = item.Quantity;

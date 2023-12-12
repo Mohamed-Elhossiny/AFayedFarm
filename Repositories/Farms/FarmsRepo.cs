@@ -45,6 +45,7 @@ namespace AFayedFarm.Repositories.Supplier
 				farmProduct.FarmsID = farmDto.FarmsID;
 				farmProduct.ProductID = farmDto.ProductID;
 				farmProduct.Quantity = farmDto.Quantity;
+				farmProduct.NetQuantity = farmDto.NetQuantity;
 				farmProduct.SupplyDate = farmDto.SupplyDate ?? DateTime.Now;
 				farmProduct.Created_Date = farmDto.Created_Date ?? DateTime.Now;
 				farmProduct.CarNumber = farmDto.CarNumber;
@@ -379,6 +380,45 @@ namespace AFayedFarm.Repositories.Supplier
 			}
 			response.ResponseID = 1;
 			response.ResponseValue = true;
+			return response;
+		}
+
+		public async Task<RequestResponse<List<FarmRecordDto>>> GetProducts()
+		{
+			var response = new RequestResponse<List<FarmRecordDto>>() { ResponseID = 0 };
+			var farmsRecord = new List<FarmRecordDto>();
+			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).ToListAsync();
+			if (records.Count != 0)
+			{
+				//decimal? remaining = 0;
+				foreach (var item in records)
+				{
+					//remaining = item.TotalPrice - item.Paied;
+					var record = new FarmRecordDto();
+					record.FarmRecordID = item.FarmProductID;
+					record.FarmsID = item.Farms.FarmsID;
+					record.FarmsName = item.Farms.FarmsName;
+					record.ProductID = item.Product.ProductID;
+					record.ProductName = item.Product.ProductName;
+					record.SupplyDate = item.SupplyDate;
+					record.Quantity = item.Quantity;
+					record.Discount = item.Discount;
+					record.NetQuantity = item.NetQuantity;
+					record.Price = item.Price;
+					record.Total = item.TotalPrice;
+					record.Paied = item.Paied;
+					record.Remaining = item.Remaining;
+					record.FarmsNotes = item.FarmsNotes;
+					record.CarNumber = item.CarNumber;
+					record.isPercentage = item.isPercentage;
+
+					farmsRecord.Add(record);
+				}
+				response.ResponseID = 1;
+				response.ResponseValue = farmsRecord;
+				return response;
+			}
+			response.ResponseValue = farmsRecord;
 			return response;
 		}
 	}
