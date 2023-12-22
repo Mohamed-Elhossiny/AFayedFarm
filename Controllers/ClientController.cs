@@ -13,7 +13,7 @@ namespace AFayedFarm.Controllers
 		private readonly IClientRepo clientRepo;
 
 		public ClientController(IClientRepo clientRepo)
-        {
+		{
 			this.clientRepo = clientRepo;
 		}
 
@@ -43,22 +43,24 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetClientById(int id)
 		{
 			var clientdb = await clientRepo.GetClientById(id);
-			if (clientdb.ID == 0)
+			if (clientdb.ResponseID == 0)
 				return NotFound($"No Farm Found By ID {id}");
-			return Ok(clientdb);
+			return Ok(clientdb.ResponseValue);
 		}
 
 		[HttpPut("~/UpdateClient")]
 		public async Task<IActionResult> UpdateClient(int id, [FromBody] AddClientDto clientDto)
 		{
 			var clientDb = await clientRepo.GetClientById(id);
-			if (clientDb.ID == 0)
+			if (clientDb.ResponseID == 0)
 				return NotFound($"No farm found by this {id}");
 			if (clientDto.Name == "")
 				return BadRequest("Please Enter Farm Name");
 
 			var clientUpdated = await clientRepo.UpdateClient(id, clientDto);
-			return Ok(clientUpdated);
+			if (clientUpdated.ResponseID == 1)
+				return Ok(clientUpdated);
+			else return BadRequest(clientUpdated.ResponseValue);
 		}
 
 		[HttpPost("~/AddTransaction")]

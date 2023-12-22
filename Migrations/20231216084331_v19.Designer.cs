@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231216084331_v19")]
+    partial class v19
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,38 +272,6 @@ namespace AFayedFarm.Migrations
                     b.HasIndex("ProductID");
 
                     b.ToTable("FarmsProducts");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.Financial", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<int?>("CLientID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Created_Date")
-                        .HasColumnType("Date");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("TotalPerTrasaction")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("TransactionID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("CLientID");
-
-                    b.HasIndex("TransactionID");
-
-                    b.ToTable("Financial");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Product", b =>
@@ -634,21 +605,6 @@ namespace AFayedFarm.Migrations
                     b.Navigation("Farms");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.Financial", b =>
-                {
-                    b.HasOne("AFayedFarm.Model.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("CLientID");
-
-                    b.HasOne("AFayedFarm.Model.Transaction", "Transaction")
-                        .WithMany()
-                        .HasForeignKey("TransactionID");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.StoreProduct", b =>

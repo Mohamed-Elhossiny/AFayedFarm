@@ -15,6 +15,7 @@ namespace AFayedFarm.Model
         public virtual DbSet<TypeOfExpense> TypeOfExpenses { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<ExpenseRecord> ExpenseRecords { get; set; }
+        public virtual DbSet<Financial> Financial { get; set; }
         public FarmContext() { }
         public FarmContext(DbContextOptions<FarmContext> options): base(options) { }
         

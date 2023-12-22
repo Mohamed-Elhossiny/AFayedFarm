@@ -122,7 +122,8 @@ namespace AFayedFarm.Repositories.Expenses
 			{
 				Name = c.ExpenseName,
 				ID = c.ExpenseID,
-				ExpenseTypeName = c.ExpenseTypeId != null ? c.ExpenseType.ExpenseTypeName : "",
+				ExpenseTypeName = c.ExpenseTypeId != 0 ? c.ExpenseType.ExpenseTypeName : "",
+				Type = c.ExpenseTypeId != 0 ? c.ExpenseTypeId : 0,
 			}).ToListAsync();
 			if (expensesDb.Count != 0)
 			{
@@ -149,7 +150,8 @@ namespace AFayedFarm.Repositories.Expenses
 				{
 					Name = expenseDb.ExpenseName,
 					ID = expenseDb.ExpenseID,
-					ExpenseTypeName = expenseDb.ExpenseTypeId != null ? expenseDb.ExpenseType.ExpenseTypeName : ""
+					ExpenseTypeName = expenseDb.ExpenseTypeId != 0 ? expenseDb.ExpenseType.ExpenseTypeName : "",
+					Type = expenseDb.ExpenseTypeId
 				};
 
 				var reamining = await GetTotalRemaining(id);
@@ -252,14 +254,17 @@ namespace AFayedFarm.Repositories.Expenses
 				expenseDb.ExpenseName = expenseDto.Name;
 				expenseDb.ExpenseTypeId = expenseDto.ExpenseTypeId;
 				await context.SaveChangesAsync();
-				var Expense = new ExpenseDto()
-				{
-					Name = expenseDb.ExpenseName,
-					ID = expenseDb.ExpenseID,
-					ExpenseTypeName = expenseDb.ExpenseTypeId != null ? expenseDb.ExpenseType.ExpenseTypeName : ""
-				};
+
+				var Expnese = await GetExpenseByID(id);
+				//var Expense = new ExpenseDto()
+				//{
+				//Name = expenseDb.ExpenseName,
+				//ID = expenseDb.ExpenseID,
+				//ExpenseTypeName = expenseDb.ExpenseTypeId != 0 ? expenseDb?.ExpenseType?.ExpenseTypeName : "",
+				//Type = expenseDb?.ExpenseTypeId
+				//};
 				response.ResponseID = 1;
-				response.ResponseValue = Expense;
+				response.ResponseValue = Expnese.ResponseValue;
 			}
 			return response;
 		}
@@ -399,7 +404,7 @@ namespace AFayedFarm.Repositories.Expenses
 				response.ResponseID = 1;
 				response.ResponseValue = expesnseRecordListDto;
 			}
-			
+
 			return response;
 		}
 	}

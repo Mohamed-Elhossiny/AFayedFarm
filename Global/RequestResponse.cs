@@ -4,6 +4,8 @@
 	{
 		/// <summary>
 		/// ResponseID = 1 == Done
+		/// ResponseID = 2 == false with condition
+		/// ResponseID = 3 == false with condition
 		/// ResponseID = 0 == Error
 		/// </summary>
 		public int? ResponseID { get; set; }

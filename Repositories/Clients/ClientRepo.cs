@@ -123,8 +123,9 @@ namespace AFayedFarm.Repositories.Clients
 			return clientsDb;
 		}
 
-		public async Task<ClientDto> GetClientById(int id)
+		public async Task<RequestResponse<ClientDto>> GetClientById(int id)
 		{
+			var response = new RequestResponse<ClientDto> { ResponseID = 0, ResponseValue = new ClientDto() };
 			var clientDb = await context.Clients.FindAsync(id);
 			if (clientDb != null)
 			{
@@ -132,10 +133,15 @@ namespace AFayedFarm.Repositories.Clients
 				{
 					Name = clientDb.ClientName,
 					ID = clientDb.ClientID,
+
+					//############ TO DO Check Total with Hossam
+					Total = 0
 				};
-				return Client;
+				response.ResponseID = 1;
+				response.ResponseValue = Client;
 			}
-			return new ClientDto { ID = 0 };
+			return response;
+
 		}
 
 		public async Task<ClientDto> GetClientByName(string clientName)
@@ -155,13 +161,20 @@ namespace AFayedFarm.Repositories.Clients
 			return client;
 		}
 
-		public async Task<ClientDto> UpdateClient(int id, AddClientDto clientDto)
+		public async Task<RequestResponse<ClientDto>> UpdateClient(int id, AddClientDto clientDto)
 		{
+			var response = new RequestResponse<ClientDto> { ResponseID = 0, ResponseValue = new ClientDto() };
 			var clientDb = await context.Clients.SingleOrDefaultAsync(c => c.ClientID == id);
-			clientDb.ClientName = clientDto.Name;
-			await context.SaveChangesAsync();
+			if (clientDb != null)
+			{
+				clientDb.ClientName = clientDto.Name;
+				await context.SaveChangesAsync();
 
-			return new ClientDto { ID = clientDb.ClientID, Name = clientDb.ClientName };
+				var client = await GetClientById(id);
+				response.ResponseID = 1;
+				response.ResponseValue = client.ResponseValue;
+			}
+			return response;
 		}
 
 		public async Task<RequestResponse<bool>> UpdateProductQuantityInStore(AddTransactionDto dto)
@@ -216,5 +229,6 @@ namespace AFayedFarm.Repositories.Clients
 			}
 			return response;
 		}
+
 	}
 }

@@ -53,11 +53,13 @@ namespace AFayedFarm.Controllers
 		[HttpPut("~/UpdateExpense")]
 		public async Task<IActionResult> UpdateExpense(int id, [FromBody] AddExpenseDto expenseDto)
 		{
+			if (expenseDto.Name == "")
+				return BadRequest("Please enter expense name");
+			if (id == 0)
+				return BadRequest("Please enter valid ID");
 			var response = await expenseRepo.GetExpenseByID(id);
 			if (response.ResponseID == 0)
 				return NotFound($"No expense found by this {id}");
-			if (expenseDto.Name == "")
-				return BadRequest("Please enter expense name");
 
 			var requestResponse = await expenseRepo.UpdateExpenseAsync(id, expenseDto);
 			if (requestResponse.ResponseID == 1)

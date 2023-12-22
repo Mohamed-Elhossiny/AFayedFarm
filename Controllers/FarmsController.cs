@@ -57,8 +57,11 @@ namespace AFayedFarm.Controllers
 			if (farmDto.Name == "")
 				return BadRequest("Please Enter Farm Name");
 
-			var farmUpdated = await farmsRepo.UpdateFarm(id, farmDto);
-			return Ok(farmUpdated);
+			var response = await farmsRepo.UpdateFarm(id, farmDto);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound(response.ResponseValue);
 		}
 
 		[HttpPost("~/AddFarmRecord")]
@@ -128,9 +131,11 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/AllProductsDetails")]
-		public async Task<IActionResult> AllProductsDetails()
+		public async Task<IActionResult> AllProductsDetails(/*int id*/)
 		{
-			var response = await farmsRepo.GetProducts();
+			//if (id == 0)
+			//	return BadRequest("Enter Valid ID");
+			var response = await farmsRepo.GetProductsDetails();
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else

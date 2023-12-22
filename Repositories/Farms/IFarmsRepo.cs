@@ -9,10 +9,10 @@ namespace AFayedFarm.Repositories.Supplier
 		Task<FarmDto> GetFarmByName(string farmName);
 		Task<List<FarmDto>> GetFarmsAsync();
 		Task<FarmDto> GetFarmById(int id);
-		Task<FarmDto> UpdateFarm(int id,AddFarmDto farmDto);
+		Task<RequestResponse<FarmDto>> UpdateFarm(int id,AddFarmDto farmDto);
 		Task<RequestResponse<FarmRecordDto>> AddFarmRecord(AddFarmRecordDto farmDto);
 		Task<RequestResponse<List<FarmRecordDto>>> GetAllFarmRecords(int farmID);
-		Task<RequestResponse<List<FarmRecordDto>>> GetProducts();
+		Task<RequestResponse<List<FarmRecordDto>>> GetProductsDetails(/*int productId*/);
 
 		Task<RequestResponse<FarmRecordsWithTotalRemainingDto>> GetAllFarmRecordsWithTotal(int farmID);
 		Task<RequestResponse<FarmRecordDto>> GetFarmRecordByID(int recordID);
