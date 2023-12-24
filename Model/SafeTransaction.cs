@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AFayedFarm.Model
 {
-	public class Financial
+	public class SafeTransaction
 	{
 		[Key]
         public int ID { get; set; }
@@ -16,10 +16,14 @@ namespace AFayedFarm.Model
         public virtual Transaction? Transaction { get; set; }
         public virtual Client? Client { get; set; }
 
+        [ForeignKey("Employee")]
+        public int? Emp_ID { get; set; }
+        public virtual Employee? Employee { get; set; }
         public decimal? TotalPerTrasaction { get; set; }
         public string? Notes { get; set; }
+        public int? TransactionTypeID { get; set; }
+        public string? TransactionType { get; set; }
 
-        [DataType(DataType.Date)]
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
     }

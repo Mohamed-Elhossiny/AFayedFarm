@@ -2,6 +2,7 @@
 using AFayedFarm.Model;
 using AFayedFarm.Repositories.Clients;
 using AFayedFarm.Repositories.Expenses;
+using AFayedFarm.Repositories.FinancialSafe;
 using AFayedFarm.Repositories.Products;
 using AFayedFarm.Repositories.Store;
 using AFayedFarm.Repositories.Supplier;
@@ -43,6 +44,7 @@ namespace AFayedFarm
 			builder.Services.AddScoped<IExpenseRepo, ExpenseRepo>();
 			builder.Services.AddScoped<IStoreRepo, StoreRepo>();
 			builder.Services.AddScoped<IProductRepo, ProductRepo>();
+			builder.Services.AddScoped<ISafeRepo, SafeRepo>();
 
 
 			var app = builder.Build();
