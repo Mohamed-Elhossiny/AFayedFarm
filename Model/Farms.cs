@@ -9,6 +9,7 @@ namespace AFayedFarm.Model
 		public int FarmsID { get; set; }
         public string? FarmsName { get; set; }
         public virtual ICollection<FarmsProduct>? FarmsProducts { get; set; }
+		public virtual ICollection<SafeTransaction>? Transactions { get; set; }
 
-    }
+	}
 }

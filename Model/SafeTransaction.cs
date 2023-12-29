@@ -8,23 +8,30 @@ namespace AFayedFarm.Model
 		[Key]
         public int ID { get; set; }
         
-        [ForeignKey("Transaction")]
-        public int? TransactionID { get; set; }
-
         [ForeignKey("Client")]
         public int? CLientID { get; set; }
-        public virtual Transaction? Transaction { get; set; }
         public virtual Client? Client { get; set; }
 
         [ForeignKey("Employee")]
         public int? Emp_ID { get; set; }
         public virtual Employee? Employee { get; set; }
-        public decimal? TotalPerTrasaction { get; set; }
+
+		[ForeignKey("Farm")]
+		public int? FarmID { get; set; }
+        public virtual Farms? Farm { get; set; }
+
+		[ForeignKey("Expense")]
+		public int? ExpenseID { get; set; }
+		public virtual Expense? Expense { get; set; }
+		/// <summary>
+		/// Total Per Transaction == Amount
+		/// </summary>
+		public decimal? Total { get; set; }
         public string? Notes { get; set; }
-        public int? TransactionTypeID { get; set; }
-        public string? TransactionType { get; set; }
+        public int? TypeID { get; set; }
+        public string? Type { get; set; }
 
 		[Column(TypeName = "Date")]
-		public DateTime? Created_Date { get; set; }
+		public DateTime? Created_Date { get; set; } = DateTime.Now.Date;
     }
 }

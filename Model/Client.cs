@@ -15,5 +15,6 @@ namespace AFayedFarm.Model
         /// </summary>
         public int? Export { get; set; }
 		public virtual ICollection<Transaction>? Transactions { get; set; }
+		public virtual ICollection<SafeTransaction>? SafeTransactions { get; set; }
 	}
 }

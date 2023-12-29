@@ -15,6 +15,6 @@ namespace AFayedFarm.Model
 		public DateTime? HireDate { get; set; }
 		public string? Address { get; set; }
 		public string? Phone { get; set; }
-		public virtual ICollection<EmployeeTransaction>? Transactions { get; set; }
+		public virtual ICollection<SafeTransaction>? Transactions { get; set; }
 	}
 }

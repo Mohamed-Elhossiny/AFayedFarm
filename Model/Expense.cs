@@ -13,6 +13,7 @@ namespace AFayedFarm.Model
 		public int ExpenseTypeId { get; set; }
 		public virtual TypeOfExpense? ExpenseType { get; set; }
         public virtual ICollection<ExpenseRecord>? ExpenseRecords { get; set; }
+		public virtual ICollection<SafeTransaction>? Transactions { get; set; }
 
-    }
+	}
 }

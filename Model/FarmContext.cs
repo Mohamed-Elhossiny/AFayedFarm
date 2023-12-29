@@ -17,7 +17,6 @@ namespace AFayedFarm.Model
 		public virtual DbSet<ExpenseRecord> ExpenseRecords { get; set; }
 		public virtual DbSet<SafeTransaction> SafeTransactions { get; set; }
 		public virtual DbSet<Employee> Employees { get; set; }
-		public virtual DbSet<EmployeeTransaction> EmployeeTransactions { get; set; }
 		public virtual DbSet<FinancialSafe> Safe { get; set; }
 		public FarmContext() { }
 		public FarmContext(DbContextOptions<FarmContext> options) : base(options) { }

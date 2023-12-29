@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231229072557_v23")]
+    partial class v23
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,6 +141,39 @@ namespace AFayedFarm.Migrations
                     b.HasKey("EmpolyeeID");
 
                     b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("AFayedFarm.Model.EmployeeTransaction", b =>
+                {
+                    b.Property<int>("TransactionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionID"));
+
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("Date");
+
+                    b.Property<int?>("EmpID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TransactionTypeID")
+                        .HasColumnType("int");
+
+                    b.HasKey("TransactionID");
+
+                    b.HasIndex("EmpID");
+
+                    b.ToTable("EmployeeTransactions");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Expense", b =>
@@ -651,6 +687,15 @@ namespace AFayedFarm.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("AFayedFarm.Model.EmployeeTransaction", b =>
+                {
+                    b.HasOne("AFayedFarm.Model.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmpID");
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Expense", b =>
