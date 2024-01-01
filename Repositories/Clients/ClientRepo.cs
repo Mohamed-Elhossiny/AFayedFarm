@@ -16,12 +16,13 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<ClientDto> AddClientAsync(AddClientDto clientDto)
 		{
 			var client = new ClientDto();
-			var clientdb = context.Clients.Where(f => f.ClientName.ToLower() == clientDto.Name.ToLower()).FirstOrDefault();
+			var clientdb = context.Clients.Where(f => f.ClientName!.ToLower() == clientDto.Name.ToLower()).FirstOrDefault();
 			if (clientdb == null)
 			{
 				var Client = new Client()
 				{
 					ClientName = clientDto.Name,
+					Create_Date = DateTime.Now.Date
 				};
 				await context.Clients.AddAsync(Client);
 				await context.SaveChangesAsync();
@@ -84,10 +85,10 @@ namespace AFayedFarm.Repositories.Clients
 			var transaction = new Transaction();
 
 			transaction.StoreID = 1;
-			transaction.ClientID = (int)dto.ClientID;
-			transaction.ProductID = (int)dto.ProductID;
-			transaction.ShippingDate = dto.ShippingDate ?? DateTime.Now;
-			transaction.Created_Date = dto.Created_Date ?? DateTime.Now;
+			transaction.ClientID = (int)dto.ClientID!;
+			transaction.ProductID = (int)dto.ProductID!;
+			transaction.ShippingDate = dto.ShippingDate ?? DateTime.Now.Date;
+			transaction.Created_Date = DateTime.Now.Date;
 			transaction.Quantity = dto.Quantity;
 			transaction.Total = dto.Total;
 			transaction.GetPaied = dto.GetPaied;
@@ -118,8 +119,9 @@ namespace AFayedFarm.Repositories.Clients
 			var clientsDb = await context.Clients.Select(c => new ClientDto
 			{
 				ID = c.ClientID,
-				Name = c.ClientName
-			}).ToListAsync();
+				Name = c.ClientName,
+
+			}).OrderByDescending(c => c.ID).ToListAsync();
 			return clientsDb;
 		}
 
@@ -147,7 +149,7 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<ClientDto> GetClientByName(string clientName)
 		{
 			var client = new ClientDto();
-			var clientdb = await context.Clients.Where(c => c.ClientName.ToLower() == clientName.ToLower()).FirstOrDefaultAsync();
+			var clientdb = await context.Clients.Where(c => c.ClientName!.ToLower() == clientName.ToLower()).FirstOrDefaultAsync();
 			if (clientdb != null)
 			{
 				var Client = new ClientDto()
@@ -200,6 +202,7 @@ namespace AFayedFarm.Repositories.Clients
 				.Include(c => c.Product)
 				.Include(c => c.Client)
 				.Where(c => c.ClientID == clientId)
+				.OrderByDescending(c=>c.TransactionID)
 				.ToListAsync();
 			if (transactions.Count != 0)
 			{
@@ -215,7 +218,7 @@ namespace AFayedFarm.Repositories.Clients
 					transactionDto.ProductID = item?.ProductID;
 					transactionDto.ProductName = item?.Product?.ProductName ?? "";
 					transactionDto.ShippingDate = item?.ShippingDate;
-					transactionDto.Created_Date = item?.Created_Date ?? DateTime.Now;
+					transactionDto.Created_Date = item?.Created_Date;
 					transactionDto.Quantity = item?.Quantity;
 					transactionDto.Total = item?.Total;
 					transactionDto.GetPaied = item?.GetPaied;

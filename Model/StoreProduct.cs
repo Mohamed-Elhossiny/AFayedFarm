@@ -20,11 +20,9 @@ namespace AFayedFarm.Model
 		public virtual Product? Product { get; set; }
 		public virtual Store? Store { get; set; }
 
-		[DataType(DataType.Date)]
 		[Column(TypeName = "Date")]
 		public DateTime? SupplyDate { get; set; }
 
-		[DataType(DataType.Date)]
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }

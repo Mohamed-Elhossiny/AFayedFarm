@@ -16,11 +16,11 @@ namespace AFayedFarm.Repositories.Supplier
 
 		Task<RequestResponse<FarmRecordsWithTotalRemainingDto>> GetAllFarmRecordsWithTotal(int farmID);
 		Task<RequestResponse<FarmRecordDto>> GetFarmRecordByID(int recordID);
-		Task<RequestResponse<FarmRecordsWithFarmDataCto>> GetFarmRecordWithFarmDataByID(int farmID);
+		Task<RequestResponse<FarmRecordsWithFarmDataDto>> GetFarmRecordWithFarmDataByID(int farmID);
 		Task<RequestResponse<FarmRecordDto>> UpdateFarmRecordAsync(int recordID,AddFarmRecordDto dto);
-		Task<RequestResponse<decimal>> GetTotalRemaining(int farmsID);
-
+		Task<RequestResponse<decimal>> CalculateTotalRemainingFromRecords(int farmsID);
 		Task<RequestResponse<bool>> AddProductToStore(AddFarmRecordDto dto);
+		Task<RequestResponse<bool>> PayToFarm(FarmPaymentDto dto);
 
 	}
 }

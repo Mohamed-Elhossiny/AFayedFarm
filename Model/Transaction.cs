@@ -20,10 +20,9 @@ namespace AFayedFarm.Model
 		public virtual Client? Client { get; set; }
 		public virtual Product? Product { get; set; }
 
-		[DataType(DataType.Date)]
+		[Column(TypeName = "Date")]
 		public DateTime ShippingDate { get; set; }
-
-		[DataType(DataType.Date)]
+		
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
         public decimal? Quantity { get; set; }

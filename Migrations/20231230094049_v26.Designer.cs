@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231230094049_v26")]
+    partial class v26
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,9 +104,6 @@ namespace AFayedFarm.Migrations
                     b.Property<string>("ClientName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Create_Date")
-                        .HasColumnType("Date");
-
                     b.Property<int?>("Export")
                         .HasColumnType("int");
 
@@ -153,9 +153,6 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExpenseID"));
-
-                    b.Property<DateTime?>("Create_Date")
-                        .HasColumnType("Date");
 
                     b.Property<string>("ExpenseName")
                         .HasColumnType("nvarchar(max)");
@@ -244,14 +241,8 @@ namespace AFayedFarm.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FarmsID"));
 
-                    b.Property<DateTime?>("Create_Date")
-                        .HasColumnType("Date");
-
                     b.Property<string>("FarmsName")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("TotalRemaining")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("FarmsID");
 
@@ -384,9 +375,6 @@ namespace AFayedFarm.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SafeID")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("Total")
                         .HasColumnType("decimal(18,2)");
 
@@ -405,8 +393,6 @@ namespace AFayedFarm.Migrations
                     b.HasIndex("ExpenseID");
 
                     b.HasIndex("FarmID");
-
-                    b.HasIndex("SafeID");
 
                     b.ToTable("SafeTransactions");
                 });
@@ -500,7 +486,7 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("ShippingDate")
-                        .HasColumnType("Date");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("StoreID")
                         .HasColumnType("int");
@@ -737,10 +723,6 @@ namespace AFayedFarm.Migrations
                         .WithMany("Transactions")
                         .HasForeignKey("FarmID");
 
-                    b.HasOne("AFayedFarm.Model.FinancialSafe", "Safe")
-                        .WithMany("Transactions")
-                        .HasForeignKey("SafeID");
-
                     b.Navigation("Client");
 
                     b.Navigation("Employee");
@@ -748,8 +730,6 @@ namespace AFayedFarm.Migrations
                     b.Navigation("Expense");
 
                     b.Navigation("Farm");
-
-                    b.Navigation("Safe");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.StoreProduct", b =>
@@ -880,11 +860,6 @@ namespace AFayedFarm.Migrations
             modelBuilder.Entity("AFayedFarm.Model.FarmsProduct", b =>
                 {
                     b.Navigation("ExpeneseRecordList");
-                });
-
-            modelBuilder.Entity("AFayedFarm.Model.FinancialSafe", b =>
-                {
-                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("AFayedFarm.Model.Product", b =>

@@ -11,7 +11,7 @@ namespace AFayedFarm.Dtos
 		public int? ProductID { get; set; }
         public string? ProductName { get; set; }
 		public DateTime? ShippingDate { get; set; }
-		public DateTime? Created_Date { get; set; }
+		//public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }
 		public decimal? Total { get; set; }
 		public decimal? GetPaied { get; set; }

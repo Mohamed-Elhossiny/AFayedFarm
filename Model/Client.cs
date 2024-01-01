@@ -9,11 +9,14 @@ namespace AFayedFarm.Model
         public int ClientID { get; set; }
         public string? ClientName { get; set; }
 
-        /// <summary>
-        /// 1 ==> Export OutSide
-        /// 0 ==> Inside
-        /// </summary>
-        public int? Export { get; set; }
+		[Column(TypeName = "Date")]
+		public DateTime? Create_Date { get; set; }
+
+		/// <summary>
+		/// 1 ==> Export OutSide
+		/// 0 ==> Inside
+		/// </summary>
+		public int? Export { get; set; }
 		public virtual ICollection<Transaction>? Transactions { get; set; }
 		public virtual ICollection<SafeTransaction>? SafeTransactions { get; set; }
 	}

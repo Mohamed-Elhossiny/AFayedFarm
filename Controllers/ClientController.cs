@@ -27,7 +27,7 @@ namespace AFayedFarm.Controllers
 			{
 				return Ok(client);
 			}
-			return Conflict("There is farm exists with the same name");
+			return Conflict("There is client exists with the same name");
 		}
 
 		[HttpGet("~/GetAllClients")]

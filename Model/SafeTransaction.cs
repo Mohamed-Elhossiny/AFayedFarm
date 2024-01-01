@@ -23,6 +23,10 @@ namespace AFayedFarm.Model
 		[ForeignKey("Expense")]
 		public int? ExpenseID { get; set; }
 		public virtual Expense? Expense { get; set; }
+
+		[ForeignKey("Safe")]
+		public int? SafeID { get; set; }
+		public virtual FinancialSafe? Safe { get; set; }
 		/// <summary>
 		/// Total Per Transaction == Amount
 		/// </summary>

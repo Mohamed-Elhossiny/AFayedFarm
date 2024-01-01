@@ -14,19 +14,21 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			this.context = context;
 		}
 
-		public async Task<RequestResponse<SafeDto>> AddBalance(decimal balance)
+		public async Task<RequestResponse<SafeDto>> AddBalance(BalanceDto dto)
 		{
 			var response = new RequestResponse<SafeDto> { ResponseID = 0, ResponseValue = new SafeDto() };
 			var safeDb = await context.Safe.FirstOrDefaultAsync();
 			if (safeDb != null)
 			{
-				safeDb.Total += balance;
-				await context.SaveChangesAsync();
-
-				var safeDto = await GetSafeBalance();
-
+				if (dto.typeId == 4)
+				{
+					safeDb.Total += dto.Balance;
+					context.Safe.Update(safeDb);
+					await context.SaveChangesAsync();
+				}
 				response.ResponseID = 1;
-				response.ResponseValue = safeDto.ResponseValue;
+				response.ResponseValue.ID = safeDb.ID;
+				response.ResponseValue.Total = safeDb.Total;
 			}
 			return response;
 		}

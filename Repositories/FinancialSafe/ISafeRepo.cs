@@ -6,6 +6,6 @@ namespace AFayedFarm.Repositories.FinancialSafe
 	public interface ISafeRepo
 	{
 		Task<RequestResponse<SafeDto>> GetSafeBalance();
-		Task<RequestResponse<SafeDto>> AddBalance(decimal balance);
+		Task<RequestResponse<SafeDto>> AddBalance(BalanceDto dto);
 	}
 }

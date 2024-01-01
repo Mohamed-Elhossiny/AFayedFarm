@@ -16,7 +16,8 @@
         public decimal? Price { get; set; }
         public decimal? Total { get; set; }
 		public decimal? Paied { get; set; }
-		public decimal? Remaining { get; set; }
+        public int? TypeId { get; set; }
+        public decimal? Remaining { get; set; }
 		public string? FarmsNotes { get; set; }
         public string? CarNumber { get; set; }
     }

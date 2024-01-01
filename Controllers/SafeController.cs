@@ -1,4 +1,5 @@
-﻿using AFayedFarm.Repositories.FinancialSafe;
+﻿using AFayedFarm.Dtos;
+using AFayedFarm.Repositories.FinancialSafe;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,11 +27,11 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpPost("~/AddBalanceToSafe")]
-		public async Task<IActionResult> AddBalance(decimal balance)
+		public async Task<IActionResult> AddBalance(BalanceDto dto)
 		{
-			if (balance <= 0)
+			if (dto.Balance <= 0)
 				return BadRequest("Enter valid balance");
-			var response = await safeRepo.AddBalance(balance);
+			var response = await safeRepo.AddBalance(dto);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else

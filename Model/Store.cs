@@ -8,7 +8,6 @@ namespace AFayedFarm.Model
 		[Key]
         public int StoreID { get; set; }
 
-		[DataType(DataType.Date)]
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
 		public virtual ICollection<StoreProduct>? StoreProducts { get; set; }

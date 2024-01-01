@@ -1,6 +1,6 @@
 ﻿namespace AFayedFarm.Dtos
 {
-	public class FarmRecordsWithFarmDataCto
+	public class FarmRecordsWithFarmDataDto
 	{
 		public List<FarmRecordDto>? FarmRecords { get; set; } = new List<FarmRecordDto>();
 		public int? ID { get; set; }

@@ -13,6 +13,9 @@ namespace AFayedFarm.Model
 
 		[Column(TypeName = "Date")]
 		public DateTime? HireDate { get; set; }
+
+		[Column(TypeName = "Date")]
+		public DateTime? Create_Date { get; set; }
 		public string? Address { get; set; }
 		public string? Phone { get; set; }
 		public virtual ICollection<SafeTransaction>? Transactions { get; set; }

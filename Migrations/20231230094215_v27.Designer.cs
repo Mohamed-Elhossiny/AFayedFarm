@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20231230094215_v27")]
+    partial class v27
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,9 +104,6 @@ namespace AFayedFarm.Migrations
                     b.Property<string>("ClientName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Create_Date")
-                        .HasColumnType("Date");
-
                     b.Property<int?>("Export")
                         .HasColumnType("int");
 
@@ -153,9 +153,6 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExpenseID"));
-
-                    b.Property<DateTime?>("Create_Date")
-                        .HasColumnType("Date");
 
                     b.Property<string>("ExpenseName")
                         .HasColumnType("nvarchar(max)");
@@ -244,14 +241,8 @@ namespace AFayedFarm.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FarmsID"));
 
-                    b.Property<DateTime?>("Create_Date")
-                        .HasColumnType("Date");
-
                     b.Property<string>("FarmsName")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("TotalRemaining")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("FarmsID");
 
@@ -500,7 +491,7 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("ShippingDate")
-                        .HasColumnType("Date");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("StoreID")
                         .HasColumnType("int");

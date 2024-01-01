@@ -17,20 +17,21 @@ namespace AFayedFarm.Repositories.Expenses
 		public async Task<RequestResponse<ExpenseDto>> AddExpenseAsync(AddExpenseDto expenseDto)
 		{
 			var response = new RequestResponse<ExpenseDto>() { ResponseValue = new ExpenseDto() };
-			var expensedb = context.Expenses.Include(c => c.ExpenseType).Where(f => f.ExpenseName.ToLower() == expenseDto.Name.ToLower()).FirstOrDefault();
+			var expensedb = context.Expenses.Include(c => c.ExpenseType).Where(f => f.ExpenseName!.ToLower() == expenseDto.Name!.ToLower()).FirstOrDefault();
 			if (expensedb == null)
 			{
 				var Expense = new Expense()
 				{
 					ExpenseName = expenseDto.Name,
-					ExpenseTypeId = expenseDto.ExpenseTypeId
+					ExpenseTypeId = expenseDto.ExpenseTypeId,
+					Create_Date = DateTime.Now.Date
 				};
 				await context.Expenses.AddAsync(Expense);
 				await context.SaveChangesAsync();
 				var expenseAdded = await context.Expenses.Include(c => c.ExpenseType).Where(c => c.ExpenseID == Expense.ExpenseID).FirstOrDefaultAsync();
 				response.ResponseValue.ID = Expense.ExpenseID;
 				response.ResponseValue.Name = Expense.ExpenseName;
-				response.ResponseValue.ExpenseTypeName = expenseAdded.ExpenseTypeId != null ? Expense.ExpenseType.ExpenseTypeName : "";
+				response.ResponseValue.ExpenseTypeName = expenseAdded!.ExpenseTypeId != 0 ? Expense.ExpenseType!.ExpenseTypeName : "";
 				response.ResponseID = 1;
 				return response;
 			}
@@ -47,8 +48,8 @@ namespace AFayedFarm.Repositories.Expenses
 				var remaining = (dto.Total - dto.Paied);
 				expenseRecord.FarmRecordID = dto.FarmRecordID;
 				expenseRecord.ExpenseID = dto.ExpenseID;
-				expenseRecord.ExpenseDate = dto.ExpenseDate.Value != null ? dto.ExpenseDate.Value.Date : null;
-				expenseRecord.Created_Date = dto.Created_Date.Value != null ? dto.Created_Date.Value.Date : null;
+				expenseRecord.ExpenseDate = dto.ExpenseDate!.Value.ToLongDateString() != "" ? dto.ExpenseDate.Value.Date : DateTime.Now.Date;
+				expenseRecord.Created_Date = DateTime.Now.Date;
 				expenseRecord.Quantity = dto.Quantity;
 				expenseRecord.Value = dto.Value;
 				expenseRecord.Price = dto.Price;
@@ -80,7 +81,7 @@ namespace AFayedFarm.Repositories.Expenses
 		public async Task<RequestResponse<ExpenseTypeDto>> AddExpenseTypeAsync(AddExpenseTypeDto dto)
 		{
 			var response = new RequestResponse<ExpenseTypeDto>() { ResponseID = 0, ResponseValue = new ExpenseTypeDto() };
-			var expenseTypedb = context.TypeOfExpenses.Where(f => f.ExpenseTypeName.ToLower() == dto.ExpenseTypeName.ToLower()).FirstOrDefault();
+			var expenseTypedb = context.TypeOfExpenses.Where(f => f.ExpenseTypeName!.ToLower() == dto.ExpenseTypeName!.ToLower()).FirstOrDefault();
 			if (expenseTypedb == null)
 			{
 				var expenseType = new TypeOfExpense() { ExpenseTypeName = dto.ExpenseTypeName };
@@ -97,7 +98,7 @@ namespace AFayedFarm.Repositories.Expenses
 		{
 			var response = new RequestResponse<List<ExpenseTypeDto>>() { ResponseID = 0 };
 			var list = new List<ExpenseTypeDto>();
-			var expenseTypeList = await context.TypeOfExpenses.ToListAsync();
+			var expenseTypeList = await context.TypeOfExpenses.OrderByDescending(c => c.ExpenseTypeID).ToListAsync();
 			if (expenseTypeList.Count != 0)
 			{
 				foreach (var item in expenseTypeList)
@@ -124,7 +125,7 @@ namespace AFayedFarm.Repositories.Expenses
 				ID = c.ExpenseID,
 				ExpenseTypeName = c.ExpenseTypeId != 0 ? c.ExpenseType.ExpenseTypeName : "",
 				Type = c.ExpenseTypeId != 0 ? c.ExpenseTypeId : 0,
-			}).ToListAsync();
+			}).OrderByDescending(c => c.ID).ToListAsync();
 			if (expensesDb.Count != 0)
 			{
 				foreach (var item in expensesDb)
@@ -182,8 +183,8 @@ namespace AFayedFarm.Repositories.Expenses
 				expesnseRecordDto.ProductName = expenseRecord?.FarmRecord?.Product?.ProductName;
 				expesnseRecordDto.ExpenseName = expenseRecord?.Expense?.ExpenseName;
 				expesnseRecordDto.ExpenseTypeName = expenseRecord?.Expense?.ExpenseType?.ExpenseTypeName;
-				expesnseRecordDto.ExpenseDate = expenseRecord.ExpenseDate.Value != null ? expenseRecord.ExpenseDate.Value.Date : null;
-				expesnseRecordDto.Created_Date = expenseRecord.Created_Date.Value != null ? expenseRecord.Created_Date.Value.Date : null;
+				expesnseRecordDto.ExpenseDate = expenseRecord.ExpenseDate.HasValue ? expenseRecord.ExpenseDate.Value.Date : DateTime.Now.Date;
+				expesnseRecordDto.Created_Date = expenseRecord.Created_Date.HasValue ? expenseRecord.Created_Date.Value.Date : DateTime.Now.Date;
 				expesnseRecordDto.Quantity = expenseRecord.Quantity;
 				expesnseRecordDto.Value = expenseRecord.Value;
 				expesnseRecordDto.Price = expenseRecord.Price;
@@ -206,7 +207,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var expenseRecordList = await context.ExpenseRecords
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
 				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
-				.Where(c => c.ExpenseID == expenseId).ToListAsync();
+				.Where(c => c.ExpenseID == expenseId).OrderByDescending(c => c.ExpenseRecordId).ToListAsync();
 			if (expenseRecordList.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
@@ -219,8 +220,8 @@ namespace AFayedFarm.Repositories.Expenses
 					expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 					expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 					expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
-					expesnseRecordDto.ExpenseDate = item.ExpenseDate.Value != null ? item.ExpenseDate.Value.Date : null;
-					expesnseRecordDto.Created_Date = item.Created_Date.Value != null ? item.Created_Date.Value.Date : null;
+					expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now.Date;
+					expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
 					expesnseRecordDto.Quantity = item.Quantity;
 					expesnseRecordDto.Value = item.Value;
 					expesnseRecordDto.Price = item.Price;
@@ -256,13 +257,7 @@ namespace AFayedFarm.Repositories.Expenses
 				await context.SaveChangesAsync();
 
 				var Expnese = await GetExpenseByID(id);
-				//var Expense = new ExpenseDto()
-				//{
-				//Name = expenseDb.ExpenseName,
-				//ID = expenseDb.ExpenseID,
-				//ExpenseTypeName = expenseDb.ExpenseTypeId != 0 ? expenseDb?.ExpenseType?.ExpenseTypeName : "",
-				//Type = expenseDb?.ExpenseTypeId
-				//};
+
 				response.ResponseID = 1;
 				response.ResponseValue = Expnese.ResponseValue;
 			}
@@ -282,8 +277,7 @@ namespace AFayedFarm.Repositories.Expenses
 				var remaining = (dto.Total - dto.Paied);
 				expenseRecord.FarmRecordID = dto.FarmRecordID;
 				expenseRecord.ExpenseID = dto.ExpenseID;
-				expenseRecord.ExpenseDate = dto.ExpenseDate.Value != null ? dto.ExpenseDate.Value.Date : null;
-				expenseRecord.Created_Date = dto.Created_Date.Value != null ? dto.Created_Date.Value.Date : null;
+				expenseRecord.ExpenseDate = dto.ExpenseDate.HasValue ? dto.ExpenseDate.Value.Date : DateTime.Now.Date;
 				expenseRecord.Quantity = dto.Quantity;
 				expenseRecord.Value = dto.Value;
 				expenseRecord.Price = dto.Price;
@@ -332,7 +326,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var expenseRecordList = await context.ExpenseRecords
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
 				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
-				.Where(c => c.FarmRecordID == farmRecordID).ToListAsync();
+				.Where(c => c.FarmRecordID == farmRecordID).OrderByDescending(c => c.ExpenseRecordId).ToListAsync();
 			if (expenseRecordList.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
@@ -345,8 +339,8 @@ namespace AFayedFarm.Repositories.Expenses
 					expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 					expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 					expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType?.ExpenseTypeName;
-					expesnseRecordDto.ExpenseDate = item.ExpenseDate.Value != null ? item.ExpenseDate.Value.Date : null;
-					expesnseRecordDto.Created_Date = item.Created_Date.Value != null ? item.Created_Date.Value.Date : null;
+					expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now.Date;
+					expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
 					expesnseRecordDto.Quantity = item.Quantity;
 					expesnseRecordDto.Value = item.Value;
 					expesnseRecordDto.Price = item.Price;
@@ -372,7 +366,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var response = new RequestResponse<List<ExpenseRecordDto>> { ResponseID = 0, ResponseValue = new List<ExpenseRecordDto>() };
 			var expenseRecordList = await context.ExpenseRecords
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
-				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
+				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType).OrderByDescending(c => c.ExpenseRecordId)
 				.Where(c => c.ExpenseID == expenseID).ToListAsync();
 			if (expenseRecordList.Count != 0)
 			{
@@ -386,8 +380,8 @@ namespace AFayedFarm.Repositories.Expenses
 					expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 					expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 					expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
-					expesnseRecordDto.ExpenseDate = item.ExpenseDate.Value != null ? item.ExpenseDate.Value.Date : null;
-					expesnseRecordDto.Created_Date = item.Created_Date.Value != null ? item.Created_Date.Value.Date : null;
+					expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now.Date;
+					expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
 					expesnseRecordDto.Quantity = item.Quantity;
 					expesnseRecordDto.Value = item.Value;
 					expesnseRecordDto.Price = item.Price;
