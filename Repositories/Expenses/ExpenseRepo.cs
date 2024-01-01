@@ -1,4 +1,5 @@
 ﻿using AFayedFarm.Dtos;
+using AFayedFarm.Enums;
 using AFayedFarm.Global;
 using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
@@ -401,5 +402,42 @@ namespace AFayedFarm.Repositories.Expenses
 
 			return response;
 		}
+
+		//public async Task<RequestResponse<bool>> PayToExpense(ExpensePaymentDto dto)
+		//{
+		//	var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+		//	var farmDb = await context.Expenses.Where(e => e.ExpenseID == dto.Id).FirstOrDefaultAsync();
+		//	if (farmDb == null)
+		//		return response;
+
+		//	#region Add Transactions to Financial Safe
+		//	var transaction = new SafeTransaction()
+		//	{
+		//		SafeID = 1,
+		//		FarmID = dto.Id,
+		//		TypeID = dto.TrasactionTypeID,
+		//		Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
+		//		Total = -1 * dto.Total,
+		//		Notes = dto.Notes,
+		//		Created_Date = DateTime.Now.Date
+		//	};
+		//	await context.SafeTransactions.AddAsync(transaction);
+
+		//	var financialSafe = await context.Safe.FindAsync(1);
+		//	if (dto.TrasactionTypeID == (int)TransactionType.Pay)
+		//		financialSafe!.Total = financialSafe.Total - dto.Total;
+		//	context.Safe.Update(financialSafe!);
+
+		//	// Subtract Pay Amount from Total Remaining of Fram
+		//	farmDb.TotalRemaining -= dto.Total;
+		//	context.Farms.Update(farmDb);
+
+		//	await context.SaveChangesAsync();
+		//	#endregion
+
+		//	response.ResponseID = 1;
+		//	response.ResponseValue = true;
+		//	return response;
+		//}
 	}
 }

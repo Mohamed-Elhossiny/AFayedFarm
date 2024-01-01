@@ -13,13 +13,12 @@ namespace AFayedFarm.Repositories.Employee
 		private class ConfigModel
 		{
 			public bool IsPayed { get; set; }
+			public int LastProcessedMonth { get; set; }
 		}
 		private readonly FarmContext context;
-		private readonly IConfiguration configuration;
-		public EmployeeRepo(FarmContext context, IConfiguration configuration)
+		public EmployeeRepo(FarmContext context)
 		{
 			this.context = context;
-			this.configuration = configuration;
 		}
 		public async Task<RequestResponse<EmployeeDto>> AddEmployee(AddEmployeeDto dto)
 		{
@@ -55,12 +54,22 @@ namespace AFayedFarm.Repositories.Employee
 		{
 			#region Check Monthly Salaries
 			var today = DateTime.UtcNow.Date;
-			var firstDayOfMonth = new DateTime(today.Year, today.Month, 1).Date;
+			var currentMonth = today.Month; 
 			var config = LoadConfig();
-			if (!config.IsPayed && today == firstDayOfMonth)
+			if (!config.IsPayed && currentMonth != config.LastProcessedMonth)
 			{
-				var salariesAdded = await PayMonlthySalary();
-				config.IsPayed = true;
+				var firstDayOfMonth = new DateTime(today.Year, today.Month, 1).Date;
+				if (today == firstDayOfMonth)
+				{
+					var salariesAdded = await PayMonlthySalary();
+					config.IsPayed = true;
+					config.LastProcessedMonth = currentMonth;
+					SaveConfig(config);
+				}
+			}
+			else if (currentMonth != config.LastProcessedMonth) //2 != 1
+			{
+				config.IsPayed = false;
 				SaveConfig(config);
 			}
 			#endregion

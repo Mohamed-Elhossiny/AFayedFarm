@@ -105,37 +105,61 @@ namespace AFayedFarm.Repositories.Supplier
 			var response = new RequestResponse<List<FarmRecordDto>>() { ResponseID = 0 };
 			var farmsRecord = new List<FarmRecordDto>();
 			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).OrderByDescending(c => c.FarmProductID).Where(c => c.FarmsID == farmID).ToListAsync();
-			if (records.Count != 0)
+			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FarmID == farmID).ToListAsync();
+
+			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				decimal? remaining = 0;
-				foreach (var item in records)
+				if (records.Count != 0)
 				{
-					remaining = item.TotalPrice - item.Paied;
+					foreach (var item in records)
+					{
+						remaining = item.TotalPrice - item.Paied;
 
-					var record = new FarmRecordDto();
-					record.FarmsID = item.Farms!.FarmsID;
-					record.FarmsName = item.Farms.FarmsName;
-					record.ProductID = item.Product!.ProductID;
-					record.ProductName = item.Product.ProductName;
-					record.SupplyDate = item.SupplyDate;
-					record.Created_Date = item.Created_Date;
-					record.Quantity = item.Quantity;
-					record.Discount = item.Discount;
-					record.NetQuantity = item.NetQuantity;
-					record.Price = item.Price;
-					record.Total = item.TotalPrice;
-					record.Paied = item.Paied;
-					record.Remaining = remaining;
-					record.FarmsNotes = item.FarmsNotes;
-					record.CarNumber = item.CarNumber;
-					record.isPercentage = item.isPercentage;
+						var record = new FarmRecordDto();
+						record.FarmsID = item.Farms!.FarmsID;
+						record.FarmsName = item.Farms.FarmsName;
+						record.ProductID = item.Product!.ProductID;
+						record.ProductName = item.Product.ProductName;
+						record.SupplyDate = item.SupplyDate;
+						record.Created_Date = item.Created_Date;
+						record.Quantity = item.Quantity;
+						record.Discount = item.Discount;
+						record.NetQuantity = item.NetQuantity;
+						record.Price = item.Price;
+						record.Total = item.TotalPrice;
+						record.Paied = item.Paied;
+						record.Remaining = remaining;
+						record.FarmsNotes = item.FarmsNotes;
+						record.CarNumber = item.CarNumber;
+						record.isPercentage = item.isPercentage;
 
-					farmsRecord.Add(record);
+						farmsRecord.Add(record);
+					}
 				}
+
+				if (transactionRecordDb.Count != 0)
+				{
+					foreach (var item in transactionRecordDb)
+					{
+						var transactionRecord = new FarmRecordDto();
+						transactionRecord.FarmsID = (int)item.Farm!.FarmsID;
+						transactionRecord.FarmsName = item.Farm!.FarmsName;
+						transactionRecord.ProductName = TransactionType.Pay.ToString();
+						transactionRecord.Paied = -1 * item.Total;
+						transactionRecord.FarmsNotes = item.Notes;
+
+						farmsRecord.Add(transactionRecord);
+					}
+
+				}
+
 				response.ResponseID = 1;
 				response.ResponseValue = farmsRecord;
 				return response;
+
 			}
+
 			response.ResponseValue = farmsRecord;
 			return response;
 		}
@@ -145,32 +169,50 @@ namespace AFayedFarm.Repositories.Supplier
 			var response = new RequestResponse<FarmRecordsWithTotalRemainingDto>() { ResponseID = 0, ResponseValue = new FarmRecordsWithTotalRemainingDto() };
 			var farmsRecord = new List<FarmRecordDto>();
 			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).OrderByDescending(c => c.FarmProductID).Where(c => c.FarmsID == farmID).ToListAsync();
-			if (records.Count != 0)
+			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FarmID == farmID).ToListAsync();
+			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
-				decimal? remaining = 0;
-				foreach (var item in records)
+				if (records.Count != 0)
 				{
-					remaining = item.TotalPrice - item.Paied;
-					var record = new FarmRecordDto();
-					record.FarmRecordID = item.FarmProductID;
-					record.FarmsID = item.Farms.FarmsID;
-					record.FarmsName = item.Farms.FarmsName;
-					record.ProductID = item?.Product?.ProductID;
-					record.ProductName = item?.Product?.ProductName;
-					record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate.Value.Date : DateTime.Now.Date;
-					record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
-					record.Quantity = item?.Quantity;
-					record.Discount = item?.Discount;
-					record.NetQuantity = item?.NetQuantity;
-					record.Price = item?.Price;
-					record.Total = item?.TotalPrice;
-					record.Paied = item?.Paied;
-					record.Remaining = remaining;
-					record.FarmsNotes = item?.FarmsNotes;
-					record.CarNumber = item?.CarNumber;
-					record.isPercentage = item.isPercentage;
+					decimal? remaining = 0;
+					foreach (var item in records)
+					{
+						remaining = item.TotalPrice - item.Paied;
+						var record = new FarmRecordDto();
+						record.FarmRecordID = item.FarmProductID;
+						record.FarmsID = item.Farms.FarmsID;
+						record.FarmsName = item.Farms.FarmsName;
+						record.ProductID = item?.Product?.ProductID;
+						record.ProductName = item?.Product?.ProductName;
+						record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate.Value.Date : DateTime.Now.Date;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.Quantity = item?.Quantity;
+						record.Discount = item?.Discount;
+						record.NetQuantity = item?.NetQuantity;
+						record.Price = item?.Price;
+						record.Total = item?.TotalPrice;
+						record.Paied = item?.Paied;
+						record.Remaining = remaining;
+						record.FarmsNotes = item?.FarmsNotes;
+						record.CarNumber = item?.CarNumber;
+						record.isPercentage = item.isPercentage;
 
-					farmsRecord.Add(record);
+						farmsRecord.Add(record);
+					}
+				}
+				if (transactionRecordDb.Count != 0)
+				{
+					foreach (var item in transactionRecordDb)
+					{
+						var transactionRecord = new FarmRecordDto();
+						transactionRecord.FarmsID = (int)item.Farm!.FarmsID;
+						transactionRecord.FarmsName = item.Farm!.FarmsName;
+						transactionRecord.Description = TransactionType.Pay.ToString();
+						transactionRecord.Paied = -1 * item.Total;
+						transactionRecord.FarmsNotes = item.Notes;
+
+						farmsRecord.Add(transactionRecord);
+					}
 				}
 
 				//var TotalRemaining = await GetTotalRemaining(farmID);

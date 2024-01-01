@@ -7,7 +7,8 @@
 		public string? FarmsName { get; set; }
 		public int? ProductID { get; set; }
 		public string? ProductName { get; set; }
-		public DateTime? SupplyDate { get; set; }
+        public string? Description { get; set; }
+        public DateTime? SupplyDate { get; set; }
 		public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }
 		public decimal? Discount { get; set; }
