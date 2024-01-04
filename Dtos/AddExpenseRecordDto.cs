@@ -14,6 +14,7 @@
 		public string? AdditionalNotes { get; set; }
 		public decimal? Total { get; set; }
 		public decimal? Paied { get; set; }
+		public int? TypeId { get; set; }
 		public decimal? Remaining { get; set; }
 		public string? ExpenseRecordNotes { get; set; }
 	}

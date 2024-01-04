@@ -9,7 +9,7 @@ namespace AFayedFarm.Repositories.Employee
 		Task<RequestResponse<EmployeeDto>> GetEmployee(int empId);
 		Task<RequestResponse<EmployeeDto>> UpdateEmployee(int empId,AddEmployeeDto dto);
 		Task<RequestResponse<List<EmployeeDto>>> GetAllEmployee();
-		Task<RequestResponse<bool>> PayToEmployee(EmployeePaymentDto dto);
+		Task<RequestResponse<EmployeeDto>> PayToEmployee(EmployeePaymentDto dto);
 		Task<RequestResponse<bool>> PayMonlthySalary();
 
 	}

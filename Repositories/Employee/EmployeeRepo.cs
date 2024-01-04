@@ -54,7 +54,7 @@ namespace AFayedFarm.Repositories.Employee
 		{
 			#region Check Monthly Salaries
 			var today = DateTime.UtcNow.Date;
-			var currentMonth = today.Month; 
+			var currentMonth = today.Month;
 			var config = LoadConfig();
 			if (!config.IsPayed && currentMonth != config.LastProcessedMonth)
 			{
@@ -138,36 +138,63 @@ namespace AFayedFarm.Repositories.Employee
 
 		}
 
-		public async Task<RequestResponse<bool>> PayToEmployee(EmployeePaymentDto dto)
+		public async Task<RequestResponse<EmployeeDto>> PayToEmployee(EmployeePaymentDto dto)
 		{
-			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
-			var empDb = await context.Employees.Where(e => e.EmpolyeeID == dto.Id).FirstOrDefaultAsync();
-			if (empDb == null)
-				return response;
-
-			#region Add Transactions to Financial Safe
-			var financialSafe = await context.Safe.FindAsync(1);
-			var transaction = new SafeTransaction()
+			var response = new RequestResponse<EmployeeDto> { ResponseID = 0 };
+			try
 			{
-				SafeID = 1,
-				Emp_ID = dto.Id,
-				TypeID = dto.TrasactionTypeID,
-				Total = -1 * dto.Total,
-				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
-				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date
-			};
-			await context.SafeTransactions.AddAsync(transaction);
+				using (var transaction = context.Database.BeginTransaction())
+				{
+					var empDb = await context.Employees.Where(e => e.EmpolyeeID == dto.Id).FirstOrDefaultAsync();
+					if (empDb == null)
+						return response;
 
-			if (dto.TrasactionTypeID == (int)TransactionType.Pay)
-				financialSafe!.Total = financialSafe.Total - dto.Total;
-			context.Safe.Update(financialSafe!);
+					#region Subtract Pay Amount from Total of Employee
+					if (dto.TrasactionTypeID == (int)TransactionType.Pay)
+					{
+						empDb.TotalBalance -= dto.Total;
+						context.Employees.Update(empDb);
+					}
+					#endregion
 
-			await context.SaveChangesAsync();
+					#region Add Transactions to Financial Safe
+					var Safetransaction = new SafeTransaction()
+					{
+						SafeID = 1,
+						Emp_ID = dto.Id,
+						TypeID = dto.TrasactionTypeID,
+						Total = -1 * dto.Total,
+						Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
+						Notes = dto.Notes,
+						Created_Date = DateTime.Now.Date
+					};
+					await context.SafeTransactions.AddAsync(Safetransaction);
+
+					var financialSafe = await context.Safe.FindAsync(1);
+					if (dto.TrasactionTypeID == (int)TransactionType.Pay)
+						financialSafe!.Total = financialSafe.Total - dto.Total;
+					context.Safe.Update(financialSafe!);
+
+					await context.SaveChangesAsync();
+					transaction.Commit();
+				}
+			}
+			catch (Exception ex)
+			{
+				if (context.Database.CurrentTransaction != null)
+					context.Database.CurrentTransaction.Rollback();
+			}
 			#endregion
-
-			response.ResponseID = 1;
-			response.ResponseValue = true;
+			var employee = await GetEmployee((int)dto.Id!);
+			if (employee.ResponseID == 1)
+			{
+				response.ResponseID = 1;
+				response.ResponseValue = employee.ResponseValue;
+			}
+			else
+			{
+				response.ResponseID = 0;
+			}
 			return response;
 		}
 
@@ -213,23 +240,6 @@ namespace AFayedFarm.Repositories.Employee
 			return response;
 		}
 
-		//public async Task<RequestResponse<decimal>> GetTotalRemaining(int farmsID)
-		//{
-		//	var response = new RequestResponse<decimal> { ResponseID = 0, ResponseValue = 0 };
-		//	var farmsList = await GetAllFarmRecords(farmsID);
-		//	if (farmsList.ResponseID == 1)
-		//	{
-		//		decimal? total = 0;
-		//		foreach (var item in farmsList.ResponseValue)
-		//		{
-		//			total += item.Remaining;
-		//		}
-		//		response.ResponseID = 1;
-		//		response.ResponseValue = (decimal)total;
-		//	}
-		//	return response;
-
-		//}
 
 		#region Configure Json File to Check Monthly Salary 
 		private ConfigModel LoadConfig()

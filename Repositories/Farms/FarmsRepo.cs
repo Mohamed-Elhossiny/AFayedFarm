@@ -29,6 +29,7 @@ namespace AFayedFarm.Repositories.Supplier
 				await context.SaveChangesAsync();
 				farm.Name = Farm.FarmsName;
 				farm.ID = Farm.FarmsID;
+				farm.Total = Farm.TotalRemaining == null ? 0 : Farm.TotalRemaining;
 				return farm;
 			}
 
@@ -145,7 +146,7 @@ namespace AFayedFarm.Repositories.Supplier
 						var transactionRecord = new FarmRecordDto();
 						transactionRecord.FarmsID = (int)item.Farm!.FarmsID;
 						transactionRecord.FarmsName = item.Farm!.FarmsName;
-						transactionRecord.ProductName = TransactionType.Pay.ToString();
+						transactionRecord.Description = TransactionType.Pay.ToString();
 						transactionRecord.Paied = -1 * item.Total;
 						transactionRecord.FarmsNotes = item.Notes;
 

@@ -8,6 +8,7 @@ namespace AFayedFarm.Model
 		[Key]
 		public int ExpenseID { get; set; }
 		public string? ExpenseName { get; set; }
+		public decimal? TotalRemaining { get; set; } = default(decimal?);
 
 		[Column(TypeName = "Date")]
 		public DateTime? Create_Date { get; set; }

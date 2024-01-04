@@ -151,5 +151,17 @@ namespace AFayedFarm.Controllers
 				return Ok(response.ResponseValue);
 		}
 
+		[HttpPost("~/PayToExpense")]
+		public async Task<IActionResult> PayToExpense(ExpensePaymentDto dto)
+		{
+			if (dto.Id == 0)
+				return BadRequest("Enter Valid Id");
+			var response = await expenseRepo.PayToExpense(dto);
+			if (response.ResponseID == 0)
+				return NotFound();
+			else
+				return Ok(dto);
+		}
+
 	}
 }
