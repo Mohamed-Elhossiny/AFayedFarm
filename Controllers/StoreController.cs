@@ -25,5 +25,15 @@ namespace AFayedFarm.Controllers
 				return NotFound();
 		}
 
+		[HttpPost("~/SetProductQtyToZero")]
+		public async Task<IActionResult> SetProductQtyToZero(int id)
+		{
+			var response = await storeRepo.SetProductQtyToZero(id);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound();
+		}
+
 	}
 }

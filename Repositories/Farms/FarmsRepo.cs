@@ -428,11 +428,53 @@ namespace AFayedFarm.Repositories.Supplier
 			var recordDb = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).Where(c => c.FarmProductID == recordID).FirstOrDefaultAsync();
 			if (recordDb != null)
 			{
+				var incomeNetQty = farmDto.NetQuantity;
+				if (farmDto.NetQuantity > recordDb.NetQuantity)
+				{
+					farmDto.NetQuantity = farmDto.NetQuantity - recordDb.NetQuantity;
+					await AddProductToStore(farmDto);
+				}
+				if (recordDb.NetQuantity > farmDto.NetQuantity)
+				{
+					farmDto.NetQuantity = recordDb.NetQuantity - farmDto.NetQuantity;
+					await RemoveProductFromStore(farmDto);
+				}
+
+				if (farmDto.TypeId == (int)TransactionType.Pay && farmDto.Paied != recordDb.Paied)
+				{
+					#region Add Transactions to Financial Safe
+
+					var transaction = new SafeTransaction();
+					transaction.SafeID = 1;
+					transaction.FarmID = farmDto.FarmsID;
+					transaction.TypeID = farmDto.TypeId;
+					transaction.Type = ((TransactionType)farmDto.TypeId!).ToString();
+					transaction.Total = -1 * farmDto.Paied;
+					transaction.Notes = farmDto.FarmsNotes;
+					transaction.Created_Date = DateTime.Now.Date;
+
+					await context.SafeTransactions.AddAsync(transaction);
+
+					var financialSafe = await context.Safe.FindAsync(1);
+					if (farmDto.TypeId == (int)TransactionType.Pay)
+						financialSafe!.Total = financialSafe.Total - farmDto.Paied;
+
+					context.Safe.Update(financialSafe!);
+
+					var farmDb = await context.Farms.Where(f => f.FarmsID == recordDb.FarmsID).FirstOrDefaultAsync();
+					if (farmDto.TypeId == (int)TransactionType.Pay)
+						farmDb!.TotalRemaining = farmDb.TotalRemaining - farmDto.Paied;
+					context.Farms.Update(farmDb!);
+
+					await context.SaveChangesAsync();
+					#endregion
+				}
+
 				var remaining = (farmDto.Total - farmDto.Paied);
 				recordDb.FarmsID = farmDto.FarmsID;
 				recordDb.ProductID = farmDto.ProductID;
 				recordDb.Quantity = farmDto.Quantity;
-				recordDb.NetQuantity = farmDto.NetQuantity;
+				recordDb.NetQuantity = incomeNetQty;
 				recordDb.SupplyDate = farmDto.SupplyDate != null ? farmDto.SupplyDate.Value.Date : null;
 				recordDb.CarNumber = farmDto.CarNumber;
 				recordDb.Discount = farmDto.Discount;
@@ -446,35 +488,7 @@ namespace AFayedFarm.Repositories.Supplier
 				context.FarmsProducts.Update(recordDb);
 				await context.SaveChangesAsync();
 
-				#region Add Transactions to Financial Safe
-
-
-				var transaction = new SafeTransaction();
-				transaction.SafeID = 1;
-				transaction.FarmID = farmDto.FarmsID;
-				transaction.TypeID = farmDto.TypeId;
-				transaction.Type = ((TransactionType)farmDto.TypeId!).ToString();
-				transaction.Total = -1 * farmDto.Paied;
-				transaction.Notes = farmDto.FarmsNotes;
-				transaction.Created_Date = DateTime.Now.Date;
-
-				await context.SafeTransactions.AddAsync(transaction);
-
-				var financialSafe = await context.Safe.FindAsync(1);
-				if (farmDto.TypeId == (int)TransactionType.Pay)
-					financialSafe!.Total = financialSafe.Total - farmDto.Paied;
-
-				context.Safe.Update(financialSafe!);
-
-				var farmDb = await context.Farms.Where(f => f.FarmsID == recordDb.FarmsID).FirstOrDefaultAsync();
-				if (farmDto.TypeId == (int)TransactionType.Pay)
-					farmDb!.TotalRemaining = farmDb.TotalRemaining - farmDto.Paied;
-				context.Farms.Update(farmDb!);
-
-				await context.SaveChangesAsync();
-				#endregion
-
-				await AddProductToStore(farmDto);
+				//await AddProductToStore(farmDto);
 
 				var recordResult = await GetFarmRecordByID(recordID);
 				if (recordResult.ResponseID == 1)
@@ -520,10 +534,28 @@ namespace AFayedFarm.Repositories.Supplier
 			return response;
 		}
 
-		public async Task<RequestResponse<List<FarmRecordDto>>> GetProductsDetails(/*int productId*/)
+		public async Task<RequestResponse<bool>> RemoveProductFromStore(AddFarmRecordDto dto)
 		{
-			var response = new RequestResponse<List<FarmRecordDto>>() { ResponseID = 0 };
-			var farmsRecord = new List<FarmRecordDto>();
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
+			if (productInStore != null)
+			{
+				if (productInStore.Quantity == null)
+					productInStore.Quantity = 0;
+				productInStore.Quantity -= dto.NetQuantity;
+				context.StoreProducts.Update(productInStore);
+				await context.SaveChangesAsync();
+
+				response.ResponseID = 1;
+				response.ResponseValue = true;
+			}
+			return response;
+		}
+
+		public async Task<RequestResponse<List<FarmRecordWithoutDescriptionDto>>> GetProductsDetails(/*int productId*/)
+		{
+			var response = new RequestResponse<List<FarmRecordWithoutDescriptionDto>>() { ResponseID = 0 };
+			var farmsRecord = new List<FarmRecordWithoutDescriptionDto>();
 			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).OrderByDescending(c => c.ProductID).ToListAsync();
 			if (records.Count != 0)
 			{
@@ -531,7 +563,7 @@ namespace AFayedFarm.Repositories.Supplier
 				foreach (var item in records)
 				{
 					//remaining = item.TotalPrice - item.Paied;
-					var record = new FarmRecordDto();
+					var record = new FarmRecordWithoutDescriptionDto();
 					record.FarmRecordID = item.FarmProductID;
 					record.FarmsID = (int)(item.Farms?.FarmsID ?? 0);
 					record.FarmsName = item.Farms?.FarmsName;
@@ -596,5 +628,7 @@ namespace AFayedFarm.Repositories.Supplier
 			response.ResponseValue = true;
 			return response;
 		}
+
+
 	}
 }

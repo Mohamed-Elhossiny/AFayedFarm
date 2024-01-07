@@ -6,5 +6,7 @@ namespace AFayedFarm.Repositories.Store
 	public interface IStoreRepo
 	{
 		Task<RequestResponse<List<StoreProductDto>>> GetStoreProducts();
+		Task<RequestResponse<StoreProductDto>> SetProductQtyToZero(int productID);
+
 	}
 }

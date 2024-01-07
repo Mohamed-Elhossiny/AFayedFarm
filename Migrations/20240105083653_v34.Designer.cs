@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20240105083653_v34")]
+    partial class v34
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,49 +366,6 @@ namespace AFayedFarm.Migrations
                     b.ToTable("Fridges");
                 });
 
-            modelBuilder.Entity("AFayedFarm.Model.FridgeProduct", b =>
-                {
-                    b.Property<int>("FridgeProductID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FridgeProductID"));
-
-                    b.Property<DateTime?>("Created_Date")
-                        .HasColumnType("Date");
-
-                    b.Property<int?>("FridgeID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ProductID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("Quantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("StoreID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SupplyDate")
-                        .HasColumnType("Date");
-
-                    b.Property<decimal?>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("FridgeProductID");
-
-                    b.HasIndex("FridgeID");
-
-                    b.HasIndex("ProductID");
-
-                    b.HasIndex("StoreID");
-
-                    b.ToTable("FridgeProducts");
-                });
-
             modelBuilder.Entity("AFayedFarm.Model.FridgeRecord", b =>
                 {
                     b.Property<int>("FridgeRecordID")
@@ -452,9 +412,6 @@ namespace AFayedFarm.Migrations
 
                     b.Property<DateTime?>("SupplyDate")
                         .HasColumnType("Date");
-
-                    b.Property<decimal?>("Total")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("FridgeRecordID");
 
@@ -862,31 +819,10 @@ namespace AFayedFarm.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("AFayedFarm.Model.FridgeProduct", b =>
-                {
-                    b.HasOne("AFayedFarm.Model.Fridge", "Fridge")
-                        .WithMany("FridgeProducts")
-                        .HasForeignKey("FridgeID");
-
-                    b.HasOne("AFayedFarm.Model.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductID");
-
-                    b.HasOne("AFayedFarm.Model.Store", "Store")
-                        .WithMany("FridgeProducts")
-                        .HasForeignKey("StoreID");
-
-                    b.Navigation("Fridge");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Store");
-                });
-
             modelBuilder.Entity("AFayedFarm.Model.FridgeRecord", b =>
                 {
                     b.HasOne("AFayedFarm.Model.Fridge", "Fridge")
-                        .WithMany("FridgeRecords")
+                        .WithMany("FridgeProducts")
                         .HasForeignKey("FridgeID");
 
                     b.HasOne("AFayedFarm.Model.Product", "Product")
@@ -1076,8 +1012,6 @@ namespace AFayedFarm.Migrations
                 {
                     b.Navigation("FridgeProducts");
 
-                    b.Navigation("FridgeRecords");
-
                     b.Navigation("Transactions");
                 });
 
@@ -1100,8 +1034,6 @@ namespace AFayedFarm.Migrations
             modelBuilder.Entity("AFayedFarm.Model.Store", b =>
                 {
                     b.Navigation("Expenses");
-
-                    b.Navigation("FridgeProducts");
 
                     b.Navigation("StoreProducts");
 

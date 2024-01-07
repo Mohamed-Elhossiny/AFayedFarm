@@ -4,6 +4,7 @@ using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AFayedFarm.Migrations
 {
     [DbContext(typeof(FarmContext))]
-    partial class FarmContextModelSnapshot : ModelSnapshot
+    [Migration("20240105084629_v35")]
+    partial class v35
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -374,9 +377,6 @@ namespace AFayedFarm.Migrations
                     b.Property<DateTime?>("Created_Date")
                         .HasColumnType("Date");
 
-                    b.Property<int?>("FridgeID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -396,8 +396,6 @@ namespace AFayedFarm.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("FridgeProductID");
-
-                    b.HasIndex("FridgeID");
 
                     b.HasIndex("ProductID");
 
@@ -452,9 +450,6 @@ namespace AFayedFarm.Migrations
 
                     b.Property<DateTime?>("SupplyDate")
                         .HasColumnType("Date");
-
-                    b.Property<decimal?>("Total")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("FridgeRecordID");
 
@@ -864,10 +859,6 @@ namespace AFayedFarm.Migrations
 
             modelBuilder.Entity("AFayedFarm.Model.FridgeProduct", b =>
                 {
-                    b.HasOne("AFayedFarm.Model.Fridge", "Fridge")
-                        .WithMany("FridgeProducts")
-                        .HasForeignKey("FridgeID");
-
                     b.HasOne("AFayedFarm.Model.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductID");
@@ -875,8 +866,6 @@ namespace AFayedFarm.Migrations
                     b.HasOne("AFayedFarm.Model.Store", "Store")
                         .WithMany("FridgeProducts")
                         .HasForeignKey("StoreID");
-
-                    b.Navigation("Fridge");
 
                     b.Navigation("Product");
 
@@ -886,7 +875,7 @@ namespace AFayedFarm.Migrations
             modelBuilder.Entity("AFayedFarm.Model.FridgeRecord", b =>
                 {
                     b.HasOne("AFayedFarm.Model.Fridge", "Fridge")
-                        .WithMany("FridgeRecords")
+                        .WithMany("FridgeProducts")
                         .HasForeignKey("FridgeID");
 
                     b.HasOne("AFayedFarm.Model.Product", "Product")
@@ -1075,8 +1064,6 @@ namespace AFayedFarm.Migrations
             modelBuilder.Entity("AFayedFarm.Model.Fridge", b =>
                 {
                     b.Navigation("FridgeProducts");
-
-                    b.Navigation("FridgeRecords");
 
                     b.Navigation("Transactions");
                 });

@@ -130,6 +130,7 @@ namespace AFayedFarm.Repositories.Employee
 				response.ResponseValue.Salary = empDb.Salary;
 				response.ResponseValue.Name = empDb.Full_Name;
 				response.ResponseValue.ID = empDb.EmpolyeeID;
+				response.ResponseValue.Total = empDb.TotalBalance;
 				response.ResponseValue.Created_Date = DateOnly.FromDateTime(empDb.Create_Date ?? DateTime.Now);
 
 			}

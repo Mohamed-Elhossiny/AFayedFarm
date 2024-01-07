@@ -12,6 +12,10 @@ namespace AFayedFarm.Model
 		public int? FarmRecordID { get; set; }
 		public virtual FarmsProduct? FarmRecord { get; set; }
 
+		[ForeignKey("FridgeProduct")]
+		public int? FridgeProductID { get; set; }
+		public virtual FridgeRecord? FridgeProduct { get; set; }
+
 		[ForeignKey("Expense")]
         public int? ExpenseID { get; set; }
         public virtual Expense? Expense { get; set; }

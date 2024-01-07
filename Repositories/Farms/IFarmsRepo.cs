@@ -12,7 +12,7 @@ namespace AFayedFarm.Repositories.Supplier
 		Task<RequestResponse<FarmDto>> UpdateFarm(int id,AddFarmDto farmDto);
 		Task<RequestResponse<FarmRecordDto>> AddFarmRecord(AddFarmRecordDto farmDto);
 		Task<RequestResponse<List<FarmRecordDto>>> GetAllFarmRecords(int farmID);
-		Task<RequestResponse<List<FarmRecordDto>>> GetProductsDetails(/*int productId*/);
+		Task<RequestResponse<List<FarmRecordWithoutDescriptionDto>>> GetProductsDetails(/*int productId*/);
 
 		Task<RequestResponse<FarmRecordsWithTotalRemainingDto>> GetAllFarmRecordsWithTotal(int farmID);
 		Task<RequestResponse<FarmRecordDto>> GetFarmRecordByID(int recordID);

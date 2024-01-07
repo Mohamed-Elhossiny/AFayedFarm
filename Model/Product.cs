@@ -17,6 +17,7 @@ namespace AFayedFarm.Model
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
         public virtual ICollection<FarmsProduct>? FarmsProducts { get; set; }
+        public virtual ICollection<FridgeRecord>? FridgeProducts { get; set; }
         public virtual ICollection<StoreProduct>? StoreProducts { get; set; }
 		public virtual ICollection<Transaction>? Transactions { get; set; }
 

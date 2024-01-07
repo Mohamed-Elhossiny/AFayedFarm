@@ -20,6 +20,10 @@ namespace AFayedFarm.Model
 		public int? FarmID { get; set; }
         public virtual Farms? Farm { get; set; }
 
+		[ForeignKey("Fridge")]
+		public int? FridgeID { get; set; }
+		public virtual Fridge? Fridge { get; set; }
+
 		[ForeignKey("Expense")]
 		public int? ExpenseID { get; set; }
 		public virtual Expense? Expense { get; set; }
