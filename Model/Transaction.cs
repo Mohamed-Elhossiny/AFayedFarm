@@ -7,28 +7,24 @@ namespace AFayedFarm.Model
 	{
 		[Key]
 		public int TransactionID { get; set; }
-		
-		[ForeignKey("Store")]
-		public int StoreID { get; set; }
 
 		[ForeignKey("Client")]
 		public int ClientID { get; set; }
-
-		[ForeignKey("Product")]
-		public int ProductID { get; set; }
-		public virtual Store? Store { get; set; }
 		public virtual Client? Client { get; set; }
-		public virtual Product? Product { get; set; }
 
-		[Column(TypeName = "Date")]
+        public virtual ICollection<TransactionProduct>? TransactionProducts { get; set; }
+
+        [Column(TypeName = "Date")]
 		public DateTime ShippingDate { get; set; }
-		
+
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
-        public decimal? Quantity { get; set; }
-        public decimal? Total { get; set; }
-		public decimal? GetPaied { get; set; }
+		public string? DriverName { get; set; }
+		public decimal? TotalCapcity { get; set; }
+		public decimal? Price { get; set; }
+		public decimal? Total { get; set; }
+		public decimal? Payed { get; set; }
 		public decimal? Remaining { get; set; }
-        public string? Notes { get; set; }
-    }
+		public string? Notes { get; set; }
+	}
 }

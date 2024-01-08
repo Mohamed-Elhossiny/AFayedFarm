@@ -344,11 +344,13 @@ namespace AFayedFarm.Repositories.Fridges
 					foreach (var item in transactionRecordDb)
 					{
 						var transactionRecord = new FridgeRecordDto();
+						transactionRecord.FridgeRecordID = item.ID;
 						transactionRecord.FridgeID = (int)item.Fridge!.FridgeID;
 						transactionRecord.FridgeName = item.Fridge!.FridgeName;
 						transactionRecord.Description = TransactionType.Pay.ToString();
 						transactionRecord.Payed = -1 * item.Total;
 						transactionRecord.Notes = item.Notes;
+						transactionRecord.Created_Date = item.Created_Date;
 
 						fridgeRecords.Add(transactionRecord);
 					}
@@ -431,34 +433,53 @@ namespace AFayedFarm.Repositories.Fridges
 			var response = new RequestResponse<FridgeRecordsWithDataDto>() { ResponseID = 0, ResponseValue = new FridgeRecordsWithDataDto() };
 			var fridgeRecord = new List<FridgeRecordDto>();
 			var records = await context.FridgeRecords.Include(c => c.Fridge).Include(c => c.Product).OrderByDescending(c => c.FridgeRecordID).Where(c => c.FridgeID == fridgeID).ToListAsync();
-			if (records.Count != 0)
+			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FridgeID == fridgeID).ToListAsync();
+			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
-				//decimal? remaining = 0;
-				foreach (var item in records)
+				if (records.Count != 0)
 				{
-					//remaining = item.TotalPrice - item.Paied;
-					var record = new FridgeRecordDto();
+					foreach (var item in records)
+					{
+						var record = new FridgeRecordDto();
 
-					record.FridgeRecordID = item.FridgeRecordID;
-					record.FridgeID = item.Fridge!.FridgeID;
-					record.FridgeName = item.Fridge.FridgeName;
-					record.ProductID = item?.Product?.ProductID;
-					record.ProductName = item?.Product?.ProductName;
-					record.SupplyDate = item!.SupplyDate;
-					record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
-					record.Number = item.Number;
-					record.Quantity = item.Quantity;
-					record.Total = item.Total;
-					record.Price = item.Price;
-					record.Payed = item.Payed;
-					record.Remaining = item.Remaining;
-					record.Notes = item.FridgeNotes;
-					record.CarNumber = item.CarNumber;
-					record.Action = item.Action;
-					record.ActionName = ((FridgeActionEnum)item.Action!).ToString();
+						record.FridgeRecordID = item.FridgeRecordID;
+						record.FridgeID = item.Fridge!.FridgeID;
+						record.FridgeName = item.Fridge.FridgeName;
+						record.ProductID = item?.Product?.ProductID;
+						record.ProductName = item?.Product?.ProductName;
+						record.SupplyDate = item!.SupplyDate;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.Number = item.Number;
+						record.Quantity = item.Quantity;
+						record.Total = item.Total;
+						record.Price = item.Price;
+						record.Payed = item.Payed;
+						record.Remaining = item.Remaining;
+						record.Notes = item.FridgeNotes;
+						record.CarNumber = item.CarNumber;
+						record.Action = item.Action;
+						record.ActionName = ((FridgeActionEnum)item.Action!).ToString();
 
-					fridgeRecord.Add(record);
+						fridgeRecord.Add(record);
+					}
 				}
+				if (transactionRecordDb.Count != 0)
+				{
+					foreach (var item in transactionRecordDb)
+					{
+						var transactionRecord = new FridgeRecordDto();
+						transactionRecord.FridgeRecordID = item.ID;
+						transactionRecord.Created_Date = item.Created_Date;
+						transactionRecord.FridgeID = (int)item.Fridge!.FridgeID;
+						transactionRecord.FridgeName = item.Fridge!.FridgeName;
+						transactionRecord.Description = TransactionType.Pay.ToString();
+						transactionRecord.Payed = -1 * item.Total;
+						transactionRecord.Notes = item.Notes;
+
+						fridgeRecord.Add(transactionRecord);
+					}
+				}
+
 				var fridgeDataWithRecord = await GetFridgeById(fridgeID);
 				var fridgeDB = await context.Fridges.Where(f => f.FridgeID == fridgeID).FirstOrDefaultAsync();
 				var TotalRemainingWithRecord = fridgeDB!.TotalRemaining;
@@ -605,9 +626,9 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> PayToFridge(FridgePaymentDto dto)
+		public async Task<RequestResponse<FridgeDto>> PayToFridge(FridgePaymentDto dto)
 		{
-			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var response = new RequestResponse<FridgeDto> { ResponseID = 0, ResponseValue = new FridgeDto() };
 			var fridgeDb = await context.Fridges.Where(e => e.FridgeID == dto.Id).FirstOrDefaultAsync();
 			if (fridgeDb == null)
 				return response;
@@ -637,8 +658,10 @@ namespace AFayedFarm.Repositories.Fridges
 			await context.SaveChangesAsync();
 			#endregion
 
+			var fridge = await GetFridgeById((int)dto.Id);
+
 			response.ResponseID = 1;
-			response.ResponseValue = true;
+			response.ResponseValue = fridge.ResponseValue;
 			return response;
 		}
 

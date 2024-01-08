@@ -19,7 +19,8 @@ namespace AFayedFarm.Model
         public virtual ICollection<FarmsProduct>? FarmsProducts { get; set; }
         public virtual ICollection<FridgeRecord>? FridgeProducts { get; set; }
         public virtual ICollection<StoreProduct>? StoreProducts { get; set; }
-		public virtual ICollection<Transaction>? Transactions { get; set; }
+		//public virtual ICollection<Transaction>? Transactions { get; set; }
+		public virtual ICollection<TransactionProduct>? TransactionProducts { get; set; }
 
 	}
 }

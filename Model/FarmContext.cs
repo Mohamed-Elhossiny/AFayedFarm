@@ -21,6 +21,7 @@ namespace AFayedFarm.Model
 		public virtual DbSet<FridgeRecord> FridgeRecords { get; set; }
 		public virtual DbSet<Fridge> Fridges { get; set; }
 		public virtual DbSet<FridgeProduct> FridgeProducts { get; set; }
+		public virtual DbSet<TransactionProduct> TransactionProducts { get; set; }
 		public FarmContext() { }
 		public FarmContext(DbContextOptions<FarmContext> options) : base(options) { }
 

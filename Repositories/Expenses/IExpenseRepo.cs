@@ -18,6 +18,6 @@ namespace AFayedFarm.Repositories.Expenses
 		Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId);
 		Task<RequestResponse<List<ExpenseRecordDto>>> GetExpensesForFarmRecord(int farmRecordID);
 		Task<RequestResponse<List<ExpenseRecordDto>>> GetAllExpenseRecordsByExpenseId(int expenseID);
-		Task<RequestResponse<bool>> PayToExpense(ExpensePaymentDto dto);
+		Task<RequestResponse<ExpenseDto>> PayToExpense(ExpensePaymentDto dto);
 	}
 }

@@ -20,6 +20,6 @@ namespace AFayedFarm.Repositories.Fridges
 		Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int farmID);
 		Task<RequestResponse<decimal>> CalculateTotalRemainingFromRecords(int farmsID);
 		Task<RequestResponse<FridgeRecordDto>> UpdateFridgeRecordAsync(int recordID, AddFridgeRecordDto dto);
-		Task<RequestResponse<bool>> PayToFridge(FridgePaymentDto dto);
+		Task<RequestResponse<FridgeDto>> PayToFridge(FridgePaymentDto dto);
 	}
 }

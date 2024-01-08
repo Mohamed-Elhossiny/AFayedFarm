@@ -20,7 +20,7 @@ namespace AFayedFarm.Repositories.Supplier
 		Task<RequestResponse<FarmRecordDto>> UpdateFarmRecordAsync(int recordID,AddFarmRecordDto dto);
 		Task<RequestResponse<decimal>> CalculateTotalRemainingFromRecords(int farmsID);
 		Task<RequestResponse<bool>> AddProductToStore(AddFarmRecordDto dto);
-		Task<RequestResponse<bool>> PayToFarm(FarmPaymentDto dto);
+		Task<RequestResponse<FarmDto>> PayToFarm(FarmPaymentDto dto);
 
 	}
 }

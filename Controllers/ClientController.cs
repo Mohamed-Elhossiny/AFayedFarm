@@ -63,24 +63,24 @@ namespace AFayedFarm.Controllers
 			else return BadRequest(clientUpdated.ResponseValue);
 		}
 
-		[HttpPost("~/AddTransaction")]
-		public async Task<IActionResult> AddTransaction(AddTransactionDto dto)
-		{
-			if (dto.ProductID == 0 || dto.ProductID == null)
-				return BadRequest("You must enter product");
-			if (dto.ClientID == 0 || dto.ClientID == null)
-				return BadRequest("You must enter clientID");
+		//[HttpPost("~/AddTransaction")]
+		//public async Task<IActionResult> AddTransaction(AddTransactionDto dto)
+		//{
+		//	if (dto.ProductID == 0 || dto.ProductID == null)
+		//		return BadRequest("You must enter product");
+		//	if (dto.ClientID == 0 || dto.ClientID == null)
+		//		return BadRequest("You must enter clientID");
 
-			var response = await clientRepo.AddTransaction(dto);
-			if (response.ResponseID == 2)
-				return NotFound($"There is no quantity for this product {dto.ProductID}");
-			if (response.ResponseID == 3)
-				return NotFound($"There is no enough quantit for this product {dto.ProductID} in our store");
-			if (response.ResponseID == 0)
-				return NotFound();
-			else
-				return Ok(response.ResponseValue);
-		}
+		//	var response = await clientRepo.AddTransaction(dto);
+		//	if (response.ResponseID == 2)
+		//		return NotFound($"There is no quantity for this product {dto.ProductID}");
+		//	if (response.ResponseID == 3)
+		//		return NotFound($"There is no enough quantit for this product {dto.ProductID} in our store");
+		//	if (response.ResponseID == 0)
+		//		return NotFound();
+		//	else
+		//		return Ok(response.ResponseValue);
+		//}
 
 		[HttpGet("~/GetTransactionByCleintID")]
 		public async Task<IActionResult> GetTransactionByCleintID(int clientID)

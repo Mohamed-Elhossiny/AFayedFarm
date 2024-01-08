@@ -160,7 +160,7 @@ namespace AFayedFarm.Controllers
 			if (response.ResponseID == 0)
 				return NotFound();
 			else
-				return Ok(dto);
+				return Ok(response.ResponseValue);
 		}
 
 	}

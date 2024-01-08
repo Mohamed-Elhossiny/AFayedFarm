@@ -305,32 +305,52 @@ namespace AFayedFarm.Repositories.Supplier
 			var response = new RequestResponse<FarmRecordsWithFarmDataDto>() { ResponseID = 0, ResponseValue = new FarmRecordsWithFarmDataDto() };
 			var farmsRecord = new List<FarmRecordDto>();
 			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).OrderByDescending(c => c.FarmProductID).Where(c => c.FarmsID == farmID).ToListAsync();
-			if (records.Count != 0)
+			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FarmID == farmID).ToListAsync();
+			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
-				decimal? remaining = 0;
-				foreach (var item in records)
+				if (records.Count != 0)
 				{
-					remaining = item.TotalPrice - item.Paied;
-					var record = new FarmRecordDto();
-					record.FarmRecordID = item.FarmProductID;
-					record.FarmsID = item.Farms!.FarmsID;
-					record.FarmsName = item.Farms.FarmsName;
-					record.ProductID = item.Product!.ProductID;
-					record.ProductName = item.Product.ProductName;
-					record.SupplyDate = item.SupplyDate;
-					record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
-					record.Quantity = item.Quantity;
-					record.Discount = item.Discount;
-					record.NetQuantity = item.NetQuantity;
-					record.Price = item.Price;
-					record.Total = item.TotalPrice;
-					record.Paied = item.Paied;
-					record.Remaining = remaining;
-					record.FarmsNotes = item.FarmsNotes;
-					record.CarNumber = item.CarNumber;
-					record.isPercentage = item.isPercentage;
+					decimal? remaining = 0;
+					foreach (var item in records)
+					{
+						remaining = item.TotalPrice - item.Paied;
+						var record = new FarmRecordDto();
+						record.FarmRecordID = item.FarmProductID;
+						record.FarmsID = item.Farms!.FarmsID;
+						record.FarmsName = item.Farms.FarmsName;
+						record.ProductID = item.Product!.ProductID;
+						record.ProductName = item.Product.ProductName;
+						record.SupplyDate = item.SupplyDate;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.Quantity = item.Quantity;
+						record.Discount = item.Discount;
+						record.NetQuantity = item.NetQuantity;
+						record.Price = item.Price;
+						record.Total = item.TotalPrice;
+						record.Paied = item.Paied;
+						record.Remaining = remaining;
+						record.FarmsNotes = item.FarmsNotes;
+						record.CarNumber = item.CarNumber;
+						record.isPercentage = item.isPercentage;
 
-					farmsRecord.Add(record);
+						farmsRecord.Add(record);
+					}
+				}
+				if (transactionRecordDb.Count != 0)
+				{
+					foreach (var item in transactionRecordDb)
+					{
+						var transactionRecord = new FarmRecordDto();
+						transactionRecord.FarmRecordID = item.ID;
+						transactionRecord.FarmsID = (int)item.Farm!.FarmsID;
+						transactionRecord.FarmsName = item.Farm!.FarmsName;
+						transactionRecord.Description = TransactionType.Pay.ToString();
+						transactionRecord.Paied = -1 * item.Total;
+						transactionRecord.FarmsNotes = item.Notes;
+						transactionRecord.Created_Date = item.Created_Date;
+
+						farmsRecord.Add(transactionRecord);
+					}
 				}
 				var farmDataWithRecord = await GetFarmById(farmID);
 				var farmDB = await context.Farms.Where(f => f.FarmsID == farmID).FirstOrDefaultAsync();
@@ -592,9 +612,9 @@ namespace AFayedFarm.Repositories.Supplier
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> PayToFarm(FarmPaymentDto dto)
+		public async Task<RequestResponse<FarmDto>> PayToFarm(FarmPaymentDto dto)
 		{
-			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var response = new RequestResponse<FarmDto> { ResponseID = 0, ResponseValue = new FarmDto() };
 			var farmDb = await context.Farms.Where(e => e.FarmsID == dto.Id).FirstOrDefaultAsync();
 			if (farmDb == null)
 				return response;
@@ -623,9 +643,9 @@ namespace AFayedFarm.Repositories.Supplier
 
 			await context.SaveChangesAsync();
 			#endregion
-
+			var farm = await GetFarmById((int)dto.Id!);
 			response.ResponseID = 1;
-			response.ResponseValue = true;
+			response.ResponseValue = farm;
 			return response;
 		}
 
