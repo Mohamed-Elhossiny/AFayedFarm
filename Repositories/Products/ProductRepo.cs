@@ -28,6 +28,9 @@ namespace AFayedFarm.Repositories.Products
 				};
 				await context.Products.AddAsync(product);
 				await context.SaveChangesAsync();
+
+				await AddProductToStore(dto, product.ProductID);
+
 				var productDto = new ProductDto()
 				{
 					ID = product.ProductID,
@@ -89,6 +92,37 @@ namespace AFayedFarm.Repositories.Products
 				response.ResponseID = 1;
 				response.ResponseValue = productDto;
 			}
+			return response;
+		}
+
+		public async Task<RequestResponse<bool>> AddProductToStore(AddProductDto dto,int id)
+		{
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var productInStore = await context.StoreProducts.Where(c => c.ProductID == id).FirstOrDefaultAsync();
+			if (productInStore != null)
+			{
+				if (productInStore.Quantity == null)
+					productInStore.Quantity = 0;
+				productInStore.Quantity += dto.Quantity;
+				context.StoreProducts.Update(productInStore);
+				await context.SaveChangesAsync();
+			}
+			else
+			{
+				var storeProduct = new StoreProduct();
+				if (dto != null)
+				{
+					storeProduct.ProductID = id;
+					storeProduct.StoreID = 1;
+					storeProduct.Created_Date = DateTime.Now.Date;
+					storeProduct.Quantity = dto.Quantity;
+
+					await context.StoreProducts.AddAsync(storeProduct);
+					await context.SaveChangesAsync();
+				}
+			}
+			response.ResponseID = 1;
+			response.ResponseValue = true;
 			return response;
 		}
 	}

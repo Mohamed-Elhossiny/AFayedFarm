@@ -1,4 +1,5 @@
 ﻿using AFayedFarm.Dtos;
+using AFayedFarm.Dtos.Client;
 using AFayedFarm.Repositories.Clients;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Http;
@@ -63,35 +64,54 @@ namespace AFayedFarm.Controllers
 			else return BadRequest(clientUpdated.ResponseValue);
 		}
 
-		//[HttpPost("~/AddTransaction")]
-		//public async Task<IActionResult> AddTransaction(AddTransactionDto dto)
-		//{
-		//	if (dto.ProductID == 0 || dto.ProductID == null)
-		//		return BadRequest("You must enter product");
-		//	if (dto.ClientID == 0 || dto.ClientID == null)
-		//		return BadRequest("You must enter clientID");
+		[HttpPost("~/AddTransaction")]
+		public async Task<IActionResult> AddTransaction(AddTransactionMainDataDto dto)
+		{
 
-		//	var response = await clientRepo.AddTransaction(dto);
-		//	if (response.ResponseID == 2)
-		//		return NotFound($"There is no quantity for this product {dto.ProductID}");
-		//	if (response.ResponseID == 3)
-		//		return NotFound($"There is no enough quantit for this product {dto.ProductID} in our store");
-		//	if (response.ResponseID == 0)
-		//		return NotFound();
-		//	else
-		//		return Ok(response.ResponseValue);
-		//}
+			if (dto.ClientID == 0 || dto.ClientID == null)
+				return BadRequest("You must enter clientID");
 
-		[HttpGet("~/GetTransactionByCleintID")]
-		public async Task<IActionResult> GetTransactionByCleintID(int clientID)
+			var response = await clientRepo.AddTransaction(dto);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound();
+		}
+
+		[HttpGet("~/GetTransactionsWithClientData")]
+		public async Task<IActionResult> GetTransactionsWithClientData(int clientID)
 		{
 			if (clientID == 0)
 				return BadRequest();
-			var response = await clientRepo.GetTransactionsByClientId(clientID);
+			var response = await clientRepo.GetTransactionsWithCleintData(clientID);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else
 				return NotFound("There is no transactions for that client");
+		}
+
+		[HttpGet("~/GetTransactionRecordByID")]
+		public async Task<IActionResult> GetTransactionRecordByID(int recordID)
+		{
+			if (recordID == 0)
+				return BadRequest();
+			var response = await clientRepo.GetTransactionByRecordId(recordID);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return NotFound($"There is no transactions for that ID {recordID}");
+		}
+
+		[HttpPost("~/CollectMoneyFromClient")]
+		public async Task<IActionResult> CollectMoneyFromClient(CollectMoneyDto dto)
+		{
+			if (dto.Id == 0)
+				return BadRequest("Enter Valid Id");
+			var response = await clientRepo.CollectMoneyFromClient(dto);
+			if (response.ResponseID == 0)
+				return NotFound();
+			else
+				return Ok(response.ResponseValue);
 		}
 	}
 }

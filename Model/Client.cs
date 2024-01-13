@@ -11,12 +11,13 @@ namespace AFayedFarm.Model
 
 		[Column(TypeName = "Date")]
 		public DateTime? Create_Date { get; set; }
+        public decimal? Total { get; set; }
 
-		/// <summary>
-		/// 1 ==> Export OutSide
-		/// 0 ==> Inside
-		/// </summary>
-		public int? Export { get; set; }
+        /// <summary>
+        /// 1 ==> Export OutSide
+        /// 0 ==> Inside
+        /// </summary>
+        public int? Export { get; set; }
 		public virtual ICollection<Transaction>? Transactions { get; set; }
 		public virtual ICollection<SafeTransaction>? SafeTransactions { get; set; }
 	}

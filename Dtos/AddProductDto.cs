@@ -4,5 +4,6 @@
 	{
 		public string? Name { get; set; }
 		public string? Notes { get; set; }
+		public decimal? Quantity { get; set; }
 	}
 }
