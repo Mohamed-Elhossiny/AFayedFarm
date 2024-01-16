@@ -18,6 +18,9 @@ namespace AFayedFarm.Repositories.Clients
 		Task<RequestResponse<List<TransactionMainDataDto>>> GetTransactionsByClientId(int clientid);
 		Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid);
 		Task<RequestResponse<ClientDto>> CollectMoneyFromClient(CollectMoneyDto dto);
+		Task<RequestResponse<TransactionMainDataDto>> UpdateClientRecord(int id, AddTransactionMainDataDto dto);
+		Task<RequestResponse<bool>> ReturnProductToStore(AddProductListDto dto);
+		Task<RequestResponse<bool>> ReturnProductBoxToStore(AddProductListDto dto);
 
 	}
 }

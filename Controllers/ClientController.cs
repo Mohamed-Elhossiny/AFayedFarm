@@ -84,10 +84,8 @@ namespace AFayedFarm.Controllers
 			if (clientID == 0)
 				return BadRequest();
 			var response = await clientRepo.GetTransactionsWithCleintData(clientID);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound("There is no transactions for that client");
+			return Ok(response.ResponseValue);
+
 		}
 
 		[HttpGet("~/GetTransactionRecordByID")]
@@ -112,6 +110,19 @@ namespace AFayedFarm.Controllers
 				return NotFound();
 			else
 				return Ok(response.ResponseValue);
+		}
+
+		[HttpPut("~/UpdateClientRecord")]
+		public async Task<IActionResult> UpdateClientRecord(int id, [FromBody] AddTransactionMainDataDto dto)
+		{
+			if (id == 0)
+				return BadRequest("Enter Valid Id");
+			var response = await clientRepo.UpdateClientRecord(id,dto);
+			if (response.ResponseID == 1)
+				return Ok(response.ResponseValue);
+			else
+				return BadRequest(dto);
+
 		}
 	}
 }

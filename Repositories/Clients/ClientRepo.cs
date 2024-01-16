@@ -53,7 +53,6 @@ namespace AFayedFarm.Repositories.Clients
 				transactionDto.DriverName = transaction?.DriverName ?? "";
 				transactionDto.Date = transaction?.Created_Date ?? DateTime.Now.Date;
 				transactionDto.Notes = transaction?.Notes ?? "";
-				transactionDto.Price = transaction?.Price ?? 0;
 				transactionDto.Total = transaction?.Total ?? 0;
 				transactionDto.Payed = transaction?.Payed ?? 0;
 				transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
@@ -68,12 +67,16 @@ namespace AFayedFarm.Repositories.Clients
 						productDto.ProductID = item.Product?.ProductID;
 						productDto.ProductName = item.Product?.ProductName;
 						productDto.Quantity = item.Qunatity;
+						productDto.Total = item.ProductTotal;
+						productDto.Price = item.Price;
 					}
 					if (item.Number != null)
 					{
 						productDto.ProductBoxName = item.Product?.ProductName;
 						productDto.ProductBoxID = item.Product?.ProductID;
 						productDto.Number = item.Number;
+						productDto.Total = item.ProductTotal;
+						productDto.Price = item.Price;
 					}
 					productListDto.Add(productDto);
 				}
@@ -93,7 +96,6 @@ namespace AFayedFarm.Repositories.Clients
 			transaction.ClientID = (int)dto.ClientID!;
 			transaction.ShippingDate = (DateTime)dto.Date!;
 			transaction.Created_Date = DateTime.Now.Date;
-			transaction.Price = dto.Price;
 			transaction.Total = dto.Total;
 			transaction.Payed = dto.Payed;
 			transaction.Remaining = (dto.Total - dto.Payed);
@@ -115,6 +117,8 @@ namespace AFayedFarm.Repositories.Clients
 						transactionProduct.TransactionID = transaction.TransactionID;
 						transactionProduct.ProductID = item.ProductID;
 						transactionProduct.Qunatity = item.Quantity;
+						transactionProduct.ProductTotal = item.ProductTotal;
+						transactionProduct.Price = item.Price;
 
 						await context.TransactionProducts.AddAsync(transactionProduct);
 						await context.SaveChangesAsync();
@@ -127,6 +131,8 @@ namespace AFayedFarm.Repositories.Clients
 						transactionProduct.TransactionID = transaction.TransactionID;
 						transactionProduct.ProductID = item.ProductBoxID;
 						transactionProduct.Number = item.Number;
+						transactionProduct.ProductTotal = item.ProductTotal;
+						transactionProduct.Price = item.Price;
 
 						await context.TransactionProducts.AddAsync(transactionProduct);
 						await context.SaveChangesAsync();
@@ -158,7 +164,7 @@ namespace AFayedFarm.Repositories.Clients
 #warning Check Total for the client with Hossam
 
 			var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
-			if (clientDb.Total == null)
+			if (clientDb!.Total == null)
 				clientDb.Total = 0;
 			clientDb!.Total += -1 * (dto.Total - dto.Payed);
 			context.Clients.Update(clientDb);
@@ -188,7 +194,7 @@ namespace AFayedFarm.Repositories.Clients
 			{
 				ID = c.ClientID,
 				Name = c.ClientName,
-				Total = c.Total,
+				Total = c.Total ?? 0,
 				Created_Date = DateOnly.FromDateTime(c.Create_Date ?? DateTime.Now)
 			}).OrderByDescending(c => c.ID).ToListAsync();
 			return clientsDb;
@@ -206,7 +212,7 @@ namespace AFayedFarm.Repositories.Clients
 					ID = clientDb.ClientID,
 
 					//############ TO DO Check Total with Hossam
-					Total = clientDb.Total,
+					Total = clientDb.Total ?? 0,
 					Created_Date = DateOnly.FromDateTime(clientDb.Create_Date ?? DateTime.Now)
 				};
 				response.ResponseID = 1;
@@ -304,7 +310,6 @@ namespace AFayedFarm.Repositories.Clients
 					transactionDto.DriverName = transaction?.DriverName ?? "";
 					transactionDto.Date = transaction?.Created_Date ?? DateTime.Now.Date;
 					transactionDto.Notes = transaction?.Notes ?? "";
-					transactionDto.Price = transaction?.Price ?? 0;
 					transactionDto.Total = transaction?.Total ?? 0;
 					transactionDto.Payed = transaction?.Payed ?? 0;
 					transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
@@ -319,12 +324,16 @@ namespace AFayedFarm.Repositories.Clients
 							productDto.ProductID = item.Product?.ProductID;
 							productDto.ProductName = item.Product?.ProductName;
 							productDto.Quantity = item.Qunatity;
+							productDto.Total = item.ProductTotal;
+							productDto.Price = item.Price;
 						}
 						if (item.Number != null)
 						{
 							productDto.ProductBoxName = item.Product?.ProductName;
 							productDto.ProductBoxID = item.Product?.ProductID;
 							productDto.Number = item.Number;
+							productDto.Total = item.ProductTotal;
+							productDto.Price = item.Price;
 						}
 						productListDto.Add(productDto);
 					}
@@ -378,7 +387,7 @@ namespace AFayedFarm.Repositories.Clients
 
 		public async Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid)
 		{
-			var response = new RequestResponse<TransactionWithClientData> { ResponseID = 0, ResponseValue = new TransactionWithClientData() };
+			var response = new RequestResponse<TransactionWithClientData> { ResponseID = 0, ResponseValue = new TransactionWithClientData() { TransactionsList = new() } };
 			var transactions = await context.Transactions.Where(c => c.ClientID == clientid).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).ToListAsync();
 			if (transactions.Count != 0)
 			{
@@ -396,7 +405,6 @@ namespace AFayedFarm.Repositories.Clients
 					transactionDto.DriverName = transaction?.DriverName ?? "";
 					transactionDto.Date = transaction?.Created_Date ?? DateTime.Now.Date;
 					transactionDto.Notes = transaction?.Notes ?? "";
-					transactionDto.Price = transaction?.Price ?? 0;
 					transactionDto.Total = transaction?.Total ?? 0;
 					transactionDto.Payed = transaction?.Payed ?? 0;
 					transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
@@ -411,12 +419,16 @@ namespace AFayedFarm.Repositories.Clients
 							productDto.ProductID = item.Product?.ProductID;
 							productDto.ProductName = item.Product?.ProductName;
 							productDto.Quantity = item.Qunatity;
+							productDto.Total = item.ProductTotal;
+							productDto.Price = item.Price;
 						}
 						if (item.Number != null)
 						{
 							productDto.ProductBoxName = item.Product?.ProductName;
 							productDto.ProductBoxID = item.Product?.ProductID;
 							productDto.Number = item.Number;
+							productDto.Total = item.ProductTotal;
+							productDto.Price = item.Price;
 						}
 						productListDto.Add(productDto);
 					}
@@ -424,13 +436,194 @@ namespace AFayedFarm.Repositories.Clients
 
 					transactionListDto.Add(transactionDto);
 				}
-				var client = await GetClientById(clientid);
-				response.ResponseValue.Name = client.ResponseValue?.Name ?? "";
-				response.ResponseValue.ID = client.ResponseValue?.ID ?? 0;
-				response.ResponseValue.Date = client.ResponseValue?.Created_Date;
-				response.ResponseValue.Total = client.ResponseValue?.Total ?? 0;
+
 				response.ResponseValue.TransactionsList = transactionListDto;
 				response.ResponseID = 1;
+			}
+			var client = await GetClientById(clientid);
+			response.ResponseValue.Name = client.ResponseValue?.Name ?? "";
+			response.ResponseValue.ID = client.ResponseValue?.ID ?? 0;
+			response.ResponseValue.Date = client.ResponseValue?.Created_Date;
+			response.ResponseValue.Total = client.ResponseValue?.Total ?? 0;
+			return response;
+		}
+
+		public async Task<RequestResponse<TransactionMainDataDto>> UpdateClientRecord(int id, AddTransactionMainDataDto dto)
+		{
+			var response = new RequestResponse<TransactionMainDataDto> { ResponseID = 0, ResponseValue = new TransactionMainDataDto() };
+			try
+			{
+				var transaction = await context.Transactions.Where(c => c.TransactionID == id).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).FirstOrDefaultAsync();
+
+				if (transaction != null)
+				{
+					transaction.ClientID = (int)dto.ClientID!;
+					transaction.ShippingDate = (DateTime)dto.Date!;
+					transaction.Total = dto.Total;
+					transaction.Payed = dto.Payed;
+					transaction.Remaining = (dto.Total - dto.Payed);
+					transaction.DriverName = dto.DriverName;
+					transaction.TotalCapcity = dto.CarCapacity;
+
+					context.Transactions.Update(transaction);
+					await context.SaveChangesAsync();
+
+					/// Asscoiate Product List to This Transaction
+					/// 
+					var productListDb = await context.TransactionProducts.Where(c => c.ID == transaction.TransactionID).Include(c => c.Product).ToListAsync();
+					if (productListDb.Count != 0 && dto.ProductList.Count != 0)
+					{
+
+						foreach (var item in dto.ProductList)
+						{
+							var existingProduct = productListDb.FirstOrDefault(p => p.ProductID == item.ProductID);
+							if (existingProduct != null)
+							{
+								var inComeQuantity = item.Quantity;
+								existingProduct.TransactionID = transaction.TransactionID;
+								existingProduct.ProductID = item.ProductID;
+								existingProduct.Qunatity = item.Quantity;
+								existingProduct.ProductTotal = item.ProductTotal;
+								existingProduct.Price = item.Price;
+
+								context.TransactionProducts.Update(existingProduct);
+								await context.SaveChangesAsync();
+
+								if (inComeQuantity > existingProduct.Qunatity)
+								{
+									await UpdateProductQuantityInStore(dto);
+								}
+								if (inComeQuantity < existingProduct.Qunatity)
+								{
+									var newProductList = new AddProductListDto()
+									{
+										ProductID = item.ProductID,
+										Quantity = item.Quantity,
+										Price = item.Price,
+										ProductTotal = item.ProductTotal
+									};
+									await ReturnProductToStore(newProductList);
+								}
+
+							}
+							var existProductBox = productListDb.FirstOrDefault(p => p.ProductID == item.ProductBoxID);
+							if (existProductBox != null)
+							{
+								var inComeNumbers = item.Number;
+								existProductBox.TransactionID = transaction.TransactionID;
+								existProductBox.ProductID = item.ProductBoxID;
+								existProductBox.Number = item.Number;
+								existProductBox.ProductTotal = item.ProductTotal;
+								existProductBox.Price = item.Price;
+
+								context.TransactionProducts.Update(existProductBox);
+								await context.SaveChangesAsync();
+
+								if (inComeNumbers > existProductBox.Number)
+								{
+									await UpdateProductQuantityInStore(dto);
+								}
+								if (inComeNumbers < existProductBox.Number)
+								{
+									var newProductList = new AddProductListDto()
+									{
+										ProductID = item.ProductBoxID,
+										Number = item.Number,
+										Price = item.Price,
+										ProductTotal = item.ProductTotal
+									};
+									await ReturnProductBoxToStore(newProductList);
+								}
+
+							}
+
+
+						}
+					}
+					#region Safe Transaction
+					if (dto.TypeId == (int)TransactionType.Income && dto.Payed != transaction.Payed)
+					{
+
+						var safeTransaction = new SafeTransaction();
+						safeTransaction.SafeID = 1;
+						safeTransaction.CLientID = dto.ClientID;
+						safeTransaction.TypeID = dto.TypeId;
+						safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
+						safeTransaction.Total = dto.Payed;
+						safeTransaction.Notes = dto.Notes;
+
+						await context.SafeTransactions.AddAsync(safeTransaction);
+
+						var financialSafe = await context.Safe.FindAsync(1);
+						if (dto.TypeId == (int)TransactionType.Income)
+							financialSafe!.Total = financialSafe.Total + dto.Payed;
+
+						context.Safe.Update(financialSafe!);
+
+
+						var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
+						if (clientDb!.Total == null)
+							clientDb.Total = 0;
+						clientDb!.Total += -1 * (dto.Total - dto.Payed);
+						context.Clients.Update(clientDb);
+
+						await context.SaveChangesAsync();
+
+					}
+					#endregion
+					// TO DO ==> Get Transaction Record
+
+					var transactionDto = await GetTransactionByRecordId(transaction.TransactionID);
+					if (transactionDto.ResponseID == 1)
+					{
+						response.ResponseID = 1;
+						response.ResponseValue = transactionDto.ResponseValue;
+						return response;
+					}
+
+				}
+
+
+			}
+			catch (Exception ex)
+			{
+				response.ResponseID = 0;
+				response.ResponseValue = new TransactionMainDataDto();
+			}
+			return response;
+
+		}
+
+		public async Task<RequestResponse<bool>> ReturnProductToStore(AddProductListDto dto)
+		{
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
+			if (productInStore != null)
+			{
+				if (productInStore.Quantity == null)
+					productInStore.Quantity = 0;
+				productInStore.Quantity += dto.Quantity;
+				context.StoreProducts.Update(productInStore);
+				await context.SaveChangesAsync();
+				response.ResponseID = 1;
+				response.ResponseValue = true;
+			}
+			return response;
+		}
+
+		public async Task<RequestResponse<bool>> ReturnProductBoxToStore(AddProductListDto dto)
+		{
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var productBoxInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductBoxID).FirstOrDefaultAsync();
+			if (productBoxInStore != null)
+			{
+				if (productBoxInStore.Quantity == null)
+					productBoxInStore.Quantity = 0;
+				productBoxInStore.Quantity += dto.Number;
+				context.StoreProducts.Update(productBoxInStore);
+				await context.SaveChangesAsync();
+				response.ResponseID = 1;
+				response.ResponseValue = true;
 			}
 			return response;
 		}

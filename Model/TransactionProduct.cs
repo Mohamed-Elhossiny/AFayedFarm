@@ -17,5 +17,7 @@ namespace AFayedFarm.Model
 		public virtual Product? Product { get; set; }
 		public decimal? Qunatity { get; set; }
 		public decimal? Number { get; set; }
-	}
+        public decimal? Price { get; set; }
+        public decimal? ProductTotal { get; set; }
+    }
 }

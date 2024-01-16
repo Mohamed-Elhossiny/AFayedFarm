@@ -1,5 +1,7 @@
 
+using AFayedFarm.Helper;
 using AFayedFarm.Model;
+using AFayedFarm.Repositories.Auth;
 using AFayedFarm.Repositories.Clients;
 using AFayedFarm.Repositories.Employee;
 using AFayedFarm.Repositories.Expenses;
@@ -8,10 +10,13 @@ using AFayedFarm.Repositories.Fridges;
 using AFayedFarm.Repositories.Products;
 using AFayedFarm.Repositories.Store;
 using AFayedFarm.Repositories.Supplier;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace AFayedFarm
 {
@@ -28,6 +33,8 @@ namespace AFayedFarm
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 
+			builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+
 			builder.Services.AddDbContext<FarmContext>(
 				option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 			builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
@@ -41,6 +48,28 @@ namespace AFayedFarm
 				options.AddPolicy("AllowAll", builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 			});
 
+			builder.Services.AddAuthentication(option =>
+			{
+				option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+			}).AddJwtBearer(o =>
+			{
+				o.RequireHttpsMetadata = false;
+				o.SaveToken = true;
+				o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+				{
+					ValidateIssuer = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = builder.Configuration["JWT:Issuer"],
+					ValidateAudience = true,
+					ValidAudience = builder.Configuration["JWT:Audiance"],
+					ValidateLifetime = true,
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!))
+				};
+			});
+
+
 			builder.Services.AddScoped<IFarmsRepo, FarmsRepo>();
 			builder.Services.AddScoped<IClientRepo, ClientRepo>();
 			builder.Services.AddScoped<IExpenseRepo, ExpenseRepo>();
@@ -49,6 +78,7 @@ namespace AFayedFarm
 			builder.Services.AddScoped<ISafeRepo, SafeRepo>();
 			builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 			builder.Services.AddScoped<IFridgeRepo, FridgeRepo>();
+			builder.Services.AddScoped<IAuthService, AuthService>();
 
 
 			var app = builder.Build();
@@ -61,6 +91,7 @@ namespace AFayedFarm
 			//}
 
 			app.UseCors("AllowAll");
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.MapControllers();

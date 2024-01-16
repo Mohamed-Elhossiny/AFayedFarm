@@ -7,7 +7,6 @@
 		public string? ClientName { get; set; }
 		public string? DriverName { get; set; }
 		public DateTime? Date { get; set; }
-		public decimal? Price { get; set; }
         public int? TypeId { get; set; }
         public decimal? Total { get; set; }
 		public decimal? Payed { get; set; }
