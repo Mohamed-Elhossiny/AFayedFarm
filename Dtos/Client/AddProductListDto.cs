@@ -7,6 +7,7 @@
         public int? ProductBoxID { get; set; }
         public decimal? Number { get; set; }
         public decimal? Price { get; set; }
-        public decimal? ProductTotal { get; set; }
+        public decimal? Total { get; set; }
+        //public decimal? ProductTotal { get; set; }
     }
 }

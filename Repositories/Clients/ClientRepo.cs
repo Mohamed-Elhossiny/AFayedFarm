@@ -127,25 +127,13 @@ namespace AFayedFarm.Repositories.Clients
 						transactionProduct.ProductBoxID = item.ProductBoxID;
 						transactionProduct.Number = item.Number;
 						transactionProduct.Price = item.Price;
-						transactionProduct.ProductTotal = item.ProductTotal;
+						transactionProduct.ProductTotal = item.Total;
 
 						await context.TransactionProducts.AddAsync(transactionProduct);
 						await context.SaveChangesAsync();
 
 					}
-					//if (item.ProductBoxID != 0)
-					//{
-					//	var transactionProduct = new TransactionProduct();
-					//	transactionProduct.TransactionID = transaction.TransactionID;
-					//	transactionProduct.ProductID = item.ProductBoxID;
-					//	transactionProduct.Number = item.Number;
-					//	transactionProduct.ProductTotal = item.ProductTotal;
-					//	transactionProduct.Price = item.Price;
-
-					//	await context.TransactionProducts.AddAsync(transactionProduct);
-					//	await context.SaveChangesAsync();
-
-					//}
+					
 				}
 
 				await UpdateProductQuantityInStore(dto);
@@ -419,6 +407,7 @@ namespace AFayedFarm.Repositories.Clients
 					transactionDto.Payed = transaction?.Payed ?? 0;
 					transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
 					transactionDto.Remaining = transaction?.Remaining ?? 0;
+					transactionDto.DeliveredToDriver = transaction?.DeliveredToDriver ?? 0;
 					transactionDto.TypeId = (int)TransactionType.Income;
 
 					foreach (var item in transaction?.TransactionProducts)
@@ -495,7 +484,7 @@ namespace AFayedFarm.Repositories.Clients
 								existingProduct.TransactionID = transaction.TransactionID;
 								existingProduct.ProductID = item.ProductID;
 								existingProduct.Qunatity = item.Quantity;
-								existingProduct.ProductTotal = item.ProductTotal;
+								existingProduct.ProductTotal = item.Total;
 								existingProduct.Price = item.Price;
 
 								context.TransactionProducts.Update(existingProduct);
@@ -512,7 +501,7 @@ namespace AFayedFarm.Repositories.Clients
 										ProductID = item.ProductID,
 										Quantity = item.Quantity,
 										Price = item.Price,
-										ProductTotal = item.ProductTotal
+										Total = item.Total
 									};
 									await ReturnProductToStore(newProductList);
 								}
@@ -525,7 +514,7 @@ namespace AFayedFarm.Repositories.Clients
 								existProductBox.TransactionID = transaction.TransactionID;
 								existProductBox.ProductID = item.ProductBoxID;
 								existProductBox.Number = item.Number;
-								existProductBox.ProductTotal = item.ProductTotal;
+								existProductBox.ProductTotal = item.Total;
 								existProductBox.Price = item.Price;
 
 								context.TransactionProducts.Update(existProductBox);
@@ -542,7 +531,7 @@ namespace AFayedFarm.Repositories.Clients
 										ProductID = item.ProductBoxID,
 										Number = item.Number,
 										Price = item.Price,
-										ProductTotal = item.ProductTotal
+										Total = item.Total
 									};
 									await ReturnProductBoxToStore(newProductList);
 								}
