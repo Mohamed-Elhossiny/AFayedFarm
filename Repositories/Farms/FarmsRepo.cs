@@ -300,12 +300,24 @@ namespace AFayedFarm.Repositories.Supplier
 
 		}
 
-		public async Task<RequestResponse<FarmRecordsWithFarmDataDto>> GetFarmRecordWithFarmDataByID(int farmID)
+		public async Task<RequestResponse<FarmRecordsWithFarmDataDto>> GetFarmRecordWithFarmDataByID(int farmID,int currentPage ,int pageSize)
 		{
 			var response = new RequestResponse<FarmRecordsWithFarmDataDto>() { ResponseID = 0, ResponseValue = new FarmRecordsWithFarmDataDto() };
 			var farmsRecord = new List<FarmRecordDto>();
-			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).OrderByDescending(c => c.FarmProductID).Where(c => c.FarmsID == farmID).ToListAsync();
-			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FarmID == farmID).ToListAsync();
+			var framRecords =await context.FarmsProducts
+				.Include(c => c.Farms)
+				.Include(c => c.Product)
+				.OrderByDescending(c => c.FarmProductID)
+				.Where(c => c.FarmsID == farmID).ToListAsync();
+
+			var records = framRecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+			var transactionRecordDbs =await context.SafeTransactions
+				.Include(c => c.Farm)
+				.Where(c => c.FarmID == farmID).ToListAsync();
+
+			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				if (records.Count != 0)
@@ -355,8 +367,11 @@ namespace AFayedFarm.Repositories.Supplier
 				var farmDataWithRecord = await GetFarmById(farmID);
 				var farmDB = await context.Farms.Where(f => f.FarmsID == farmID).FirstOrDefaultAsync();
 				var TotalRemainingWithRecord = farmDB!.TotalRemaining;
-				//var TotalRemainingWithRecord = await GetTotalRemaining(farmID);
 
+				var totalRecords = framRecords.Count() + transactionRecordDbs.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
 				response.ResponseValue.Name = farmDataWithRecord.Name;
 				response.ResponseValue.ID = farmDataWithRecord.ID;
 				response.ResponseValue.Total = TotalRemainingWithRecord;
@@ -365,6 +380,7 @@ namespace AFayedFarm.Repositories.Supplier
 				response.ResponseID = 1;
 				return response;
 			}
+
 			var farmData = await GetFarmById(farmID);
 			var TotalRemaining = await CalculateTotalRemainingFromRecords(farmID);
 
@@ -572,11 +588,17 @@ namespace AFayedFarm.Repositories.Supplier
 			return response;
 		}
 
-		public async Task<RequestResponse<List<FarmRecordWithoutDescriptionDto>>> GetProductsDetails(/*int productId*/)
+		public async Task<RequestResponse<List<FarmRecordWithoutDescriptionDto>>> GetProductsDetails(int pageNumber, int pageSize)
 		{
 			var response = new RequestResponse<List<FarmRecordWithoutDescriptionDto>>() { ResponseID = 0 };
 			var farmsRecord = new List<FarmRecordWithoutDescriptionDto>();
-			var records = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).OrderByDescending(c => c.ProductID).ToListAsync();
+			var farmRecords = context.FarmsProducts
+				.Include(c => c.Farms)
+				.Include(c => c.Product)
+				.OrderByDescending(c => c.ProductID);
+
+			var records = await farmRecords.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
 			if (records.Count != 0)
 			{
 				//decimal? remaining = 0;

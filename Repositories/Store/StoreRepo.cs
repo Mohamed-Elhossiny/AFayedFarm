@@ -13,11 +13,14 @@ namespace AFayedFarm.Repositories.Store
 		{
 			this.context = context;
 		}
-		public async Task<RequestResponse<List<StoreProductDto>>> GetStoreProducts()
+		public async Task<RequestResponse<List<StoreProductDto>>> GetStoreProducts(int currentPage,int pageSize)
 		{
 			var response = new RequestResponse<List<StoreProductDto>> { ResponseID = 0, ResponseValue = new List<StoreProductDto>() };
 			var productList = new List<StoreProductDto>();
-			var productsInStore = await context.StoreProducts.Include(c => c.Product).OrderBy(c => c.ProductID).ToListAsync();
+			var productsInStores = await context.StoreProducts.Include(c => c.Product).OrderByDescending(c => c.ProductID).ToListAsync();
+
+			var productsInStore = productsInStores.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
 			if (productsInStore.Count != 0)
 			{
 				foreach (var item in productsInStore)
@@ -25,11 +28,14 @@ namespace AFayedFarm.Repositories.Store
 					var product = new StoreProductDto();
 					product.ProductID = item.ProductID;
 					product.ProductName = item?.Product?.ProductName ?? "";
-					product.Quantity = item.Quantity;
-					product.Notes = item.Notes;
+					product.Quantity = item?.Quantity ?? 0;
+					product.Notes = item?.Notes ?? "";
 
 					productList.Add(product);
 				}
+				response.LastPage = (int)Math.Ceiling((double)productsInStores.Count() / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
 				response.ResponseID = 1;
 				response.ResponseValue = productList;
 			}

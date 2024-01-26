@@ -17,7 +17,7 @@ namespace AFayedFarm.Repositories.Fridges
 		Task<RequestResponse<FridgeRecordDto>> GetFridgeRecordByID(int recordID);
 		Task<RequestResponse<List<FridgeRecordDto>>> GetAllFridgesRecords(int fridgeID);
 		Task<RequestResponse<AllFridgeRecordsWithTotalDto>> GetAllFridgeRecordsWithTotal(int fridgeID);
-		Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int farmID);
+		Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int farmID, int pageNumber, int pageSize);
 		Task<RequestResponse<decimal>> CalculateTotalRemainingFromRecords(int farmsID);
 		Task<RequestResponse<FridgeRecordDto>> UpdateFridgeRecordAsync(int recordID, AddFridgeRecordDto dto);
 		Task<RequestResponse<FridgeDto>> PayToFridge(FridgePaymentDto dto);

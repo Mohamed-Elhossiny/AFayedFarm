@@ -140,14 +140,15 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetExpensesWithData")]
-		public async Task<IActionResult> GetExpensesWithData(int id)
+		public async Task<IActionResult> GetExpensesWithData(int id,int pageNumber = 1,int pageSize = 100)
 		{
 			if (id == 0)
 				return BadRequest("There is no data for this id");
-			var response = await expenseRepo.GetExpensesRecordsWithDataByExpenseId(id);
+			var response = await expenseRepo.GetExpensesRecordsWithDataByExpenseId(id,pageNumber,pageSize);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else
+				response.ResponseMessage = "There is no records";
 				return Ok(response.ResponseValue);
 		}
 

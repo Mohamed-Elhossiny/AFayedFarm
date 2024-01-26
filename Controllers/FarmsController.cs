@@ -121,23 +121,26 @@ namespace AFayedFarm.Controllers
 		//}
 
 		[HttpGet("~/GetFarmRecordWithData")]
-		public async Task<IActionResult> GetFarmsRecordWithData(int recordId)
+		public async Task<IActionResult> GetFarmsRecordWithData(int recordId,int pageNumber = 1,int pageSize = 100 )
 		{
-			var response = await farmsRepo.GetFarmRecordWithFarmDataByID(recordId);
+			var response = await farmsRepo.GetFarmRecordWithFarmDataByID(recordId,pageNumber,pageSize);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else if (response.ResponseValue.ID == 0)
+				//return Ok(response);
+			return Ok(response.ResponseValue);
+			else if (response.ResponseValue?.ID == 0)
 				return NotFound($"NO Farm With this {recordId}");
 			else
+				response.ResponseMessage = "There is no records";
+				//return Ok(response);
 				return Ok(response.ResponseValue);
 		}
 
 		[HttpGet("~/AllProductsDetails")]
-		public async Task<IActionResult> AllProductsDetails(/*int id*/)
+		public async Task<IActionResult> AllProductsDetails(int pageNumber = 1,int pageSize = 100)
 		{
 			//if (id == 0)
 			//	return BadRequest("Enter Valid ID");
-			var response = await farmsRepo.GetProductsDetails();
+			var response = await farmsRepo.GetProductsDetails(pageNumber,pageSize);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else

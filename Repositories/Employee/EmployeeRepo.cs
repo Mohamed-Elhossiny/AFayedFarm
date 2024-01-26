@@ -50,7 +50,7 @@ namespace AFayedFarm.Repositories.Employee
 			return response;
 		}
 
-		public async Task<RequestResponse<List<EmployeeDto>>> GetAllEmployee()
+		public async Task<RequestResponse<List<EmployeeDto>>> GetAllEmployee(int currentPage = 1, int pageSize = 100)
 		{
 			#region Check Monthly Salaries
 			var today = DateTime.UtcNow.Date;
@@ -75,19 +75,30 @@ namespace AFayedFarm.Repositories.Employee
 			#endregion
 
 			var response = new RequestResponse<List<EmployeeDto>> { ResponseID = 0, ResponseValue = new List<EmployeeDto>() };
-			var empsDb = await context.Employees.Select(f => new EmployeeDto
-			{
-				ID = f.EmpolyeeID,
-				Name = f.Full_Name,
-				Salary = f.Salary,
-				Total = f.TotalBalance != null ? f.TotalBalance : 0,
-				Created_Date = DateOnly.FromDateTime(f.Create_Date ?? DateTime.Now),
-			}).OrderByDescending(c => c.ID).ToListAsync();
+			var empDbs = await context.Employees.OrderByDescending(c => c.EmpolyeeID).ToListAsync();
 
-			if (empsDb.Count != 0)
+			var emps = empDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			if (emps.Count() != 0)
 			{
+				var empList = new List<EmployeeDto>();
+				foreach (var f in emps)
+				{
+					var emp = new EmployeeDto()
+					{
+						ID = f.EmpolyeeID,
+						Name = f.Full_Name,
+						Salary = f.Salary,
+						Total = f.TotalBalance != null ? f.TotalBalance : 0,
+						Created_Date = DateOnly.FromDateTime(f.Create_Date ?? DateTime.Now),
+					};
+					empList.Add(emp);
+				}
 				response.ResponseID = 1;
-				response.ResponseValue = empsDb;
+				response.ResponseValue = empList;
+				response.PageSize = pageSize;
+				response.CurrentPage = currentPage;
+				response.LastPage = (int)Math.Ceiling((double)empDbs.Count() / pageSize);
+
 			}
 
 			return response;

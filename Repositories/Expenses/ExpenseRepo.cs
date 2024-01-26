@@ -236,14 +236,24 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
-		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId)
+		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId,int currentPage = 1,int pageSize = 100)
 		{
 			var response = new RequestResponse<ExpenseRecordsWithDataDto> { ResponseID = 0, ResponseValue = new ExpenseRecordsWithDataDto() };
-			var expenseRecordList = await context.ExpenseRecords
+			var expenseRecordLists = await context.ExpenseRecords
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
 				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
-				.Where(c => c.ExpenseID == expenseId).OrderByDescending(c => c.ExpenseRecordId).ToListAsync();
-			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Expense).Where(c => c.ExpenseID == expenseId).ToListAsync();
+				.Where(c => c.ExpenseID == expenseId)
+				.OrderByDescending(c => c.ExpenseRecordId).ToListAsync();
+
+			var expenseRecordList = expenseRecordLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+			var transactionRecordDbs =await context.SafeTransactions
+				.Include(c => c.Expense)
+				.Where(c => c.ExpenseID == expenseId).ToListAsync();
+
+			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+
 			if (expenseRecordList.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
@@ -290,6 +300,10 @@ namespace AFayedFarm.Repositories.Expenses
 					}
 				}
 
+				var totalRecords = expenseRecordLists.Count() + transactionRecordDbs.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
 				response.ResponseID = 1;
 				response.ResponseValue.ExpensesList = expesnseRecordListDto;
 			}

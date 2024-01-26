@@ -428,12 +428,26 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int fridgeID)
+		public async Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int fridgeID,int currentPage,int pageSize)
 		{
 			var response = new RequestResponse<FridgeRecordsWithDataDto>() { ResponseID = 0, ResponseValue = new FridgeRecordsWithDataDto() };
 			var fridgeRecord = new List<FridgeRecordDto>();
-			var records = await context.FridgeRecords.Include(c => c.Fridge).Include(c => c.Product).OrderByDescending(c => c.FridgeRecordID).Where(c => c.FridgeID == fridgeID).ToListAsync();
-			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FridgeID == fridgeID).ToListAsync();
+			
+			var fridgerecords =await context.FridgeRecords
+				.Include(c => c.Fridge)
+				.Include(c => c.Product)
+				.OrderByDescending(c => c.FridgeRecordID)
+				.Where(c => c.FridgeID == fridgeID).ToListAsync();
+
+			var records = fridgerecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+			var transactionRecordDbs =await context.SafeTransactions
+				.Include(c => c.Farm)
+				.OrderByDescending(c=>c.ID)
+				.Where(c => c.FridgeID == fridgeID).ToListAsync();
+
+			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				if (records.Count != 0)
@@ -483,7 +497,12 @@ namespace AFayedFarm.Repositories.Fridges
 				var fridgeDataWithRecord = await GetFridgeById(fridgeID);
 				var fridgeDB = await context.Fridges.Where(f => f.FridgeID == fridgeID).FirstOrDefaultAsync();
 				var TotalRemainingWithRecord = fridgeDB!.TotalRemaining;
-				//var TotalRemainingWithRecord = await GetTotalRemaining(farmID);
+
+				var totalRecords = fridgerecords.Count() + transactionRecordDbs.Count();
+
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
 
 				response.ResponseValue.Name = fridgeDataWithRecord.ResponseValue!.Name;
 				response.ResponseValue.ID = fridgeDataWithRecord.ResponseValue.ID;

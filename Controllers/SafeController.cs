@@ -41,7 +41,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpPost("~/GetRecords")]
-		public async Task<IActionResult> GetRecords(int recordType = 0)
+		public async Task<IActionResult> GetRecords(int pageNumber = 1, int pageSize = 100,int recordType = 0)
 		{
 			if (recordType < 0 || recordType > 5)
 			{
@@ -51,52 +51,61 @@ namespace AFayedFarm.Controllers
 			{
 				// All Records = 0
 				case 0:
-					var allRecords = await safeRepo.GetAllFinancialRecords();
+					var allRecords = await safeRepo.GetAllFinancialRecords(pageNumber, pageSize);
 					if (allRecords.ResponseID == 1)
-						return Ok(allRecords.ResponseValue);
+						return Ok(allRecords);
 					else
-						break;
+						allRecords.ResponseMessage = "No Records";
+						return Ok(allRecords);
+						
 				// Farms = 1
 				case 1:
-					var farmRecords = await safeRepo.GetFarmFinancialRecords();
+					var farmRecords = await safeRepo.GetFarmFinancialRecords(pageNumber, pageSize);
 					if (farmRecords.ResponseID == 1)
-						return Ok(farmRecords.ResponseValue);
+						return Ok(farmRecords);
 					else
-						break;
+						farmRecords.ResponseMessage = $"No Farm Records";
+						return Ok(farmRecords);
 
 				// Expense = 2
 				case 2:
-					var expenseRecords = await safeRepo.GetExpenseFinancialRecords();
+					var expenseRecords = await safeRepo.GetExpenseFinancialRecords(pageNumber, pageSize);
 					if (expenseRecords.ResponseID == 1)
-						return Ok(expenseRecords.ResponseValue);
+						return Ok(expenseRecords);
 					else
-						break;
+						expenseRecords.ResponseMessage = "No Expense Records";
+						return Ok(expenseRecords);
 
 				// Fridge = 3
 				case 3:
-					var fridgeRecords = await safeRepo.GetFridgeFinancialRecords();
+					var fridgeRecords = await safeRepo.GetFridgeFinancialRecords(pageNumber, pageSize);
 					if (fridgeRecords.ResponseID == 1)
-						return Ok(fridgeRecords.ResponseValue);
+						return Ok(fridgeRecords);
 					else
-						break;
+						fridgeRecords.ResponseMessage = "No Fridge Records";
+						return Ok(fridgeRecords);
 
 				// Client = 4
 				case 4:
-					var clientRecords = await safeRepo.GetClientFinancialRecords();
+					var clientRecords = await safeRepo.GetClientFinancialRecords(pageNumber, pageSize);
 					if (clientRecords.ResponseID == 1)
-						return Ok(clientRecords.ResponseValue);
+						return Ok(clientRecords);
 					else
-						break;
+						clientRecords.ResponseMessage = "No Client Records";
+						return Ok(clientRecords);
 
 				// Employee = 5
 				case 5:
-					var employeeRecords = await safeRepo.GetEmployeeFinancialRecords();
+					var employeeRecords = await safeRepo.GetEmployeeFinancialRecords(pageNumber, pageSize);
 					if (employeeRecords.ResponseID == 1)
-						return Ok(employeeRecords.ResponseValue);
+						return Ok(employeeRecords);
 					else
-						break;
+						employeeRecords.ResponseMessage = "No Employee Records";
+						return Ok(employeeRecords);
+					
 			}
-			return NotFound($"There is no financial transaction for that {recordType}");
+			return Ok($"Please enter valid record type{recordType}");
+			//return NotFound($"There is no financial transaction for that {recordType} && Page {pageNumber} && Page Size {pageSize}");
 
 		}
 

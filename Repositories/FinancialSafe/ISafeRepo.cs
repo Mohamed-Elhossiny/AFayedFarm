@@ -8,11 +8,11 @@ namespace AFayedFarm.Repositories.FinancialSafe
 	{
 		Task<RequestResponse<SafeDto>> GetSafeBalance();
 		Task<RequestResponse<SafeDto>> AddBalance(BalanceDto dto);
-		Task<RequestResponse<List<FinancialEmployeeDto>>> GetEmployeeFinancialRecords();
-		Task<RequestResponse<List<FinancialClientDto>>> GetClientFinancialRecords();
-		Task<RequestResponse<List<FinancialFarmDto>>> GetFarmFinancialRecords();
-		Task<RequestResponse<List<FinancialExpenseDto>>> GetExpenseFinancialRecords();
-		Task<RequestResponse<List<FinancialFridgeDto>>> GetFridgeFinancialRecords();
-		Task<RequestResponse<List<AllFinancialRecordsDto>>> GetAllFinancialRecords();
+		Task<RequestResponse<List<FinancialEmployeeDto>>> GetEmployeeFinancialRecords(int pageNumber, int pageSize );
+		Task<RequestResponse<List<FinancialClientDto>>> GetClientFinancialRecords(int pageNumber, int pageSize );
+		Task<RequestResponse<List<FinancialFarmDto>>> GetFarmFinancialRecords(int pageNumber, int pageSize);
+		Task<RequestResponse<List<FinancialExpenseDto>>> GetExpenseFinancialRecords(int pageNumber, int pageSize);
+		Task<RequestResponse<List<FinancialFridgeDto>>> GetFridgeFinancialRecords(int pageNumber, int pageSize);
+		Task<RequestResponse<List<AllFinancialRecordsDto>>> GetAllFinancialRecords(int pageNumber,int pageSize);
 	}
 }

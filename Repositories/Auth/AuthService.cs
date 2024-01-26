@@ -85,7 +85,7 @@ namespace AFayedFarm.Repositories.Auth
 				issuer: jwt.Issuer,
 				audience: jwt.Audiance,
 				claims: claims,
-				expires: DateTime.Now.AddDays(jwt.Duration),
+				expires: DateTime.UtcNow.AddDays(jwt.Duration),
 				signingCredentials : signingCridentials
 				);
 

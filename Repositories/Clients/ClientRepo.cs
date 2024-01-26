@@ -30,6 +30,7 @@ namespace AFayedFarm.Repositories.Clients
 				await context.SaveChangesAsync();
 				client.Name = Client.ClientName;
 				client.ID = Client.ClientID;
+				client.Created_Date = DateOnly.FromDateTime(Client.Create_Date.Value);
 				return client;
 			}
 
@@ -101,6 +102,7 @@ namespace AFayedFarm.Repositories.Clients
 			transaction.Remaining = (dto.Total - dto.Payed);
 			transaction.DriverName = dto.DriverName;
 			transaction.TotalCapcity = dto.CarCapacity;
+			transaction.Notes = dto.Notes;
 
 			await context.Transactions.AddAsync(transaction);
 			await context.SaveChangesAsync();

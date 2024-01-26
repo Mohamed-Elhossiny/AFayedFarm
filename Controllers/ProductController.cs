@@ -19,12 +19,15 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetAllProducts")]
-		public async Task<IActionResult> GetAllProducts()
+		public async Task<IActionResult> GetAllProducts(int currentPage = 1, int pageSize = 100)
 		{
-			var response = await productRepo.GetAllProducts();
+			var response = await productRepo.GetAllProducts(currentPage,pageSize);
 			if (response.ResponseID == 1)
+				//return Ok(response);
 				return Ok(response.ResponseValue);
 			else
+				response.ResponseMessage = "There is no products";
+				//return Ok(response);
 				return NotFound();
 		}
 

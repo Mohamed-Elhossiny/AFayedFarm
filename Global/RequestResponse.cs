@@ -9,9 +9,13 @@
 		/// ResponseID = 0 == Error
 		/// </summary>
 		public int? ResponseID { get; set; }
+		public string? ResponseMessage { get; set; }
+        public int? CurrentPage { get; set; }
+        public int? PageSize { get; set; }
+        public int? LastPage { get; set; }
         public T? ResponseValue { get; set; }
 
-		public void Dispose() { }
+        public void Dispose() { }
 		
 		
 	}

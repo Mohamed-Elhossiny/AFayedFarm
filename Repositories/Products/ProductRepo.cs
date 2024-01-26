@@ -44,10 +44,13 @@ namespace AFayedFarm.Repositories.Products
 			return response;
 		}
 
-		public async Task<RequestResponse<List<ProductDto>>> GetAllProducts()
+		public async Task<RequestResponse<List<ProductDto>>> GetAllProducts(int currentPage = 1,int pageSize = 100)
 		{
 			var response = new RequestResponse<List<ProductDto>> { ResponseID = 0, ResponseValue = new List<ProductDto>() };
-			var productList = await context.Products.OrderByDescending(c => c.ProductID).ToListAsync();
+			var productLists = await context.Products.OrderByDescending(c => c.ProductID).ToListAsync();
+
+			var productList = productLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
 			if (productList.Count != 0)
 			{
 				var productListDto = new List<ProductDto>();
@@ -62,6 +65,11 @@ namespace AFayedFarm.Repositories.Products
 					};
 					productListDto.Add(productDto);
 				}
+
+				response.LastPage = (int)Math.Ceiling((double)productLists.Count() / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
+
 				response.ResponseID = 1;
 				response.ResponseValue = productListDto;
 			}

@@ -109,12 +109,14 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetFridgeRecordsWithData")]
-		public async Task<IActionResult> GetFridgeRecordWithData(int fridgeId)
+		public async Task<IActionResult> GetFridgeRecordWithData(int fridgeId,int pageNumber = 1,int pageSize = 100)
 		{
-			var response = await fridgeRepo.GetFridgeRecordWithFridgeDataByID(fridgeId);
+			var response = await fridgeRepo.GetFridgeRecordWithFridgeDataByID(fridgeId,pageNumber,pageSize);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				//return Ok(response);
+			return Ok(response.ResponseValue);
 			else
+				response.ResponseMessage = "There is on records";
 				return Ok(response.ResponseValue);
 		}
 

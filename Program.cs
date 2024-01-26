@@ -80,6 +80,34 @@ namespace AFayedFarm
 			builder.Services.AddScoped<IFridgeRepo, FridgeRepo>();
 			builder.Services.AddScoped<IAuthService, AuthService>();
 
+			OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme()
+			{
+				Reference = new OpenApiReference()
+				{
+					Id = "Bearer",
+					Type = ReferenceType.SecurityScheme
+				}
+			};
+			OpenApiSecurityRequirement securityRequirements = new OpenApiSecurityRequirement()
+			{
+				{securityScheme, new string[] { }},
+			};
+			builder.Services.AddSwaggerGen(swagger =>
+			{
+				// To Enable authorization using Swagger (JWT)    
+				swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+				{
+					Name = "Bearer",
+					BearerFormat = "JWT",
+					Scheme = "bearer",
+					Description = "Specify the authorization token.",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.Http,
+				});
+				swagger.AddSecurityRequirement(securityRequirements);
+
+			});
+
 
 			var app = builder.Build();
 
