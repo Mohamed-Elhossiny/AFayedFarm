@@ -19,8 +19,12 @@ namespace AFayedFarm.Model
 
 		[Column(TypeName = "Date")]
 		public DateTime? Created_Date { get; set; }
+
+		[Column(TypeName = "Date")]
+		public DateTime? PayDate { get; set; }
 		public string? DriverName { get; set; }
 		public decimal? TotalCapcity { get; set; }
+		public decimal? DeliveredToDriver { get; set; }
 		public decimal? Price { get; set; }
 		public decimal? Total { get; set; }
 		public decimal? Payed { get; set; }

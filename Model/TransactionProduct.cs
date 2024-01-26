@@ -15,7 +15,8 @@ namespace AFayedFarm.Model
 		[ForeignKey("Product")]
 		public int? ProductID { get; set; }
 		public virtual Product? Product { get; set; }
-		public decimal? Qunatity { get; set; }
+        public int? ProductBoxID { get; set; }
+        public decimal? Qunatity { get; set; }
 		public decimal? Number { get; set; }
         public decimal? Price { get; set; }
         public decimal? ProductTotal { get; set; }

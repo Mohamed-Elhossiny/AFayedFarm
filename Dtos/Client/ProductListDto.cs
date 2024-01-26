@@ -2,7 +2,8 @@
 {
 	public class ProductListDto
 	{
-		public int? ProductID { get; set; }
+        public int Id { get; set; }
+        public int? ProductID { get; set; }
 		public string? ProductName { get; set; }
 		public decimal? Quantity { get; set; }
 		public int? ProductBoxID { get; set; }

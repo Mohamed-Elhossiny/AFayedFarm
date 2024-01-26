@@ -65,7 +65,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpPost("~/AddTransaction")]
-		public async Task<IActionResult> AddTransaction(AddTransactionMainDataDto dto)
+		public async Task<IActionResult> AddTransaction([FromBody]AddTransactionMainDataDto dto)
 		{
 
 			if (dto.ClientID == 0 || dto.ClientID == null)

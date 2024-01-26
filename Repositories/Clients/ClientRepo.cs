@@ -41,7 +41,10 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<RequestResponse<TransactionMainDataDto>> GetTransactionByRecordId(int recordid)
 		{
 			var response = new RequestResponse<TransactionMainDataDto> { ResponseID = 0, ResponseValue = new TransactionMainDataDto() };
-			var transaction = await context.Transactions.Where(c => c.TransactionID == recordid).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).FirstOrDefaultAsync();
+			var transaction = await context.Transactions.Where(c => c.TransactionID == recordid)
+				.Include(c => c.Client)
+				.Include(c => c.TransactionProducts!)
+				.ThenInclude(c => c.Product).FirstOrDefaultAsync();
 			if (transaction != null)
 			{
 				var transactionDto = new TransactionMainDataDto();
@@ -52,29 +55,29 @@ namespace AFayedFarm.Repositories.Clients
 				transactionDto.ClientID = transaction.ClientID;
 				transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
 				transactionDto.DriverName = transaction?.DriverName ?? "";
-				transactionDto.Date = transaction?.Created_Date ?? DateTime.Now.Date;
-				transactionDto.Notes = transaction?.Notes ?? "";
+				transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now.Date;
+				transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now.Date;
+				transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now.Date;
 				transactionDto.Total = transaction?.Total ?? 0;
 				transactionDto.Payed = transaction?.Payed ?? 0;
-				transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
 				transactionDto.Remaining = transaction?.Remaining ?? 0;
+				transactionDto.DeliveredToDriver = transaction?.DeliveredToDriver ?? 0;
+				transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
+				transactionDto.Notes = transaction?.Notes ?? "";
 				transactionDto.TypeId = (int)TransactionType.Income;
 
 				foreach (var item in transaction?.TransactionProducts)
 				{
 					var productDto = new ProductListDto();
-					if (item.Qunatity != null)
+					if (item.Qunatity != null || item.Number != null)
 					{
+						productDto.Id = item.ID;
 						productDto.ProductID = item.Product?.ProductID;
 						productDto.ProductName = item.Product?.ProductName;
 						productDto.Quantity = item.Qunatity;
-						productDto.Total = item.ProductTotal;
-						productDto.Price = item.Price;
-					}
-					if (item.Number != null)
-					{
-						productDto.ProductBoxName = item.Product?.ProductName;
-						productDto.ProductBoxID = item.Product?.ProductID;
+						productDto.ProductBoxID = item.ProductBoxID;
+						productDto.ProductBoxName = item.ProductBoxID.HasValue ?
+							await context.Products.Where(p => p.ProductID == item.ProductBoxID.Value).Select(p => p.ProductName).FirstOrDefaultAsync() : "";
 						productDto.Number = item.Number;
 						productDto.Total = item.ProductTotal;
 						productDto.Price = item.Price;
@@ -97,10 +100,12 @@ namespace AFayedFarm.Repositories.Clients
 			transaction.ClientID = (int)dto.ClientID!;
 			transaction.ShippingDate = (DateTime)dto.Date!;
 			transaction.Created_Date = DateTime.Now.Date;
+			transaction.PayDate = (DateTime)dto.PayDate!;
 			transaction.Total = dto.Total;
 			transaction.Payed = dto.Payed;
 			transaction.Remaining = (dto.Total - dto.Payed);
 			transaction.DriverName = dto.DriverName;
+			transaction.DeliveredToDriver = dto.DeliveredToDriver;
 			transaction.TotalCapcity = dto.CarCapacity;
 			transaction.Notes = dto.Notes;
 
@@ -119,27 +124,28 @@ namespace AFayedFarm.Repositories.Clients
 						transactionProduct.TransactionID = transaction.TransactionID;
 						transactionProduct.ProductID = item.ProductID;
 						transactionProduct.Qunatity = item.Quantity;
-						transactionProduct.ProductTotal = item.ProductTotal;
-						transactionProduct.Price = item.Price;
-
-						await context.TransactionProducts.AddAsync(transactionProduct);
-						await context.SaveChangesAsync();
-
-
-					}
-					if (item.ProductBoxID != 0)
-					{
-						var transactionProduct = new TransactionProduct();
-						transactionProduct.TransactionID = transaction.TransactionID;
-						transactionProduct.ProductID = item.ProductBoxID;
+						transactionProduct.ProductBoxID = item.ProductBoxID;
 						transactionProduct.Number = item.Number;
-						transactionProduct.ProductTotal = item.ProductTotal;
 						transactionProduct.Price = item.Price;
+						transactionProduct.ProductTotal = item.ProductTotal;
 
 						await context.TransactionProducts.AddAsync(transactionProduct);
 						await context.SaveChangesAsync();
 
 					}
+					//if (item.ProductBoxID != 0)
+					//{
+					//	var transactionProduct = new TransactionProduct();
+					//	transactionProduct.TransactionID = transaction.TransactionID;
+					//	transactionProduct.ProductID = item.ProductBoxID;
+					//	transactionProduct.Number = item.Number;
+					//	transactionProduct.ProductTotal = item.ProductTotal;
+					//	transactionProduct.Price = item.Price;
+
+					//	await context.TransactionProducts.AddAsync(transactionProduct);
+					//	await context.SaveChangesAsync();
+
+					//}
 				}
 
 				await UpdateProductQuantityInStore(dto);
@@ -405,7 +411,9 @@ namespace AFayedFarm.Repositories.Clients
 					transactionDto.ClientID = transaction.ClientID;
 					transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
 					transactionDto.DriverName = transaction?.DriverName ?? "";
-					transactionDto.Date = transaction?.Created_Date ?? DateTime.Now.Date;
+					transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now.Date;
+					transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now.Date;
+					transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now.Date;
 					transactionDto.Notes = transaction?.Notes ?? "";
 					transactionDto.Total = transaction?.Total ?? 0;
 					transactionDto.Payed = transaction?.Payed ?? 0;
@@ -418,6 +426,7 @@ namespace AFayedFarm.Repositories.Clients
 						var productDto = new ProductListDto();
 						if (item.Qunatity != null)
 						{
+							productDto.Id = item.ID;
 							productDto.ProductID = item.Product?.ProductID;
 							productDto.ProductName = item.Product?.ProductName;
 							productDto.Quantity = item.Qunatity;
@@ -426,6 +435,7 @@ namespace AFayedFarm.Repositories.Clients
 						}
 						if (item.Number != null)
 						{
+							productDto.Id = item.ID;
 							productDto.ProductBoxName = item.Product?.ProductName;
 							productDto.ProductBoxID = item.Product?.ProductID;
 							productDto.Number = item.Number;
