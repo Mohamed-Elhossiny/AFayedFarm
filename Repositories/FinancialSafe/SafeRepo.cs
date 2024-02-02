@@ -34,20 +34,39 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			return response;
 		}
 
-		public async Task<RequestResponse<List<AllFinancialRecordsDto>>> GetAllFinancialRecords(int currentPage = 1, int pageSize = 100)
+		public async Task<RequestResponse<List<AllFinancialRecordsDto>>> GetAllFinancialRecords(int currentPage = 1, int pageSize = 100, DateTime? from = null, DateTime? to = null)
 		{
 			var response = new RequestResponse<List<AllFinancialRecordsDto>>() { ResponseID = 0, ResponseValue = new List<AllFinancialRecordsDto>() };
 
-			var allLists = await context.SafeTransactions
+			var query = context.SafeTransactions
 				.Include(c => c.Client)
 				.Include(c => c.Employee)
 				.Include(c => c.Farm)
 				.Include(c => c.Expense)
 				.Include(c => c.Fridge)
-				.OrderByDescending(c => c.Created_Date).ToListAsync();
+				.OrderByDescending(c => c.Created_Date);
+
+			if (from.HasValue)
+			{
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date >= from.Value);
+			}
+			if (to.HasValue)
+			{
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+			}
+
+			var allLists = await query.ToListAsync();
+
+			//var allLists = await context.SafeTransactions
+			//	.Include(c => c.Client)
+			//	.Include(c => c.Employee)
+			//	.Include(c => c.Farm)
+			//	.Include(c => c.Expense)
+			//	.Include(c => c.Fridge)
+			//	.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			//var allList = await allLists.ToListAsync();
-			var allList = allLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			var allList =  allLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			if (allList.Count != 0)
 			{
@@ -83,7 +102,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				}
 
 				response.PageSize = pageSize;
-				response.LastPage =(int)Math.Ceiling((double)allLists.Count() / pageSize);
+				response.LastPage = (int)Math.Ceiling((double)allLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
 				response.ResponseID = 1;
 				response.ResponseValue = allListDto;
@@ -94,12 +113,12 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 		public async Task<RequestResponse<List<FinancialClientDto>>> GetClientFinancialRecords(int currentPage = 1, int pageSize = 100)
 		{
-			var response = new RequestResponse<List<FinancialClientDto>>() { ResponseID = 0,ResponseValue = new List<FinancialClientDto>() };
+			var response = new RequestResponse<List<FinancialClientDto>>() { ResponseID = 0, ResponseValue = new List<FinancialClientDto>() };
 
-			var clientLists =await context.SafeTransactions
+			var clientLists = await context.SafeTransactions
 				.Include(c => c.Client)
 				.Where(c => c.CLientID != null)
-				.OrderByDescending(c=>c.Created_Date).ToListAsync();
+				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var clientList = clientLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -133,8 +152,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 		public async Task<RequestResponse<List<FinancialEmployeeDto>>> GetEmployeeFinancialRecords(int currentPage = 1, int pageSize = 100)
 		{
-			var response = new RequestResponse<List<FinancialEmployeeDto>>() { ResponseID = 0,ResponseValue = new List<FinancialEmployeeDto>() };
-			var employeeLists =await context.SafeTransactions
+			var response = new RequestResponse<List<FinancialEmployeeDto>>() { ResponseID = 0, ResponseValue = new List<FinancialEmployeeDto>() };
+			var employeeLists = await context.SafeTransactions
 				.Include(c => c.Employee)
 				.Where(c => c.Emp_ID != null)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
@@ -171,8 +190,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 		public async Task<RequestResponse<List<FinancialExpenseDto>>> GetExpenseFinancialRecords(int currentPage = 1, int pageSize = 100)
 		{
-			var response = new RequestResponse<List<FinancialExpenseDto>>() { ResponseID = 0,ResponseValue = new List<FinancialExpenseDto>() };
-			var expenseLists =await context.SafeTransactions
+			var response = new RequestResponse<List<FinancialExpenseDto>>() { ResponseID = 0, ResponseValue = new List<FinancialExpenseDto>() };
+			var expenseLists = await context.SafeTransactions
 				.Include(c => c.Expense)
 				.Where(c => c.ExpenseID != null)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
@@ -210,8 +229,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 		public async Task<RequestResponse<List<FinancialFarmDto>>> GetFarmFinancialRecords(int currentPage = 1, int pageSize = 100)
 		{
-			var response = new RequestResponse<List<FinancialFarmDto>>() { ResponseID = 0,ResponseValue = new List<FinancialFarmDto>() };
-			var farmLists =await context.SafeTransactions.Include(c => c.Farm)
+			var response = new RequestResponse<List<FinancialFarmDto>>() { ResponseID = 0, ResponseValue = new List<FinancialFarmDto>() };
+			var farmLists = await context.SafeTransactions.Include(c => c.Farm)
 				.Where(c => c.FarmID != null).OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var farmList = farmLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
@@ -246,8 +265,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 		public async Task<RequestResponse<List<FinancialFridgeDto>>> GetFridgeFinancialRecords(int currentPage = 1, int pageSize = 100)
 		{
-			var response = new RequestResponse<List<FinancialFridgeDto>>() { ResponseID = 0,ResponseValue = new List<FinancialFridgeDto>() };
-			var fridgeLists =await context.SafeTransactions.Include(c => c.Fridge).Where(c => c.FridgeID != null).OrderByDescending(c => c.Created_Date).ToListAsync();
+			var response = new RequestResponse<List<FinancialFridgeDto>>() { ResponseID = 0, ResponseValue = new List<FinancialFridgeDto>() };
+			var fridgeLists = await context.SafeTransactions.Include(c => c.Fridge).Where(c => c.FridgeID != null).OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var fridgeList = fridgeLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 

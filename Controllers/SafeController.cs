@@ -41,7 +41,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpPost("~/GetRecords")]
-		public async Task<IActionResult> GetRecords(int pageNumber = 1, int pageSize = 500,int recordType = 0)
+		public async Task<IActionResult> GetRecords(int pageNumber = 1, int pageSize = 500, int recordType = 0, DateTime? from = null, DateTime? to = null)
 		{
 			if (recordType < 0 || recordType > 5)
 			{
@@ -51,13 +51,13 @@ namespace AFayedFarm.Controllers
 			{
 				// All Records = 0
 				case 0:
-					var allRecords = await safeRepo.GetAllFinancialRecords(pageNumber, pageSize);
+					var allRecords = await safeRepo.GetAllFinancialRecords(pageNumber, pageSize,from,to);
 					if (allRecords.ResponseID == 1)
 						return Ok(allRecords);
 					else
 						allRecords.ResponseMessage = "No Records";
-						return Ok(allRecords);
-						
+					return Ok(allRecords);
+
 				// Farms = 1
 				case 1:
 					var farmRecords = await safeRepo.GetFarmFinancialRecords(pageNumber, pageSize);
@@ -65,7 +65,7 @@ namespace AFayedFarm.Controllers
 						return Ok(farmRecords);
 					else
 						farmRecords.ResponseMessage = $"No Farm Records";
-						return Ok(farmRecords);
+					return Ok(farmRecords);
 
 				// Expense = 2
 				case 2:
@@ -74,7 +74,7 @@ namespace AFayedFarm.Controllers
 						return Ok(expenseRecords);
 					else
 						expenseRecords.ResponseMessage = "No Expense Records";
-						return Ok(expenseRecords);
+					return Ok(expenseRecords);
 
 				// Fridge = 3
 				case 3:
@@ -83,7 +83,7 @@ namespace AFayedFarm.Controllers
 						return Ok(fridgeRecords);
 					else
 						fridgeRecords.ResponseMessage = "No Fridge Records";
-						return Ok(fridgeRecords);
+					return Ok(fridgeRecords);
 
 				// Client = 4
 				case 4:
@@ -92,7 +92,7 @@ namespace AFayedFarm.Controllers
 						return Ok(clientRecords);
 					else
 						clientRecords.ResponseMessage = "No Client Records";
-						return Ok(clientRecords);
+					return Ok(clientRecords);
 
 				// Employee = 5
 				case 5:
@@ -101,8 +101,8 @@ namespace AFayedFarm.Controllers
 						return Ok(employeeRecords);
 					else
 						employeeRecords.ResponseMessage = "No Employee Records";
-						return Ok(employeeRecords);
-					
+					return Ok(employeeRecords);
+
 			}
 			return Ok($"Please enter valid record type{recordType}");
 			//return NotFound($"There is no financial transaction for that {recordType} && Page {pageNumber} && Page Size {pageSize}");

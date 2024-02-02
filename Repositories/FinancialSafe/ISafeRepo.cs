@@ -13,6 +13,6 @@ namespace AFayedFarm.Repositories.FinancialSafe
 		Task<RequestResponse<List<FinancialFarmDto>>> GetFarmFinancialRecords(int pageNumber, int pageSize);
 		Task<RequestResponse<List<FinancialExpenseDto>>> GetExpenseFinancialRecords(int pageNumber, int pageSize);
 		Task<RequestResponse<List<FinancialFridgeDto>>> GetFridgeFinancialRecords(int pageNumber, int pageSize);
-		Task<RequestResponse<List<AllFinancialRecordsDto>>> GetAllFinancialRecords(int pageNumber,int pageSize);
+		Task<RequestResponse<List<AllFinancialRecordsDto>>> GetAllFinancialRecords(int pageNumber,int pageSize, DateTime? from, DateTime? to);
 	}
 }
