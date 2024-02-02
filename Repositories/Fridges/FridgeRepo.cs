@@ -140,7 +140,7 @@ namespace AFayedFarm.Repositories.Fridges
 		{
 			var response = new RequestResponse<List<FridgeDto>> { ResponseID = 0 };
 			var allFridges = new List<FridgeDto>();
-			var fridgesDb = await context.Fridges.ToListAsync();
+			var fridgesDb = await context.Fridges.OrderByDescending(c=>c.Created_Date).ToListAsync();
 			if (fridgesDb.Count != 0)
 			{
 				foreach (var item in fridgesDb)
@@ -436,14 +436,14 @@ namespace AFayedFarm.Repositories.Fridges
 			var fridgerecords =await context.FridgeRecords
 				.Include(c => c.Fridge)
 				.Include(c => c.Product)
-				.OrderByDescending(c => c.FridgeRecordID)
+				.OrderByDescending(c => c.Created_Date)
 				.Where(c => c.FridgeID == fridgeID).ToListAsync();
 
 			var records = fridgerecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			var transactionRecordDbs =await context.SafeTransactions
 				.Include(c => c.Farm)
-				.OrderByDescending(c=>c.ID)
+				.OrderByDescending(c=>c.Created_Date)
 				.Where(c => c.FridgeID == fridgeID).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();

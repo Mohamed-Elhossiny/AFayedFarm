@@ -75,7 +75,7 @@ namespace AFayedFarm.Repositories.Employee
 			#endregion
 
 			var response = new RequestResponse<List<EmployeeDto>> { ResponseID = 0, ResponseValue = new List<EmployeeDto>() };
-			var empDbs = await context.Employees.OrderByDescending(c => c.EmpolyeeID).ToListAsync();
+			var empDbs = await context.Employees.OrderByDescending(c => c.Create_Date).ToListAsync();
 
 			var emps = empDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 			if (emps.Count() != 0)

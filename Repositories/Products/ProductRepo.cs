@@ -47,7 +47,7 @@ namespace AFayedFarm.Repositories.Products
 		public async Task<RequestResponse<List<ProductDto>>> GetAllProducts(int currentPage = 1,int pageSize = 100)
 		{
 			var response = new RequestResponse<List<ProductDto>> { ResponseID = 0, ResponseValue = new List<ProductDto>() };
-			var productLists = await context.Products.OrderByDescending(c => c.ProductID).ToListAsync();
+			var productLists = await context.Products.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var productList = productLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 

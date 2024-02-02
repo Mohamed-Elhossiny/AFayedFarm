@@ -385,7 +385,11 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid,int currentPage,int pageSize)
 		{
 			var response = new RequestResponse<TransactionWithClientData> { ResponseID = 0, ResponseValue = new TransactionWithClientData() { TransactionsList = new() } };
-			var transactionsDb = await context.Transactions.Where(c => c.ClientID == clientid).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).ToListAsync();
+			var transactionsDb = await context.Transactions
+				.Where(c => c.ClientID == clientid)
+				.Include(c => c.Client)
+				.Include(c => c.TransactionProducts!).ThenInclude(c => c.Product)
+				.OrderByDescending(c=>c.Created_Date).ToListAsync();
 
 			var transactions = transactionsDb.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 

@@ -17,7 +17,7 @@ namespace AFayedFarm.Repositories.Store
 		{
 			var response = new RequestResponse<List<StoreProductDto>> { ResponseID = 0, ResponseValue = new List<StoreProductDto>() };
 			var productList = new List<StoreProductDto>();
-			var productsInStores = await context.StoreProducts.Include(c => c.Product).OrderByDescending(c => c.ProductID).ToListAsync();
+			var productsInStores = await context.StoreProducts.Include(c => c.Product).OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var productsInStore = productsInStores.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 

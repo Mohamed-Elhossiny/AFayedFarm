@@ -147,7 +147,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var response = new RequestResponse<List<ExpenseDto>>() { ResponseID = 0, ResponseValue = new List<ExpenseDto>() };
 
 			var expenseListDto = new List<ExpenseDto>();
-			var expensesDb = await context.Expenses.Include(x => x.ExpenseType).Select(c => new ExpenseDto
+			var expensesDb = await context.Expenses.Include(x => x.ExpenseType).OrderByDescending(c=>c.Create_Date).Select(c => new ExpenseDto
 			{
 				Name = c.ExpenseName,
 				ID = c.ExpenseID,
@@ -243,13 +243,13 @@ namespace AFayedFarm.Repositories.Expenses
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
 				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
 				.Where(c => c.ExpenseID == expenseId)
-				.OrderByDescending(c => c.ExpenseRecordId).ToListAsync();
+				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var expenseRecordList = expenseRecordLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			var transactionRecordDbs =await context.SafeTransactions
 				.Include(c => c.Expense)
-				.Where(c => c.ExpenseID == expenseId).ToListAsync();
+				.Where(c => c.ExpenseID == expenseId).OrderByDescending(c=>c.Created_Date).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -435,7 +435,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var expenseRecordList = await context.ExpenseRecords
 				.Include(c => c.FarmRecord).ThenInclude(c => c.Product)
 				.Include(c => c.Expense).ThenInclude(c => c.ExpenseType)
-				.Where(c => c.FarmRecordID == farmRecordID).OrderByDescending(c => c.ExpenseRecordId).ToListAsync();
+				.Where(c => c.FarmRecordID == farmRecordID).OrderByDescending(c => c.Created_Date).ToListAsync();
 			if (expenseRecordList.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
