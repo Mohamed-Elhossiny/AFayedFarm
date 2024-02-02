@@ -30,6 +30,7 @@ namespace AFayedFarm.Repositories.Clients
 				await context.SaveChangesAsync();
 				client.Name = Client.ClientName;
 				client.ID = Client.ClientID;
+				client.Total = 0;
 				client.Created_Date = DateOnly.FromDateTime(Client.Create_Date.Value);
 				return client;
 			}
@@ -381,78 +382,94 @@ namespace AFayedFarm.Repositories.Clients
 			return response;
 		}
 
-		public async Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid)
+		public async Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid,int currentPage,int pageSize)
 		{
 			var response = new RequestResponse<TransactionWithClientData> { ResponseID = 0, ResponseValue = new TransactionWithClientData() { TransactionsList = new() } };
-			var transactions = await context.Transactions.Where(c => c.ClientID == clientid).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).ToListAsync();
-			if (transactions.Count != 0)
+			var transactionsDb = await context.Transactions.Where(c => c.ClientID == clientid).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).ToListAsync();
+
+			var transactions = transactionsDb.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+			var financialtransactionRecordDbs = await context.SafeTransactions
+				.Include(c => c.Client)
+				.Where(c => c.CLientID == clientid).ToListAsync();
+
+			var financialtransactionRecordDb = financialtransactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+			if (transactions.Count != 0 || financialtransactionRecordDb.Count != 0)
 			{
 				var transactionListDto = new List<TransactionMainDataDto>();
 
-				foreach (var transaction in transactions)
+				if (transactions.Count != 0)
 				{
-					var transactionDto = new TransactionMainDataDto();
-					var productListDto = new List<ProductListDto>();
 
-
-					transactionDto.ID = transaction.TransactionID;
-					transactionDto.ClientID = transaction.ClientID;
-					transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
-					transactionDto.DriverName = transaction?.DriverName ?? "";
-					transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now.Date;
-					transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now.Date;
-					transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now.Date;
-					transactionDto.Notes = transaction?.Notes ?? "";
-					transactionDto.Total = transaction?.Total ?? 0;
-					transactionDto.Payed = transaction?.Payed ?? 0;
-					transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
-					transactionDto.Remaining = transaction?.Remaining ?? 0;
-					transactionDto.DeliveredToDriver = transaction?.DeliveredToDriver ?? 0;
-					transactionDto.TypeId = (int)TransactionType.Income;
-
-					foreach (var item in transaction?.TransactionProducts)
+					foreach (var transaction in transactions)
 					{
-						var productDto = new ProductListDto();
+						var transactionDto = new TransactionMainDataDto();
+						var productListDto = new List<ProductListDto>();
 
-						if (item.Qunatity != 0 || item.Number != null)
+						transactionDto.ID = transaction.TransactionID;
+						transactionDto.ClientID = transaction.ClientID;
+						transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
+						transactionDto.DriverName = transaction?.DriverName ?? "";
+						transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now.Date;
+						transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now.Date;
+						transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now.Date;
+						transactionDto.Notes = transaction?.Notes ?? "";
+						transactionDto.Total = transaction?.Total ?? 0;
+						transactionDto.Payed = transaction?.Payed ?? 0;
+						transactionDto.CarCapacity = transaction?.TotalCapcity ?? 0;
+						transactionDto.Remaining = transaction?.Remaining ?? 0;
+						transactionDto.DeliveredToDriver = transaction?.DeliveredToDriver ?? 0;
+						transactionDto.TypeId = (int)TransactionType.Income;
+
+						foreach (var item in transaction?.TransactionProducts)
 						{
-							productDto.Id = item.ID;
-							productDto.ProductID = item.Product?.ProductID;
-							productDto.ProductName = item.Product?.ProductName;
-							productDto.Quantity = item.Qunatity;
-							productDto.ProductBoxID = item.ProductBoxID;
-							productDto.ProductBoxName = item.ProductBoxID.HasValue ?
-								await context.Products.Where(p => p.ProductID == item.ProductBoxID.Value).Select(p => p.ProductName).FirstOrDefaultAsync() : "";
-							productDto.Number = item.Number;
-							productDto.Total = item.ProductTotal;
-							productDto.Price = item.Price;
+							var productDto = new ProductListDto();
+
+							if (item.Qunatity != 0 || item.Number != null)
+							{
+								productDto.Id = item.ID;
+								productDto.ProductID = item.Product?.ProductID;
+								productDto.ProductName = item.Product?.ProductName;
+								productDto.Quantity = item.Qunatity;
+								productDto.ProductBoxID = item.ProductBoxID;
+								productDto.ProductBoxName = item.ProductBoxID.HasValue ?
+									await context.Products.Where(p => p.ProductID == item.ProductBoxID.Value).Select(p => p.ProductName).FirstOrDefaultAsync() : "";
+								productDto.Number = item.Number;
+								productDto.Total = item.ProductTotal;
+								productDto.Price = item.Price;
+							}
+
+							productListDto.Add(productDto);
 						}
+						transactionDto.ProductList = productListDto;
 
-						//if (item.Qunatity != null)
-						//{
-						//	productDto.Id = item.ID;
-						//	productDto.ProductID = item.Product?.ProductID;
-						//	productDto.ProductName = item.Product?.ProductName;
-						//	productDto.Quantity = item.Qunatity;
-						//	productDto.Total = item.ProductTotal;
-						//	productDto.Price = item.Price;
-						//}
-						//if (item.Number != null)
-						//{
-						//	productDto.Id = item.ID;
-						//	productDto.ProductBoxName = item.Product?.ProductName;
-						//	productDto.ProductBoxID = item.Product?.ProductID;
-						//	productDto.Number = item.Number;
-						//	productDto.Total = item.ProductTotal;
-						//	productDto.Price = item.Price;
-						//}
-						productListDto.Add(productDto);
+						transactionListDto.Add(transactionDto);
 					}
-					transactionDto.ProductList = productListDto;
-
-					transactionListDto.Add(transactionDto);
 				}
 
+				if(financialtransactionRecordDb.Count != 0)
+				{
+					foreach (var item in financialtransactionRecordDb)
+					{
+						var financialtransactionRecord = new TransactionMainDataDto();
+						financialtransactionRecord.ID = item.ID;
+						financialtransactionRecord.ClientID = (int)item.Client!.ClientID;
+						financialtransactionRecord.ClientName = item.Client!.ClientName;
+						financialtransactionRecord.Description = TransactionType.Income.ToString();
+						financialtransactionRecord.Payed = item.Total;
+						financialtransactionRecord.Notes = item.Notes;
+						financialtransactionRecord.CreatedDate = item.Created_Date;
+
+						transactionListDto.Add(financialtransactionRecord);
+					}
+				}
+
+				var totalRecords = transactionsDb.Count() + financialtransactionRecordDbs.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
+				
 				response.ResponseValue.TransactionsList = transactionListDto;
 				response.ResponseID = 1;
 			}

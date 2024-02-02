@@ -10,6 +10,7 @@
 		public DateTime? CreatedDate { get; set; }
 		public DateTime? PayDate { get; set; }
         public int? TypeId { get; set; }
+		public string? Description { get; set; }
 		public decimal? DeliveredToDriver { get; set; }
 		public decimal? Total { get; set; }
 		public decimal? Payed { get; set; }

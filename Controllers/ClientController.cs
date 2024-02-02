@@ -79,11 +79,11 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetTransactionsWithClientData")]
-		public async Task<IActionResult> GetTransactionsWithClientData(int clientID)
+		public async Task<IActionResult> GetTransactionsWithClientData(int clientID, int currentPage = 1, int pageSize=100)
 		{
 			if (clientID == 0)
 				return BadRequest();
-			var response = await clientRepo.GetTransactionsWithCleintData(clientID);
+			var response = await clientRepo.GetTransactionsWithCleintData(clientID,currentPage,pageSize);
 			return Ok(response.ResponseValue);
 
 		}

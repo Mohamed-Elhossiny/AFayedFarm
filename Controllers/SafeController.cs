@@ -41,7 +41,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpPost("~/GetRecords")]
-		public async Task<IActionResult> GetRecords(int pageNumber = 1, int pageSize = 100,int recordType = 0)
+		public async Task<IActionResult> GetRecords(int pageNumber = 1, int pageSize = 500,int recordType = 0)
 		{
 			if (recordType < 0 || recordType > 5)
 			{
