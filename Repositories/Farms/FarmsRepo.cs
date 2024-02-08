@@ -149,6 +149,7 @@ namespace AFayedFarm.Repositories.Supplier
 						transactionRecord.Description = TransactionType.Pay.ToString();
 						transactionRecord.Paied = -1 * item.Total;
 						transactionRecord.FarmsNotes = item.Notes;
+						transactionRecord.Created_Date = item.Created_Date;
 
 						farmsRecord.Add(transactionRecord);
 					}
@@ -300,11 +301,11 @@ namespace AFayedFarm.Repositories.Supplier
 
 		}
 
-		public async Task<RequestResponse<FarmRecordsWithFarmDataDto>> GetFarmRecordWithFarmDataByID(int farmID,int currentPage ,int pageSize)
+		public async Task<RequestResponse<FarmRecordsWithFarmDataDto>> GetFarmRecordWithFarmDataByID(int farmID, int currentPage, int pageSize)
 		{
 			var response = new RequestResponse<FarmRecordsWithFarmDataDto>() { ResponseID = 0, ResponseValue = new FarmRecordsWithFarmDataDto() };
 			var farmsRecord = new List<FarmRecordDto>();
-			var framRecords =await context.FarmsProducts
+			var framRecords = await context.FarmsProducts
 				.Include(c => c.Farms)
 				.Include(c => c.Product)
 				.OrderByDescending(c => c.Created_Date)
@@ -312,9 +313,9 @@ namespace AFayedFarm.Repositories.Supplier
 
 			var records = framRecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
-			var transactionRecordDbs =await context.SafeTransactions
+			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Farm)
-				.Where(c => c.FarmID == farmID).OrderByDescending(c=>c.Created_Date).ToListAsync();
+				.Where(c => c.FarmID == farmID).OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -394,7 +395,7 @@ namespace AFayedFarm.Repositories.Supplier
 		public async Task<List<FarmDto>> GetFarmsAsync()
 		{
 			var AllFarms = new List<FarmDto>();
-			var farmsDb = await context.Farms.OrderByDescending(c=>c.Create_Date).Select(f => new FarmDto
+			var farmsDb = await context.Farms.OrderByDescending(c => c.Create_Date).Select(f => new FarmDto
 			{
 				ID = f.FarmsID,
 				Name = f.FarmsName,
@@ -423,7 +424,8 @@ namespace AFayedFarm.Repositories.Supplier
 				decimal? total = 0;
 				foreach (var item in farmsList.ResponseValue!)
 				{
-					total += item.Remaining;
+					if (item.Description == null)
+						total += item.Remaining;
 				}
 				response.ResponseID = 1;
 				response.ResponseValue = (decimal)total!;
@@ -597,7 +599,7 @@ namespace AFayedFarm.Repositories.Supplier
 				.Include(c => c.Product)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
-			var records =  farmRecords.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+			var records = farmRecords.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
 			if (records.Count != 0)
 			{

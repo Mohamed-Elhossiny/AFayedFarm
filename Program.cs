@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 namespace AFayedFarm
@@ -27,6 +28,12 @@ namespace AFayedFarm
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
+			//Configure Serilog 
+			builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+			{
+				loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration)
+				.Enrich.FromLogContext();
+			});
 
 			builder.Services.AddControllers();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -118,6 +125,7 @@ namespace AFayedFarm
 			app.UseSwaggerUI();
 			//}
 
+			app.UseSerilogRequestLogging();
 			app.UseCors("AllowAll");
 			app.UseAuthentication();
 			app.UseAuthorization();
