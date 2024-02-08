@@ -19,7 +19,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetAllProducts")]
-		public async Task<IActionResult> GetAllProducts(int currentPage = 1, int pageSize = 100)
+		public async Task<IActionResult> GetAllProducts(int currentPage = 1, int pageSize = 500)
 		{
 			var response = await productRepo.GetAllProducts(currentPage,pageSize);
 			if (response.ResponseID == 1)

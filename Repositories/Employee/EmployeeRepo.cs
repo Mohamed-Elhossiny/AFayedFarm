@@ -172,7 +172,7 @@ namespace AFayedFarm.Repositories.Employee
 					#region Add Transactions to Financial Safe
 					var Safetransaction = new SafeTransaction()
 					{
-						SafeID = 1,
+						SafeID = 2,
 						Emp_ID = dto.Id,
 						TypeID = dto.TrasactionTypeID,
 						Total = -1 * dto.Total,
@@ -228,7 +228,7 @@ namespace AFayedFarm.Repositories.Employee
 					var financialSafe = await context.Safe.FindAsync(1);
 					var transaction = new SafeTransaction()
 					{
-						SafeID = 1,
+						SafeID = 2,
 						Emp_ID = item.EmpolyeeID,
 						TypeID = (int)TransactionType.MonthlySalary,
 						Type = TransactionType.MonthlySalary.ToString(),

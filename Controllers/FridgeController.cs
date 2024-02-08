@@ -36,7 +36,7 @@ namespace AFayedFarm.Controllers
 			var allFarms = await fridgeRepo.GetFridgesAsync();
 			if (allFarms.ResponseID != 0)
 				return Ok(allFarms.ResponseValue);
-			return NotFound("No Data Found");
+			return Ok(allFarms.ResponseValue);
 		}
 
 		[HttpGet("~/GetFridgeById")]

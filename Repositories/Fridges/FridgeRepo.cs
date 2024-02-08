@@ -81,7 +81,7 @@ namespace AFayedFarm.Repositories.Fridges
 				#region Add Transactions to Financial Safe
 
 				var transaction = new SafeTransaction();
-				transaction.SafeID = 1;
+				transaction.SafeID = 2;
 				transaction.FridgeID = dto.FridgeID;
 				transaction.TypeID = dto.TypeId;
 				transaction.Type = ((TransactionType)dto.TypeId!).ToString();
@@ -159,7 +159,9 @@ namespace AFayedFarm.Repositories.Fridges
 				}
 				response.ResponseID = 1;
 				response.ResponseValue = allFridges;
+				return response;
 			}
+			response.ResponseValue = allFridges;
 			return response;
 		}
 
@@ -589,7 +591,7 @@ namespace AFayedFarm.Repositories.Fridges
 					#region Add Transactions to Financial Safe
 
 					var transaction = new SafeTransaction();
-					transaction.SafeID = 1;
+					transaction.SafeID = 2;
 					transaction.FridgeID = dto.FridgeID;
 					transaction.TypeID = dto.TypeId;
 					transaction.Type = ((TransactionType)dto.TypeId!).ToString();
@@ -655,7 +657,7 @@ namespace AFayedFarm.Repositories.Fridges
 			#region Add Transactions to Financial Safe
 			var transaction = new SafeTransaction()
 			{
-				SafeID = 1,
+				SafeID = 2,
 				FridgeID = dto.Id,
 				TypeID = dto.TrasactionTypeID,
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),

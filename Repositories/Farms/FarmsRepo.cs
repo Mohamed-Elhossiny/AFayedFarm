@@ -67,7 +67,7 @@ namespace AFayedFarm.Repositories.Supplier
 				#region Add Transactions to Financial Safe
 
 				var transaction = new SafeTransaction();
-				transaction.SafeID = 1;
+				transaction.SafeID = 2;
 				transaction.FarmID = farmDto.FarmsID;
 				transaction.TypeID = farmDto.TypeId;
 				transaction.Type = ((TransactionType)farmDto.TypeId!).ToString();
@@ -76,7 +76,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 				await context.SafeTransactions.AddAsync(transaction);
 
-				var financialSafe = await context.Safe.FindAsync(1);
+				var financialSafe = await context.Safe.FindAsync(2);
 				if (farmDto.TypeId == (int)TransactionType.Pay)
 					financialSafe!.Total = financialSafe.Total - farmDto.Paied;
 
@@ -483,7 +483,7 @@ namespace AFayedFarm.Repositories.Supplier
 					#region Add Transactions to Financial Safe
 
 					var transaction = new SafeTransaction();
-					transaction.SafeID = 1;
+					transaction.SafeID = 2;
 					transaction.FarmID = farmDto.FarmsID;
 					transaction.TypeID = farmDto.TypeId;
 					transaction.Type = ((TransactionType)farmDto.TypeId!).ToString();
@@ -594,6 +594,7 @@ namespace AFayedFarm.Repositories.Supplier
 		{
 			var response = new RequestResponse<List<FarmRecordWithoutDescriptionDto>>() { ResponseID = 0 };
 			var farmsRecord = new List<FarmRecordWithoutDescriptionDto>();
+			
 			var farmRecords = await context.FarmsProducts
 				.Include(c => c.Farms)
 				.Include(c => c.Product)
@@ -646,7 +647,7 @@ namespace AFayedFarm.Repositories.Supplier
 			#region Add Transactions to Financial Safe
 			var transaction = new SafeTransaction()
 			{
-				SafeID = 1,
+				SafeID = 2,
 				FarmID = dto.Id,
 				TypeID = dto.TrasactionTypeID,
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),

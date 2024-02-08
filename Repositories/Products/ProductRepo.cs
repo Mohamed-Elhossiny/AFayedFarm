@@ -123,7 +123,7 @@ namespace AFayedFarm.Repositories.Products
 					storeProduct.ProductID = id;
 					storeProduct.StoreID = 2;
 					storeProduct.Created_Date = DateTime.Now.Date;
-					storeProduct.Quantity = dto.Quantity;
+					storeProduct.Quantity = dto.Quantity ?? 0;
 
 					await context.StoreProducts.AddAsync(storeProduct);
 					await context.SaveChangesAsync();

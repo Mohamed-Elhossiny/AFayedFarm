@@ -110,15 +110,6 @@ namespace AFayedFarm.Controllers
 				return BadRequest(farmdto);
 		}
 
-		//[HttpPost("~/GetTotalRemaining")]
-		//public async Task<IActionResult> GetTotalRemaining(int farmID)
-		//{
-		//	var response = await farmsRepo.CalculateTotalRemainingFromRecords(farmID);
-		//	if (response.ResponseID == 1)
-		//		return Ok(response.ResponseValue);
-		//	else
-		//		return NotFound(response.ResponseValue);
-		//}
 
 		[HttpGet("~/GetFarmRecordWithData")]
 		public async Task<IActionResult> GetFarmsRecordWithData(int recordId,int pageNumber = 1,int pageSize = 100 )
@@ -136,7 +127,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/AllProductsDetails")]
-		public async Task<IActionResult> AllProductsDetails(int pageNumber = 1,int pageSize = 100)
+		public async Task<IActionResult> AllProductsDetails(int pageNumber = 1,int pageSize = 500)
 		{
 			//if (id == 0)
 			//	return BadRequest("Enter Valid ID");

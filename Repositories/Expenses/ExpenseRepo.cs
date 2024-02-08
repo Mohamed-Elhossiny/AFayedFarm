@@ -67,7 +67,7 @@ namespace AFayedFarm.Repositories.Expenses
 				#region Add Transactions to Financial Safe
 
 				var transaction = new SafeTransaction();
-				transaction.SafeID = 1;
+				transaction.SafeID = 2;
 				transaction.ExpenseID = dto.ExpenseID;
 				transaction.TypeID = dto.TypeId;
 				transaction.Type = ((TransactionType)dto.TypeId!).ToString();
@@ -154,7 +154,7 @@ namespace AFayedFarm.Repositories.Expenses
 				TotalRemaining = c.TotalRemaining,
 				ExpenseTypeName = c.ExpenseTypeId != 0 ? c.ExpenseType!.ExpenseTypeName : "",
 				Type = c.ExpenseTypeId != 0 ? c.ExpenseTypeId : 0,
-			}).OrderByDescending(c => c.ID).ToListAsync();
+			}).ToListAsync();
 			if (expensesDb.Count != 0)
 			{
 				foreach (var item in expensesDb)
@@ -364,7 +364,7 @@ namespace AFayedFarm.Repositories.Expenses
 				#region Add Transactions to Financial Safe
 
 				var transaction = new SafeTransaction();
-				transaction.SafeID = 1;
+				transaction.SafeID = 2;
 				transaction.ExpenseID = dto.ExpenseID;
 				transaction.TypeID = dto.TypeId;
 				transaction.Type = ((TransactionType)dto.TypeId!).ToString();
@@ -542,7 +542,7 @@ namespace AFayedFarm.Repositories.Expenses
 			#region Add Transactions to Financial Safe
 			var transaction = new SafeTransaction()
 			{
-				SafeID = 1,
+				SafeID = 2,
 				ExpenseID = dto.Id,
 				TypeID = dto.TrasactionTypeID,
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),

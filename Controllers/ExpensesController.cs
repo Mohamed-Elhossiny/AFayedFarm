@@ -38,7 +38,7 @@ namespace AFayedFarm.Controllers
 			var response = await expenseRepo.GetExpenseAsync();
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
-			return NotFound(response.ResponseValue);
+			return Ok(response.ResponseValue);
 		}
 
 		[HttpGet("~/GetExpenseById")]

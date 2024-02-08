@@ -37,7 +37,7 @@ namespace AFayedFarm.Controllers
 			var allClients = await clientRepo.GetClientAsync();
 			if (allClients.Count() != 0)
 				return Ok(allClients);
-			return Conflict("No Data Found");
+			return Ok(allClients);
 		}
 
 		[HttpGet("~/GetClientById")]

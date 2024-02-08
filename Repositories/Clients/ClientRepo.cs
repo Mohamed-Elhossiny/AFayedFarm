@@ -134,7 +134,7 @@ namespace AFayedFarm.Repositories.Clients
 						await context.SaveChangesAsync();
 
 					}
-					
+
 				}
 
 				await UpdateProductQuantityInStore(dto);
@@ -143,7 +143,7 @@ namespace AFayedFarm.Repositories.Clients
 			#region Add Transactions to Financial Safe
 
 			var safeTransaction = new SafeTransaction();
-			safeTransaction.SafeID = 1;
+			safeTransaction.SafeID = 2;
 			safeTransaction.CLientID = dto.ClientID;
 			safeTransaction.TypeID = dto.TypeId;
 			safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
@@ -194,7 +194,10 @@ namespace AFayedFarm.Repositories.Clients
 				Total = c.Total ?? 0,
 				Created_Date = DateOnly.FromDateTime(c.Create_Date ?? DateTime.Now)
 			}).OrderByDescending(c => c.ID).ToListAsync();
-			return clientsDb;
+			if (clientsDb.Count() != 0)
+				return clientsDb;
+			else
+				return new List<ClientDto>();
 		}
 
 		public async Task<RequestResponse<ClientDto>> GetClientById(int id)
@@ -354,7 +357,7 @@ namespace AFayedFarm.Repositories.Clients
 			#region Add Transactions to Financial Safe
 			var transaction = new SafeTransaction()
 			{
-				SafeID = 1,
+				SafeID = 2,
 				CLientID = dto.Id,
 				TypeID = dto.TrasactionTypeID,
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
@@ -382,14 +385,14 @@ namespace AFayedFarm.Repositories.Clients
 			return response;
 		}
 
-		public async Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid,int currentPage,int pageSize)
+		public async Task<RequestResponse<TransactionWithClientData>> GetTransactionsWithCleintData(int clientid, int currentPage, int pageSize)
 		{
 			var response = new RequestResponse<TransactionWithClientData> { ResponseID = 0, ResponseValue = new TransactionWithClientData() { TransactionsList = new() } };
 			var transactionsDb = await context.Transactions
 				.Where(c => c.ClientID == clientid)
 				.Include(c => c.Client)
 				.Include(c => c.TransactionProducts!).ThenInclude(c => c.Product)
-				.OrderByDescending(c=>c.Created_Date).ToListAsync();
+				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var transactions = transactionsDb.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -452,7 +455,7 @@ namespace AFayedFarm.Repositories.Clients
 					}
 				}
 
-				if(financialtransactionRecordDb.Count != 0)
+				if (financialtransactionRecordDb.Count != 0)
 				{
 					foreach (var item in financialtransactionRecordDb)
 					{
@@ -473,7 +476,7 @@ namespace AFayedFarm.Repositories.Clients
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
 				response.CurrentPage = currentPage;
 				response.PageSize = pageSize;
-				
+
 				response.ResponseValue.TransactionsList = transactionListDto;
 				response.ResponseID = 1;
 			}
@@ -568,14 +571,14 @@ namespace AFayedFarm.Repositories.Clients
 								context.TransactionProducts.Update(existingProduct);
 								await context.SaveChangesAsync();
 
-								
+
 
 							}
-							
+
 						}
 					}
 
-					if(dto.ProductList.Count() > productListDb.Count())
+					if (dto.ProductList.Count() > productListDb.Count())
 					{
 						foreach (var item in dto.ProductList)
 						{
@@ -606,7 +609,7 @@ namespace AFayedFarm.Repositories.Clients
 					{
 
 						var safeTransaction = new SafeTransaction();
-						safeTransaction.SafeID = 1;
+						safeTransaction.SafeID = 2;
 						safeTransaction.CLientID = dto.ClientID;
 						safeTransaction.TypeID = dto.TypeId;
 						safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
