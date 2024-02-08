@@ -204,7 +204,7 @@ namespace AFayedFarm.Repositories.Fridges
 			{
 				var newProductInStore = new StoreProduct();
 				newProductInStore.ProductID = dto.ProductID;
-				newProductInStore.StoreID = 1;
+				newProductInStore.StoreID = 2;
 				newProductInStore.Created_Date = DateTime.Now.Date;
 				newProductInStore.Quantity = dto.Quantity;
 
@@ -702,7 +702,7 @@ namespace AFayedFarm.Repositories.Fridges
 				if (dto != null)
 				{
 					storeProduct.ProductID = dto.ProductID;
-					storeProduct.StoreID = 1;
+					storeProduct.StoreID = 2;
 					storeProduct.Created_Date = DateTime.Now.Date;
 					storeProduct.Quantity = dto.Quantity;
 

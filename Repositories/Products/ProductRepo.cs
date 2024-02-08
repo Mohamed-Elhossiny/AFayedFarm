@@ -14,7 +14,7 @@ namespace AFayedFarm.Repositories.Products
 		{
 			this.context = context;
 		}
-		public async Task<RequestResponse<ProductDto>> AddProduct(AddProductDto dto)
+		public async Task<RequestResponse<ProductDto>> AddProduct(AddNewProductDto dto)
 		{
 			var response = new RequestResponse<ProductDto> { ResponseID = 0 };
 			var productDB = await context.Products.Where(c => c.ProductName.ToLower() == dto.Name.ToLower()).SingleOrDefaultAsync();
@@ -24,12 +24,12 @@ namespace AFayedFarm.Repositories.Products
 				{
 					ProductName = dto.Name,
 					Created_Date = DateTime.Now.Date,
-					ProductNote = dto.Notes
+					//ProductNote = dto.Notes
 				};
 				await context.Products.AddAsync(product);
 				await context.SaveChangesAsync();
 
-				await AddProductToStore(dto, product.ProductID);
+				//await AddProductToStore(dto, product.ProductID);
 
 				var productDto = new ProductDto()
 				{
@@ -84,7 +84,7 @@ namespace AFayedFarm.Repositories.Products
 			{
 				var createdDate = new DateTime();
 				productDb.ProductName = dto.Name;
-				productDb.ProductNote = dto.Notes;
+				//productDb.ProductNote = dto.Notes;
 
 				context.Products.Update(productDb);
 				await context.SaveChangesAsync();
@@ -121,7 +121,7 @@ namespace AFayedFarm.Repositories.Products
 				if (dto != null)
 				{
 					storeProduct.ProductID = id;
-					storeProduct.StoreID = 1;
+					storeProduct.StoreID = 2;
 					storeProduct.Created_Date = DateTime.Now.Date;
 					storeProduct.Quantity = dto.Quantity;
 

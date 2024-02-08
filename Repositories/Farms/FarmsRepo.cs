@@ -559,7 +559,7 @@ namespace AFayedFarm.Repositories.Supplier
 				if (dto != null)
 				{
 					storeProduct.ProductID = dto.ProductID;
-					storeProduct.StoreID = 1;
+					storeProduct.StoreID = 2;
 					storeProduct.Created_Date = DateTime.Now.Date;
 					storeProduct.Quantity = dto.NetQuantity;
 

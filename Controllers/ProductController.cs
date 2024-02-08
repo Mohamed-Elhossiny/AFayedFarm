@@ -32,7 +32,7 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpPost("~/AddNewProduct")]
-		public async Task<IActionResult> AddNewProduct(AddProductDto dto)
+		public async Task<IActionResult> AddNewProduct(AddNewProductDto dto)
 		{
 			var response = await productRepo.AddProduct(dto);
 			if (response.ResponseID == 1)
