@@ -60,7 +60,7 @@ namespace AFayedFarm.Controllers
 
 				// Farms = 1
 				case 1:
-					var farmRecords = await safeRepo.GetFarmFinancialRecords(pageNumber, pageSize);
+					var farmRecords = await safeRepo.GetFarmFinancialRecords(pageNumber, pageSize, from, to);
 					if (farmRecords.ResponseID == 1)
 						return Ok(farmRecords);
 					else
@@ -69,7 +69,7 @@ namespace AFayedFarm.Controllers
 
 				// Expense = 2
 				case 2:
-					var expenseRecords = await safeRepo.GetExpenseFinancialRecords(pageNumber, pageSize);
+					var expenseRecords = await safeRepo.GetExpenseFinancialRecords(pageNumber, pageSize, from, to);
 					if (expenseRecords.ResponseID == 1)
 						return Ok(expenseRecords);
 					else
@@ -78,7 +78,7 @@ namespace AFayedFarm.Controllers
 
 				// Fridge = 3
 				case 3:
-					var fridgeRecords = await safeRepo.GetFridgeFinancialRecords(pageNumber, pageSize);
+					var fridgeRecords = await safeRepo.GetFridgeFinancialRecords(pageNumber, pageSize, from, to);
 					if (fridgeRecords.ResponseID == 1)
 						return Ok(fridgeRecords);
 					else
@@ -87,7 +87,7 @@ namespace AFayedFarm.Controllers
 
 				// Client = 4
 				case 4:
-					var clientRecords = await safeRepo.GetClientFinancialRecords(pageNumber, pageSize);
+					var clientRecords = await safeRepo.GetClientFinancialRecords(pageNumber, pageSize, from, to);
 					if (clientRecords.ResponseID == 1)
 						return Ok(clientRecords);
 					else
@@ -96,7 +96,7 @@ namespace AFayedFarm.Controllers
 
 				// Employee = 5
 				case 5:
-					var employeeRecords = await safeRepo.GetEmployeeFinancialRecords(pageNumber, pageSize);
+					var employeeRecords = await safeRepo.GetEmployeeFinancialRecords(pageNumber, pageSize, from, to);
 					if (employeeRecords.ResponseID == 1)
 						return Ok(employeeRecords);
 					else
@@ -105,7 +105,7 @@ namespace AFayedFarm.Controllers
 
 			}
 			return Ok($"Please enter valid record type{recordType}");
-			//return NotFound($"There is no financial transaction for that {recordType} && Page {pageNumber} && Page Size {pageSize}");
+			
 
 		}
 

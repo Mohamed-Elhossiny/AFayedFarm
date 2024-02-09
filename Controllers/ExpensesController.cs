@@ -86,7 +86,7 @@ namespace AFayedFarm.Controllers
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else
-				return NotFound("No Data Found");
+				return Ok(response.ResponseValue);
 		}
 		
 		[HttpPost("~/AddExpenseRecord")]

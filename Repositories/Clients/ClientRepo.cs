@@ -149,10 +149,11 @@ namespace AFayedFarm.Repositories.Clients
 			safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
 			safeTransaction.Total = dto.Payed;
 			safeTransaction.Notes = dto.Notes;
+			safeTransaction.IsfromRecord = true;
 
 			await context.SafeTransactions.AddAsync(safeTransaction);
 
-			var financialSafe = await context.Safe.FindAsync(1);
+			var financialSafe = await context.Safe.FindAsync(2);
 			if (dto.TypeId == (int)TransactionType.Income)
 				financialSafe!.Total = financialSafe.Total + dto.Payed;
 
@@ -363,11 +364,12 @@ namespace AFayedFarm.Repositories.Clients
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date
+				Created_Date = DateTime.Now.Date,
+				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);
 
-			var financialSafe = await context.Safe.FindAsync(1);
+			var financialSafe = await context.Safe.FindAsync(2);
 			if (dto.TrasactionTypeID == (int)TransactionType.Income)
 				financialSafe!.Total = financialSafe.Total + dto.Total;
 			context.Safe.Update(financialSafe!);
@@ -398,7 +400,7 @@ namespace AFayedFarm.Repositories.Clients
 
 			var financialtransactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Client)
-				.Where(c => c.CLientID == clientid).ToListAsync();
+				.Where(c => c.CLientID == clientid && c.IsfromRecord == false).ToListAsync();
 
 			var financialtransactionRecordDb = financialtransactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -618,7 +620,7 @@ namespace AFayedFarm.Repositories.Clients
 
 						await context.SafeTransactions.AddAsync(safeTransaction);
 
-						var financialSafe = await context.Safe.FindAsync(1);
+						var financialSafe = await context.Safe.FindAsync(2);
 						if (dto.TypeId == (int)TransactionType.Income)
 							financialSafe!.Total = financialSafe.Total + dto.Payed;
 

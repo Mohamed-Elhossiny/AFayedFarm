@@ -87,10 +87,11 @@ namespace AFayedFarm.Repositories.Fridges
 				transaction.Type = ((TransactionType)dto.TypeId!).ToString();
 				transaction.Total = -1 * dto.Payed;
 				transaction.Notes = dto.Notes;
+				transaction.IsfromRecord = true;
 
 				await context.SafeTransactions.AddAsync(transaction);
 
-				var financialSafe = await context.Safe.FindAsync(1);
+				var financialSafe = await context.Safe.FindAsync(2);
 				if (dto.TypeId == (int)TransactionType.Pay)
 					financialSafe!.Total = financialSafe.Total - dto.Payed;
 
@@ -446,7 +447,7 @@ namespace AFayedFarm.Repositories.Fridges
 			var transactionRecordDbs =await context.SafeTransactions
 				.Include(c => c.Farm)
 				.OrderByDescending(c=>c.Created_Date)
-				.Where(c => c.FridgeID == fridgeID).ToListAsync();
+				.Where(c => c.FridgeID == fridgeID && c.IsfromRecord == false).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -600,7 +601,7 @@ namespace AFayedFarm.Repositories.Fridges
 
 					await context.SafeTransactions.AddAsync(transaction);
 
-					var financialSafe = await context.Safe.FindAsync(1);
+					var financialSafe = await context.Safe.FindAsync(2);
 					if (dto.TypeId == (int)TransactionType.Pay)
 						financialSafe!.Total = financialSafe.Total - dto.Payed;
 
@@ -663,11 +664,12 @@ namespace AFayedFarm.Repositories.Fridges
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = -1 * dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date
+				Created_Date = DateTime.Now.Date,
+				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);
 
-			var financialSafe = await context.Safe.FindAsync(1);
+			var financialSafe = await context.Safe.FindAsync(2);
 			if (dto.TrasactionTypeID == (int)TransactionType.Pay)
 				financialSafe!.Total = financialSafe.Total - dto.Total;
 			context.Safe.Update(financialSafe!);

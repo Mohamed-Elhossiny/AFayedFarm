@@ -73,6 +73,7 @@ namespace AFayedFarm.Repositories.Supplier
 				transaction.Type = ((TransactionType)farmDto.TypeId!).ToString();
 				transaction.Total = -1 * farmDto.Paied;
 				transaction.Notes = farmDto.FarmsNotes;
+				transaction.IsfromRecord = true;
 
 				await context.SafeTransactions.AddAsync(transaction);
 
@@ -83,7 +84,7 @@ namespace AFayedFarm.Repositories.Supplier
 				context.Safe.Update(financialSafe!);
 
 				var farmDb = await context.Farms.Where(f => f.FarmsID == farmProduct.FarmsID).FirstOrDefaultAsync();
-				if (farmDb.TotalRemaining == null)
+				if (farmDb!.TotalRemaining == null)
 					farmDb.TotalRemaining = 0;
 				farmDb!.TotalRemaining += remaining;
 				context.Farms.Update(farmDb);
@@ -315,7 +316,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Farm)
-				.Where(c => c.FarmID == farmID).OrderByDescending(c => c.Created_Date).ToListAsync();
+				.Where(c => c.FarmID == farmID && c.IsfromRecord == false).OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -387,6 +388,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 			response.ResponseValue.Name = farmData.Name;
 			response.ResponseValue.ID = farmData.ID;
+			response.ResponseValue.Date = farmData.Created_Date;
 			response.ResponseValue.Total = TotalRemaining.ResponseValue;
 			response.ResponseValue.FarmRecords = farmsRecord;
 			return response;
@@ -493,7 +495,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 					await context.SafeTransactions.AddAsync(transaction);
 
-					var financialSafe = await context.Safe.FindAsync(1);
+					var financialSafe = await context.Safe.FindAsync(2);
 					if (farmDto.TypeId == (int)TransactionType.Pay)
 						financialSafe!.Total = financialSafe.Total - farmDto.Paied;
 
@@ -653,11 +655,12 @@ namespace AFayedFarm.Repositories.Supplier
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = -1 * dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date
+				Created_Date = DateTime.Now.Date,
+				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);
 
-			var financialSafe = await context.Safe.FindAsync(1);
+			var financialSafe = await context.Safe.FindAsync(2);
 			if (dto.TrasactionTypeID == (int)TransactionType.Pay)
 				financialSafe!.Total = financialSafe.Total - dto.Total;
 			context.Safe.Update(financialSafe!);

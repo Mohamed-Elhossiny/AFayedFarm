@@ -182,7 +182,7 @@ namespace AFayedFarm.Repositories.Employee
 					};
 					await context.SafeTransactions.AddAsync(Safetransaction);
 
-					var financialSafe = await context.Safe.FindAsync(1);
+					var financialSafe = await context.Safe.FindAsync(2);
 					if (dto.TrasactionTypeID == (int)TransactionType.Pay)
 						financialSafe!.Total = financialSafe.Total - dto.Total;
 					context.Safe.Update(financialSafe!);
@@ -225,7 +225,7 @@ namespace AFayedFarm.Repositories.Employee
 					await context.SaveChangesAsync();
 
 					#region Add Transactions to Financial Safe
-					var financialSafe = await context.Safe.FindAsync(1);
+					var financialSafe = await context.Safe.FindAsync(2);
 					var transaction = new SafeTransaction()
 					{
 						SafeID = 2,
