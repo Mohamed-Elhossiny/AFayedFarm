@@ -453,12 +453,15 @@ namespace AFayedFarm.Repositories.Fridges
 
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
+				var index = 1;
 				if (records.Count != 0)
 				{
 					foreach (var item in records)
 					{
 						var record = new FridgeRecordDto();
 
+
+						record.Id = index;
 						record.FridgeRecordID = item.FridgeRecordID;
 						record.FridgeID = item.Fridge!.FridgeID;
 						record.FridgeName = item.Fridge.FridgeName;
@@ -476,6 +479,7 @@ namespace AFayedFarm.Repositories.Fridges
 						record.CarNumber = item.CarNumber;
 						record.Action = item.Action;
 						record.ActionName = ((FridgeActionEnum)item.Action!).ToString();
+						++index;
 
 						fridgeRecord.Add(record);
 					}
@@ -485,6 +489,8 @@ namespace AFayedFarm.Repositories.Fridges
 					foreach (var item in transactionRecordDb)
 					{
 						var transactionRecord = new FridgeRecordDto();
+
+						transactionRecord.Id = index;
 						transactionRecord.FridgeRecordID = item.ID;
 						transactionRecord.Created_Date = item.Created_Date;
 						transactionRecord.FridgeID = (int)item.Fridge!.FridgeID;
@@ -492,6 +498,7 @@ namespace AFayedFarm.Repositories.Fridges
 						transactionRecord.Description = TransactionType.Pay.ToString();
 						transactionRecord.Payed = -1 * item.Total;
 						transactionRecord.Notes = item.Notes;
+						++index;
 
 						fridgeRecord.Add(transactionRecord);
 					}

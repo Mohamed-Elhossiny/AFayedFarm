@@ -2,11 +2,12 @@
 {
 	public class FridgeRecordDto
 	{
-        public int?  FridgeRecordID { get; set; }
-        public int? FridgeID { get; set; }
-        public string? FridgeName { get; set; }
-        public int? ProductID { get; set; }
-        public string? ProductName { get; set; }
+		public int? Id { get; set; }
+		public int? FridgeRecordID { get; set; }
+		public int? FridgeID { get; set; }
+		public string? FridgeName { get; set; }
+		public int? ProductID { get; set; }
+		public string? ProductName { get; set; }
 		public string? Description { get; set; }
 		public DateTime? SupplyDate { get; set; }
 		public DateTime? Created_Date { get; set; }

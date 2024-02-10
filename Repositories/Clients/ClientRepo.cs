@@ -4,6 +4,7 @@ using AFayedFarm.Enums;
 using AFayedFarm.Global;
 using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
+using Serilog.Sinks.File;
 
 namespace AFayedFarm.Repositories.Clients
 {
@@ -137,7 +138,7 @@ namespace AFayedFarm.Repositories.Clients
 
 				}
 
-				await UpdateProductQuantityInStore(dto);
+				await SubtractProductQuantityInStore(dto);
 			}
 
 			#region Add Transactions to Financial Safe
@@ -256,7 +257,45 @@ namespace AFayedFarm.Repositories.Clients
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> UpdateProductQuantityInStore(AddTransactionMainDataDto dto)
+		public async Task<RequestResponse<bool>> UpdateProductQuantityInStore(UpdateStoreProductDto dto)
+		{
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
+			if (productInStore != null)
+			{
+				if (productInStore.Quantity == null)
+					productInStore.Quantity = 0;
+				productInStore.Quantity -= dto.Quantity;
+				context.StoreProducts.Update(productInStore);
+				await context.SaveChangesAsync();
+				response.ResponseID = 1;
+				response.ResponseValue = true;
+				return response;
+			}
+			return response;
+		}
+
+		public async Task<RequestResponse<bool>> UpdateProductBoxNunmberInStore(UpdateStoreProductDto dto)
+		{
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
+
+			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductBoxID).FirstOrDefaultAsync();
+			if (productInStore != null)
+			{
+				if (productInStore.Quantity == null)
+					productInStore.Quantity = 0;
+				productInStore.Quantity -= dto.Number;
+				context.StoreProducts.Update(productInStore);
+				await context.SaveChangesAsync();
+				response.ResponseID = 1;
+				response.ResponseValue = true;
+				return response;
+			}
+			return response;
+
+		}
+
+		public async Task<RequestResponse<bool>> SubtractProductQuantityInStore(AddTransactionMainDataDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 			foreach (var item in dto.ProductList!)
@@ -495,6 +534,7 @@ namespace AFayedFarm.Repositories.Clients
 			var response = new RequestResponse<TransactionMainDataDto> { ResponseID = 0, ResponseValue = new TransactionMainDataDto() };
 			try
 			{
+
 				var transaction = await context.Transactions.Where(c => c.TransactionID == id)
 					.Include(c => c.Client)
 					.Include(c => c.TransactionProducts!)
@@ -516,100 +556,153 @@ namespace AFayedFarm.Repositories.Clients
 					context.Transactions.Update(transaction);
 					await context.SaveChangesAsync();
 
-					/// Asscoiate Product List to This Transaction
-					/// 
-					var productListDb = await context.TransactionProducts
-						.Where(c => c.TransactionID == transaction.TransactionID)
-						.Include(c => c.Product).ToListAsync();
 
-					if (productListDb.Count != 0 && dto.ProductList.Count != 0)
+					var productListDb = await context.TransactionProducts
+						.Include(c => c.Product)
+						.Where(c => c.TransactionID == transaction.TransactionID)
+						.ToListAsync();
+
+					if (productListDb.Count != 0 && dto.ProductList!.Count != 0)
 					{
 
 						foreach (var item in dto.ProductList)
 						{
-							var existingProduct = productListDb.FirstOrDefault(p => p.ProductID == item.ProductID);
-							if (existingProduct != null)
+							switch (item.StatusID)
 							{
-								var inComeQuantity = item.Quantity;
-								var inComeNumber = item.Number;
+								case (int)Status.Updated:
+									var existingProduct = productListDb.Find(p => p.ID == item.Id);
+									if (existingProduct != null)
+									{
+										var incomeQuantity = item.Quantity;
+										var incomeNumber = item.Number;
 
-								if (inComeQuantity > existingProduct.Qunatity || inComeNumber > existingProduct.Number)
-								{
-									await UpdateProductQuantityInStore(dto);
-								}
+										if (incomeQuantity > existingProduct.Qunatity)
+										{
+											var storeProductQty = new UpdateStoreProductDto
+											{
+												ProductID = item.ProductID,
+												Quantity = item.Quantity,
+												StoreId = 2
+											};
+											await UpdateProductQuantityInStore(storeProductQty);
 
-								if (inComeQuantity < existingProduct.Qunatity)
-								{
-									var newProductList = new AddProductListDto()
+										}
+
+										if (incomeNumber > existingProduct.Number)
+										{
+											var storeProductBox = new UpdateStoreProductDto
+											{
+												ProductBoxID = item.ProductBoxID,
+												Number = item.Number,
+												StoreId = 2
+											};
+											await UpdateProductBoxNunmberInStore(storeProductBox);
+										}
+
+										if (incomeQuantity < existingProduct.Qunatity)
+										{
+											var newProductQtyList = new AddProductListDto()
+											{
+												ProductID = item.ProductID,
+												Quantity = item.Quantity,
+												Price = item.Price,
+												Total = item.Total
+											};
+											await ReturnProductToStore(newProductQtyList);
+										}
+
+										if (incomeNumber < existingProduct.Number)
+										{
+											var newProductBoxList = new AddProductListDto()
+											{
+												ProductID = item.ProductBoxID,
+												Number = item.Number,
+												Price = item.Price,
+												Total = item.Total
+											};
+											await ReturnProductBoxToStore(newProductBoxList);
+										}
+
+										existingProduct.TransactionID = transaction.TransactionID;
+										existingProduct.ProductID = item.ProductID;
+										existingProduct.ProductBoxID = item.ProductBoxID;
+										existingProduct.Number = item.Number;
+										existingProduct.Qunatity = item.Quantity;
+										existingProduct.ProductTotal = item.Total;
+										existingProduct.Price = item.Price;
+
+										context.TransactionProducts.Update(existingProduct);
+										await context.SaveChangesAsync();
+
+									}
+									break;
+
+								case (int)Status.New:
+
+									var transactionProduct = new TransactionProduct();
+									transactionProduct.TransactionID = transaction.TransactionID;
+									transactionProduct.ProductID = item.ProductID;
+									transactionProduct.Qunatity = item.Quantity;
+									transactionProduct.ProductBoxID = item.ProductBoxID;
+									transactionProduct.Number = item.Number;
+									transactionProduct.Price = item.Price;
+									transactionProduct.ProductTotal = item.Total;
+
+									await context.TransactionProducts.AddAsync(transactionProduct);
+									await context.SaveChangesAsync();
+
+									var productList = new UpdateStoreProductDto()
+									{
+										ProductID = item.ProductID,
+										Quantity = item.Quantity,
+										StoreId = 2,
+										ProductBoxID = item.ProductBoxID,
+										Number = item.Number
+									};
+
+									await UpdateProductQuantityInStore(productList);
+									await UpdateProductBoxNunmberInStore(productList);
+									break;
+
+								case (int)Status.Deleted:
+
+									var deletedProductQtyList = new AddProductListDto()
 									{
 										ProductID = item.ProductID,
 										Quantity = item.Quantity,
 										Price = item.Price,
 										Total = item.Total
 									};
-									await ReturnProductToStore(newProductList);
-								}
+									await ReturnProductToStore(deletedProductQtyList);
 
-								if (inComeNumber < existingProduct.Number)
-								{
-									var newProductList = new AddProductListDto()
+									var deletedProductBoxList = new AddProductListDto()
 									{
 										ProductID = item.ProductBoxID,
 										Number = item.Number,
 										Price = item.Price,
 										Total = item.Total
 									};
-									await ReturnProductBoxToStore(newProductList);
-								}
+									await ReturnProductBoxToStore(deletedProductBoxList);
 
-								existingProduct.TransactionID = transaction.TransactionID;
-								existingProduct.ProductID = item.ProductID;
-								existingProduct.ProductBoxID = item.ProductBoxID;
-								existingProduct.Number = item.Number;
-								existingProduct.Qunatity = item.Quantity;
-								existingProduct.ProductTotal = item.Total;
-								existingProduct.Price = item.Price;
-
-								context.TransactionProducts.Update(existingProduct);
-								await context.SaveChangesAsync();
-
-
-
+									var deletedtransactionProduct = await context.TransactionProducts.FindAsync(item.Id);
+									if (deletedtransactionProduct != null)
+									{
+										context.TransactionProducts.Remove(deletedtransactionProduct);
+										await context.SaveChangesAsync();
+									}
+									break;
 							}
+
 
 						}
 					}
 
-					if (dto.ProductList.Count() > productListDb.Count())
-					{
-						foreach (var item in dto.ProductList)
-						{
-							if (item.ProductID != 0)
-							{
-								var transactionProduct = new TransactionProduct();
-								transactionProduct.TransactionID = transaction.TransactionID;
-								transactionProduct.ProductID = item.ProductID;
-								transactionProduct.Qunatity = item.Quantity;
-								transactionProduct.ProductBoxID = item.ProductBoxID;
-								transactionProduct.Number = item.Number;
-								transactionProduct.Price = item.Price;
-								transactionProduct.ProductTotal = item.Total;
 
-								await context.TransactionProducts.AddAsync(transactionProduct);
-								await context.SaveChangesAsync();
-
-							}
-
-						}
-
-						await UpdateProductQuantityInStore(dto);
-					}
 
 					#region Safe Transaction
 
 					if (dto.TypeId == (int)TransactionType.Income && dto.Payed != transaction.Payed)
 					{
-
 						var safeTransaction = new SafeTransaction();
 						safeTransaction.SafeID = 2;
 						safeTransaction.CLientID = dto.ClientID;
@@ -628,7 +721,7 @@ namespace AFayedFarm.Repositories.Clients
 
 
 						var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
-						if (clientDb!.Total == null)
+						if (clientDb.Total == null)
 							clientDb.Total = 0;
 						clientDb!.Total += -1 * (dto.Total - dto.Payed);
 						context.Clients.Update(clientDb);
@@ -655,6 +748,7 @@ namespace AFayedFarm.Repositories.Clients
 			{
 				response.ResponseID = 0;
 				response.ResponseValue = new TransactionMainDataDto();
+
 			}
 			return response;
 
@@ -690,6 +784,23 @@ namespace AFayedFarm.Repositories.Clients
 				await context.SaveChangesAsync();
 				response.ResponseID = 1;
 				response.ResponseValue = true;
+			}
+			return response;
+		}
+
+		public async Task<RequestResponse<bool>> DeleteProductItem(int id)
+		{
+			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false, ResponseMessage = "Error in deleting" };
+
+			var product = await context.TransactionProducts.FindAsync(id);
+			if (product != null)
+			{
+				context.TransactionProducts.Remove(product);
+				await context.SaveChangesAsync();
+
+				response.ResponseID = 1;
+				response.ResponseMessage = "Deleted Success";
+				return response;
 			}
 			return response;
 		}

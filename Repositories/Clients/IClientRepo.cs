@@ -21,6 +21,7 @@ namespace AFayedFarm.Repositories.Clients
 		Task<RequestResponse<TransactionMainDataDto>> UpdateClientRecord(int id, AddTransactionMainDataDto dto);
 		Task<RequestResponse<bool>> ReturnProductToStore(AddProductListDto dto);
 		Task<RequestResponse<bool>> ReturnProductBoxToStore(AddProductListDto dto);
+		Task<RequestResponse<bool>> DeleteProductItem(int id);
 
 	}
 }

@@ -322,6 +322,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
+				var index = 1;
 				if (records.Count != 0)
 				{
 					decimal? remaining = 0;
@@ -329,6 +330,7 @@ namespace AFayedFarm.Repositories.Supplier
 					{
 						remaining = item.TotalPrice - item.Paied;
 						var record = new FarmRecordDto();
+						record.Id = index;
 						record.FarmRecordID = item.FarmProductID;
 						record.FarmsID = item.Farms!.FarmsID;
 						record.FarmsName = item.Farms.FarmsName;
@@ -346,6 +348,7 @@ namespace AFayedFarm.Repositories.Supplier
 						record.FarmsNotes = item.FarmsNotes;
 						record.CarNumber = item.CarNumber;
 						record.isPercentage = item.isPercentage;
+						++index;
 
 						farmsRecord.Add(record);
 					}
@@ -355,6 +358,7 @@ namespace AFayedFarm.Repositories.Supplier
 					foreach (var item in transactionRecordDb)
 					{
 						var transactionRecord = new FarmRecordDto();
+						transactionRecord.Id = index;
 						transactionRecord.FarmRecordID = item.ID;
 						transactionRecord.FarmsID = (int)item.Farm!.FarmsID;
 						transactionRecord.FarmsName = item.Farm!.FarmsName;
@@ -362,6 +366,7 @@ namespace AFayedFarm.Repositories.Supplier
 						transactionRecord.Paied = -1 * item.Total;
 						transactionRecord.FarmsNotes = item.Notes;
 						transactionRecord.Created_Date = item.Created_Date;
+						++index;
 
 						farmsRecord.Add(transactionRecord);
 					}

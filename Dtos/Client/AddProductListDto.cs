@@ -2,12 +2,14 @@
 {
 	public class AddProductListDto
 	{
-        public int? ProductID { get; set; }
-        public decimal? Quantity { get; set; }
-        public int? ProductBoxID { get; set; }
-        public decimal? Number { get; set; }
-        public decimal? Price { get; set; }
-        public decimal? Total { get; set; }
+		public int? Id { get; set; }
+		public int? ProductID { get; set; }
+		public decimal? Quantity { get; set; }
+		public int? ProductBoxID { get; set; }
+		public decimal? Number { get; set; }
+		public decimal? Price { get; set; }
+		public decimal? Total { get; set; }
+		public int? StatusID { get; set; } = 4;
         //public decimal? ProductTotal { get; set; }
     }
 }

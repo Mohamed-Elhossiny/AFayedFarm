@@ -124,5 +124,14 @@ namespace AFayedFarm.Controllers
 				return BadRequest(dto);
 
 		}
+
+		[HttpDelete("~/Delete Product")]
+		public async Task<IActionResult> DeleteProduct(int id)
+		{
+			if (id == 0)
+				return BadRequest($"Enter valid id {id}");
+			var resonse = await clientRepo.DeleteProductItem(id);
+			return Ok(resonse);
+		}
 	}
 }

@@ -260,11 +260,13 @@ namespace AFayedFarm.Repositories.Expenses
 			if (expenseRecordList.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
+				var index = 1;
 				if (expenseRecordList.Count != 0)
 				{
 					foreach (var item in expenseRecordList)
 					{
 						var expesnseRecordDto = new ExpenseRecordDto();
+						expesnseRecordDto.Id = index;
 						expesnseRecordDto.ExpenseRecordID = item.ExpenseRecordId;
 						expesnseRecordDto.FarmRecordID = item.FarmRecordID;
 						expesnseRecordDto.ExpenseID = item.ExpenseID;
@@ -282,6 +284,7 @@ namespace AFayedFarm.Repositories.Expenses
 						expesnseRecordDto.Paied = item.Paied;
 						expesnseRecordDto.Remaining = item.Remaining;
 						expesnseRecordDto.ExpenseRecordNotes = item.ExpenseNotes;
+						++index;
 
 						expesnseRecordListDto.Add(expesnseRecordDto);
 					}
@@ -291,6 +294,7 @@ namespace AFayedFarm.Repositories.Expenses
 					foreach (var item in transactionRecordDb)
 					{
 						var transactionRecord = new ExpenseRecordDto();
+						transactionRecord.Id = index;
 						transactionRecord.ExpenseRecordID = item.ID;
 						transactionRecord.Created_Date = item.Created_Date;
 						transactionRecord.ExpenseID = (int)item.Expense!.ExpenseID;
@@ -298,6 +302,7 @@ namespace AFayedFarm.Repositories.Expenses
 						transactionRecord.Description = TransactionType.Pay.ToString();
 						transactionRecord.Paied = -1 * item.Total;
 						transactionRecord.ExpenseRecordNotes = item.Notes;
+						++index;
 
 						expesnseRecordListDto.Add(transactionRecord);
 					}
