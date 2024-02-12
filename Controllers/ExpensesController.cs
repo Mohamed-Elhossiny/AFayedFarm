@@ -70,6 +70,10 @@ namespace AFayedFarm.Controllers
 		[HttpPost("~/AddExpenseType")]
 		public async Task<IActionResult> AddExpenseTypeAsync(AddExpenseTypeDto dto)
 		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
 			if (dto.ExpenseTypeName == null || dto.ExpenseTypeName == "")
 				return BadRequest("Please enter type name");
 			var response = await expenseRepo.AddExpenseTypeAsync(dto);

@@ -1,8 +1,12 @@
-﻿namespace AFayedFarm.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AFayedFarm.Dtos
 {
 	public class ExpenseTypeDto
 	{
         public int ID { get; set; }
+
+        
         public string? Name { get; set; }
     }
 }
