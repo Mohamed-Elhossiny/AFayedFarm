@@ -45,25 +45,6 @@ namespace AFayedFarm.Repositories.Supplier
 			{
 				var remaining = (farmDto.Total - farmDto.Paied);
 
-				farmProduct.FarmsID = farmDto.FarmsID;
-				farmProduct.ProductID = farmDto.ProductID;
-				farmProduct.Quantity = farmDto.Quantity;
-				farmProduct.NetQuantity = farmDto.NetQuantity;
-				farmProduct.SupplyDate = farmDto.SupplyDate ?? DateTime.Now;
-				farmProduct.Created_Date = DateTime.Now.Date;
-				farmProduct.CarNumber = farmDto.CarNumber;
-				farmProduct.Discount = farmDto.Discount;
-				farmProduct.Price = farmDto.Price;
-				farmProduct.TotalPrice = farmDto.Total;
-				farmProduct.Paied = farmDto.Paied;
-				farmProduct.FarmsNotes = farmDto.FarmsNotes;
-				farmProduct.Remaining = remaining;
-				farmProduct.isPercentage = farmDto.isPercentage;
-				await context.FarmsProducts.AddAsync(farmProduct);
-				await context.SaveChangesAsync();
-
-				await AddProductToStore(farmDto);
-
 				#region Add Transactions to Financial Safe
 
 				var transaction = new SafeTransaction();
@@ -83,7 +64,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 				context.Safe.Update(financialSafe!);
 
-				var farmDb = await context.Farms.Where(f => f.FarmsID == farmProduct.FarmsID).FirstOrDefaultAsync();
+				var farmDb = await context.Farms.Where(f => f.FarmsID == farmDto.FarmsID).FirstOrDefaultAsync();
 				if (farmDb!.TotalRemaining == null)
 					farmDb.TotalRemaining = 0;
 				farmDb!.TotalRemaining += remaining;
@@ -92,8 +73,29 @@ namespace AFayedFarm.Repositories.Supplier
 				await context.SaveChangesAsync();
 				#endregion
 
+				farmProduct.FarmsID = farmDto.FarmsID;
+				farmProduct.ProductID = farmDto.ProductID;
+				farmProduct.Quantity = farmDto.Quantity;
+				farmProduct.NetQuantity = farmDto.NetQuantity;
+				farmProduct.SupplyDate = farmDto.SupplyDate ?? DateTime.Now;
+				farmProduct.Created_Date = DateTime.Now.Date;
+				farmProduct.CarNumber = farmDto.CarNumber;
+				farmProduct.Discount = farmDto.Discount;
+				farmProduct.Price = farmDto.Price;
+				farmProduct.TotalPrice = farmDto.Total;
+				farmProduct.Paied = farmDto.Paied;
+				farmProduct.FarmsNotes = farmDto.FarmsNotes;
+				farmProduct.Remaining = remaining;
+				farmProduct.isPercentage = farmDto.isPercentage;
+				farmProduct.FinancialId = transaction.ID;
+				
+				await context.FarmsProducts.AddAsync(farmProduct);
+				await context.SaveChangesAsync();
+
+				await AddProductToStore(farmDto);
 
 				var farmrecordDto = await GetFarmRecordByID(farmProduct.FarmProductID);
+				//farmrecordDto.ResponseValue!.FinancialId = transaction.ID;
 
 				response.ResponseID = 1;
 				response.ResponseValue = farmrecordDto.ResponseValue;
@@ -272,7 +274,10 @@ namespace AFayedFarm.Repositories.Supplier
 		{
 			var response = new RequestResponse<FarmRecordDto> { ResponseID = 0 };
 			var record = new FarmRecordDto();
-			var recordDb = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).Where(c => c.FarmProductID == recordID).FirstOrDefaultAsync();
+			var recordDb = await context.FarmsProducts
+				.Include(c => c.Farms)
+				.Include(c => c.Product)
+				.Where(c => c.FarmProductID == recordID).FirstOrDefaultAsync();
 			if (recordDb != null)
 			{
 				record.FarmRecordID = recordDb.FarmProductID;
@@ -470,7 +475,10 @@ namespace AFayedFarm.Repositories.Supplier
 		{
 			var response = new RequestResponse<FarmRecordDto>() { ResponseID = 0, ResponseValue = new FarmRecordDto() };
 
-			var recordDb = await context.FarmsProducts.Include(c => c.Farms).Include(c => c.Product).Where(c => c.FarmProductID == recordID).FirstOrDefaultAsync();
+			var recordDb = await context.FarmsProducts
+				.Include(c => c.Farms)
+				.Include(c => c.Product)
+				.Where(c => c.FarmProductID == recordID).FirstOrDefaultAsync();
 			if (recordDb != null)
 			{
 				var incomeNetQty = farmDto.NetQuantity;
@@ -484,35 +492,51 @@ namespace AFayedFarm.Repositories.Supplier
 					farmDto.NetQuantity = recordDb.NetQuantity - farmDto.NetQuantity;
 					await RemoveProductFromStore(farmDto);
 				}
-
+				var transaction = new SafeTransaction();
 				if (farmDto.TypeId == (int)TransactionType.Pay && farmDto.Paied != recordDb.Paied)
 				{
-					#region Add Transactions to Financial Safe
+					decimal? oldPayAmount = 0;
+					decimal? incomePayed = farmDto.Paied;
 
-					var transaction = new SafeTransaction();
-					transaction.SafeID = 2;
-					transaction.FarmID = farmDto.FarmsID;
-					transaction.TypeID = farmDto.TypeId;
-					transaction.Type = ((TransactionType)farmDto.TypeId!).ToString();
-					transaction.Total = -1 * farmDto.Paied;
-					transaction.Notes = farmDto.FarmsNotes;
-					transaction.Created_Date = DateTime.Now.Date;
+					#region Remove Financial Record from database
+					var financailReocrdDb = await context.SafeTransactions.Where(p => p.ID == recordDb.FinancialId).FirstOrDefaultAsync();
+					if (financailReocrdDb != null)
+					{
+						oldPayAmount = -1 * financailReocrdDb.Total;
 
-					await context.SafeTransactions.AddAsync(transaction);
+						financailReocrdDb.SafeID = 2;
+						financailReocrdDb.FarmID = farmDto.FarmsID;
+						financailReocrdDb.TypeID = farmDto.TypeId;
+						financailReocrdDb.Type = ((TransactionType)farmDto.TypeId!).ToString();
+						financailReocrdDb.Total = -1 * farmDto.Paied;
+						financailReocrdDb.Notes = farmDto.FarmsNotes;
+						financailReocrdDb.Created_Date = DateTime.Now.Date;
+						financailReocrdDb.IsfromRecord = true;
 
-					var financialSafe = await context.Safe.FindAsync(2);
-					if (farmDto.TypeId == (int)TransactionType.Pay)
-						financialSafe!.Total = financialSafe.Total - farmDto.Paied;
+						context.SafeTransactions.Update(financailReocrdDb);
+						await context.SaveChangesAsync();
 
-					context.Safe.Update(financialSafe!);
+						var safe = await context.Safe.FindAsync(2);
+						safe!.Total += oldPayAmount;
+						if (farmDto.TypeId == (int)TransactionType.Pay)
+							safe!.Total = safe.Total - farmDto.Paied;
+
+						context.Safe.Update(safe);
+
+						await context.SaveChangesAsync();
+
+					}
+					#endregion
 
 					var farmDb = await context.Farms.Where(f => f.FarmsID == recordDb.FarmsID).FirstOrDefaultAsync();
-					if (farmDto.TypeId == (int)TransactionType.Pay)
-						farmDb!.TotalRemaining = farmDb.TotalRemaining - farmDto.Paied;
+					if (farmDto.TypeId == (int)TransactionType.Pay && recordDb.Paied < incomePayed)
+						farmDb!.TotalRemaining = farmDb.TotalRemaining - (incomePayed - recordDb.Paied);
+					else
+						farmDb!.TotalRemaining = farmDb.TotalRemaining + (recordDb.Paied - incomePayed );
 					context.Farms.Update(farmDb!);
 
 					await context.SaveChangesAsync();
-					#endregion
+					
 				}
 
 				var remaining = (farmDto.Total - farmDto.Paied);
@@ -529,6 +553,7 @@ namespace AFayedFarm.Repositories.Supplier
 				recordDb.FarmsNotes = farmDto.FarmsNotes;
 				recordDb.Remaining = remaining;
 				recordDb.isPercentage = farmDto.isPercentage;
+				recordDb.FinancialId = recordDb.FinancialId;
 
 				context.FarmsProducts.Update(recordDb);
 				await context.SaveChangesAsync();
@@ -601,7 +626,7 @@ namespace AFayedFarm.Repositories.Supplier
 		{
 			var response = new RequestResponse<List<FarmRecordWithoutDescriptionDto>>() { ResponseID = 0 };
 			var farmsRecord = new List<FarmRecordWithoutDescriptionDto>();
-			
+
 			var farmRecords = await context.FarmsProducts
 				.Include(c => c.Farms)
 				.Include(c => c.Product)

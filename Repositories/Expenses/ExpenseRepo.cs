@@ -375,7 +375,7 @@ namespace AFayedFarm.Repositories.Expenses
 				transaction.SafeID = 2;
 				transaction.ExpenseID = dto.ExpenseID;
 				transaction.TypeID = dto.TypeId;
-				transaction.Type = ((TransactionType)dto.TypeId!).ToString();
+				transaction.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
 				transaction.Total = -1 * dto.Paied;
 				transaction.Notes = dto.ExpenseRecordNotes;
 
