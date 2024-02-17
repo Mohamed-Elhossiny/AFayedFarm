@@ -507,7 +507,7 @@ namespace AFayedFarm.Repositories.Supplier
 						financailReocrdDb.SafeID = 2;
 						financailReocrdDb.FarmID = farmDto.FarmsID;
 						financailReocrdDb.TypeID = farmDto.TypeId;
-						financailReocrdDb.Type = ((TransactionType)farmDto.TypeId!).ToString();
+						financailReocrdDb.Type = farmDto.TypeId!= null ? ((TransactionType)farmDto.TypeId).ToString():TransactionType.Pay.ToString();
 						financailReocrdDb.Total = -1 * farmDto.Paied;
 						financailReocrdDb.Notes = farmDto.FarmsNotes;
 						financailReocrdDb.Created_Date = DateTime.Now.Date;

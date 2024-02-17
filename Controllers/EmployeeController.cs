@@ -18,7 +18,7 @@ namespace AFayedFarm.Controllers
 		[HttpPost("~/AddEmployee")]
 		public async Task<IActionResult> AddEmployee(AddEmployeeDto dto)
 		{
-			if (dto.Name == "" || dto.Salary == 0)
+			if (dto.Name == "")
 				return BadRequest("Enter Employee Name and Salary");
 			var response = await repo.AddEmployee(dto);
 			if (response.ResponseID == 1)

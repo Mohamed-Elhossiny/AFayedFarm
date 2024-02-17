@@ -40,5 +40,6 @@ namespace AFayedFarm.Model
 		[ForeignKey("Store")]
 		public int? StoreID { get; set; }
 		public virtual Store? Store { get; set; }
+		public int? FinancialId { get; set; }
 	}
 }

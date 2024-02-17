@@ -258,8 +258,9 @@ namespace AFayedFarm.Repositories.Employee
 		{
 			if (File.Exists(ConfigFilePath))
 			{
-				var json = File.ReadAllText(ConfigFilePath);
+				var json = File.ReadAllText(ConfigFilePath).Trim();
 				return JsonConvert.DeserializeObject<ConfigModel>(json);
+
 			}
 			else
 			{
