@@ -120,7 +120,7 @@ namespace AFayedFarm.Controllers
 		[HttpPut("~/UpdateExpenseRecord")]
 		public async Task<IActionResult> UpdateExpenseRecord(int id, AddExpenseRecordDto dto)
 		{
-			if (id == 0 || id == null)
+			if (id == 0)
 				return BadRequest();
 			if (dto.ExpenseID == null || dto.ExpenseID == 0)
 				return BadRequest();

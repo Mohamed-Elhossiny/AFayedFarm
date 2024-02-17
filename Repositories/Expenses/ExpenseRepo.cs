@@ -47,30 +47,13 @@ namespace AFayedFarm.Repositories.Expenses
 			if (dto != null)
 			{
 				var remaining = (dto.Total - dto.Paied);
-				expenseRecord.FarmRecordID = dto.FarmRecordID;
-				expenseRecord.ExpenseID = dto.ExpenseID;
-				expenseRecord.ExpenseDate = dto.ExpenseDate!.Value.ToLongDateString() != "" ? dto.ExpenseDate.Value.Date : DateTime.Now.Date;
-				expenseRecord.Created_Date = DateTime.Now.Date;
-				expenseRecord.Quantity = dto.Quantity;
-				expenseRecord.Value = dto.Value;
-				expenseRecord.Price = dto.Price;
-				expenseRecord.AdditionalPrice = dto.AdditionalPrice;
-				expenseRecord.AdditionalNotes = dto.AdditionalNotes;
-				expenseRecord.Total = dto.Total;
-				expenseRecord.Paied = dto.Paied;
-				expenseRecord.Remaining = remaining;
-				expenseRecord.ExpenseNotes = dto.ExpenseRecordNotes;
-
-				await context.ExpenseRecords.AddAsync(expenseRecord);
-				await context.SaveChangesAsync();
 
 				#region Add Transactions to Financial Safe
-
 				var transaction = new SafeTransaction();
 				transaction.SafeID = 2;
 				transaction.ExpenseID = dto.ExpenseID;
 				transaction.TypeID = dto.TypeId;
-				transaction.Type = ((TransactionType)dto.TypeId!).ToString();
+				transaction.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
 				transaction.Total = -1 * dto.Paied;
 				transaction.Notes = dto.ExpenseRecordNotes;
 				transaction.IsfromRecord = true;
@@ -91,6 +74,26 @@ namespace AFayedFarm.Repositories.Expenses
 
 				await context.SaveChangesAsync();
 				#endregion
+
+
+				expenseRecord.FarmRecordID = dto.FarmRecordID;
+				expenseRecord.ExpenseID = dto.ExpenseID;
+				expenseRecord.ExpenseDate = dto.ExpenseDate!.Value.ToLongDateString() != "" ? dto.ExpenseDate.Value.Date : DateTime.Now.Date;
+				expenseRecord.Created_Date = DateTime.Now.Date;
+				expenseRecord.Quantity = dto.Quantity;
+				expenseRecord.Value = dto.Value;
+				expenseRecord.Price = dto.Price;
+				expenseRecord.AdditionalPrice = dto.AdditionalPrice;
+				expenseRecord.AdditionalNotes = dto.AdditionalNotes;
+				expenseRecord.Total = dto.Total;
+				expenseRecord.Paied = dto.Paied;
+				expenseRecord.Remaining = remaining;
+				expenseRecord.ExpenseNotes = dto.ExpenseRecordNotes;
+				expenseRecord.FinancialId = transaction.ID;
+
+				await context.ExpenseRecords.AddAsync(expenseRecord);
+				await context.SaveChangesAsync();
+
 
 				// TO DO
 				// Get Expense Record
@@ -150,7 +153,7 @@ namespace AFayedFarm.Repositories.Expenses
 			var response = new RequestResponse<List<ExpenseDto>>() { ResponseID = 0, ResponseValue = new List<ExpenseDto>() };
 
 			var expenseListDto = new List<ExpenseDto>();
-			var expensesDb = await context.Expenses.Include(x => x.ExpenseType).OrderByDescending(c=>c.Create_Date).Select(c => new ExpenseDto
+			var expensesDb = await context.Expenses.Include(x => x.ExpenseType).OrderByDescending(c => c.Create_Date).Select(c => new ExpenseDto
 			{
 				Name = c.ExpenseName,
 				ID = c.ExpenseID,
@@ -190,7 +193,7 @@ namespace AFayedFarm.Repositories.Expenses
 					Type = expenseDb.ExpenseTypeId,
 					TotalRemaining = expenseDb.TotalRemaining == null ? 0 : expenseDb.TotalRemaining
 				};
-				if (expenseDb.TotalRemaining == null )
+				if (expenseDb.TotalRemaining == null)
 				{
 					var reamining = await CalculateTotalRemainingFromRecords(id);
 					Expense.TotalRemaining = reamining.ResponseValue;
@@ -239,7 +242,7 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
-		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId,int currentPage = 1,int pageSize = 100)
+		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId, int currentPage = 1, int pageSize = 100)
 		{
 			var response = new RequestResponse<ExpenseRecordsWithDataDto> { ResponseID = 0, ResponseValue = new ExpenseRecordsWithDataDto() };
 			var expenseRecordLists = await context.ExpenseRecords
@@ -250,9 +253,9 @@ namespace AFayedFarm.Repositories.Expenses
 
 			var expenseRecordList = expenseRecordLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
-			var transactionRecordDbs =await context.SafeTransactions
+			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Expense)
-				.Where(c => c.ExpenseID == expenseId && c.IsfromRecord == false).OrderByDescending(c=>c.Created_Date).ToListAsync();
+				.Where(c => c.ExpenseID == expenseId && c.IsfromRecord == false).OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -284,6 +287,7 @@ namespace AFayedFarm.Repositories.Expenses
 						expesnseRecordDto.Paied = item.Paied;
 						expesnseRecordDto.Remaining = item.Remaining;
 						expesnseRecordDto.ExpenseRecordNotes = item.ExpenseNotes;
+						expesnseRecordDto.TypeId = (int)TransactionType.Pay;
 						++index;
 
 						expesnseRecordListDto.Add(expesnseRecordDto);
@@ -302,6 +306,7 @@ namespace AFayedFarm.Repositories.Expenses
 						transactionRecord.Description = TransactionType.Pay.ToString();
 						transactionRecord.Paied = -1 * item.Total;
 						transactionRecord.ExpenseRecordNotes = item.Notes;
+						transactionRecord.TypeId = item.TypeID;
 						++index;
 
 						expesnseRecordListDto.Add(transactionRecord);
@@ -352,6 +357,52 @@ namespace AFayedFarm.Repositories.Expenses
 				.Where(c => c.ExpenseRecordId == id).SingleOrDefaultAsync();
 			if (expenseRecord != null)
 			{
+				if (dto.Paied != expenseRecord.Paied)
+				{
+					decimal? oldPayAmount = 0;
+					decimal? incomePayed = dto.Paied;
+
+					#region Update Financial Record from database
+					var financailReocrdDb = await context.SafeTransactions.Where(p => p.ID == expenseRecord.FinancialId).FirstOrDefaultAsync();
+					if (financailReocrdDb != null)
+					{
+						oldPayAmount = -1 * financailReocrdDb.Total;
+
+						financailReocrdDb.SafeID = 2;
+						financailReocrdDb.ExpenseID = dto.ExpenseID;
+						financailReocrdDb.TypeID = dto.TypeId != null ? dto.TypeId : (int)TransactionType.Pay;
+						financailReocrdDb.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
+						financailReocrdDb.Total = -1 * dto.Paied;
+						financailReocrdDb.Notes = dto.ExpenseRecordNotes;
+						financailReocrdDb.Created_Date = DateTime.Now.Date;
+						financailReocrdDb.IsfromRecord = true;
+
+						context.SafeTransactions.Update(financailReocrdDb);
+						await context.SaveChangesAsync();
+
+						var safe = await context.Safe.FindAsync(2);
+						safe!.Total += oldPayAmount;
+						if (dto.TypeId == (int)TransactionType.Pay)
+							safe!.Total = safe.Total - dto.Paied;
+
+						context.Safe.Update(safe);
+
+						await context.SaveChangesAsync();
+
+					}
+					#endregion
+
+					var expenseUpdatedDb = await context.Expenses.Where(f => f.ExpenseID == expenseRecord.ExpenseID).FirstOrDefaultAsync();
+					if (expenseRecord.Paied < incomePayed)
+						expenseUpdatedDb!.TotalRemaining = expenseUpdatedDb.TotalRemaining - (incomePayed - expenseRecord.Paied);
+					else
+						expenseUpdatedDb!.TotalRemaining = expenseUpdatedDb.TotalRemaining + (expenseRecord.Paied - incomePayed);
+					context.Expenses.Update(expenseUpdatedDb!);
+
+					await context.SaveChangesAsync();
+
+				}
+
 				var remaining = (dto.Total - dto.Paied);
 				expenseRecord.FarmRecordID = dto.FarmRecordID;
 				expenseRecord.ExpenseID = dto.ExpenseID;
@@ -365,38 +416,39 @@ namespace AFayedFarm.Repositories.Expenses
 				expenseRecord.Paied = dto.Paied;
 				expenseRecord.Remaining = remaining;
 				expenseRecord.ExpenseNotes = dto.ExpenseRecordNotes;
+				expenseRecord.FinancialId = expenseRecord.FinancialId;
 
 				context.ExpenseRecords.Update(expenseRecord);
 				await context.SaveChangesAsync();
 
 				#region Add Transactions to Financial Safe
 
-				var transaction = new SafeTransaction();
-				transaction.SafeID = 2;
-				transaction.ExpenseID = dto.ExpenseID;
-				transaction.TypeID = dto.TypeId;
-				transaction.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
-				transaction.Total = -1 * dto.Paied;
-				transaction.Notes = dto.ExpenseRecordNotes;
+				//var transaction = new SafeTransaction();
+				//transaction.SafeID = 2;
+				//transaction.ExpenseID = dto.ExpenseID;
+				//transaction.TypeID = dto.TypeId;
+				//transaction.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
+				//transaction.Total = -1 * dto.Paied;
+				//transaction.Notes = dto.ExpenseRecordNotes;
 
-				await context.SafeTransactions.AddAsync(transaction);
+				//await context.SafeTransactions.AddAsync(transaction);
 
-				var financialSafe = await context.Safe.FindAsync(2);
-				if (dto.TypeId == (int)TransactionType.Pay)
-					financialSafe!.Total = financialSafe.Total - dto.Paied;
+				//var financialSafe = await context.Safe.FindAsync(2);
+				//if (dto.TypeId == (int)TransactionType.Pay)
+				//	financialSafe!.Total = financialSafe.Total - dto.Paied;
 
-				context.Safe.Update(financialSafe!);
+				//context.Safe.Update(financialSafe!);
 
-				var expenseDb = await context.Expenses.Where(f => f.ExpenseID == dto.ExpenseID).FirstOrDefaultAsync();
-				if (expenseDb!.TotalRemaining == null)
-					expenseDb.TotalRemaining = 0;
-				if (dto.TypeId == (int)TransactionType.Pay)
-				{
-					expenseDb!.TotalRemaining = expenseDb.TotalRemaining - dto.Paied;
-				}
-				context.Expenses.Update(expenseDb);
+				//var expenseDb = await context.Expenses.Where(f => f.ExpenseID == dto.ExpenseID).FirstOrDefaultAsync();
+				//if (expenseDb!.TotalRemaining == null)
+				//	expenseDb.TotalRemaining = 0;
+				//if (dto.TypeId == (int)TransactionType.Pay)
+				//{
+				//	expenseDb!.TotalRemaining = expenseDb.TotalRemaining - dto.Paied;
+				//}
+				//context.Expenses.Update(expenseDb);
 
-				await context.SaveChangesAsync();
+				//await context.SaveChangesAsync();
 				#endregion
 
 				var expenseFromGet = await GetExpenseRecordById(id);
@@ -420,7 +472,8 @@ namespace AFayedFarm.Repositories.Expenses
 				decimal total = 0;
 				foreach (var item in expenseList.ResponseValue!)
 				{
-					total += (decimal)item.Remaining;
+					if (item.Description == null)
+						total += (decimal)item.Remaining;
 				}
 				response.ResponseID = 1;
 				response.ResponseValue = (decimal)total!;
