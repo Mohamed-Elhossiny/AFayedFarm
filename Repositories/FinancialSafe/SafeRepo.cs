@@ -1,8 +1,11 @@
-﻿using AFayedFarm.Dtos;
+﻿using AFayedFarm.Controllers;
+using AFayedFarm.Dtos;
 using AFayedFarm.Dtos.Financial;
+using AFayedFarm.Enums;
 using AFayedFarm.Global;
 using AFayedFarm.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace AFayedFarm.Repositories.FinancialSafe
@@ -31,6 +34,36 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.ResponseID = 1;
 				response.ResponseValue.ID = safeDb.ID;
 				response.ResponseValue.Total = safeDb.Total;
+			}
+			return response;
+		}
+
+		public async Task<RequestResponse<SafeDto>> Withdraw(WithdrawDto dto)
+		{
+			var response = new RequestResponse<SafeDto> { ResponseID = 0,ResponseValue = new SafeDto() };
+			var safe = await context.Safe.FindAsync(2);
+			if (safe != null)
+			{
+				var safeTransaction = new SafeTransaction();
+
+				if (dto.Total != null)
+				{
+					safe.Total -= dto.Total;
+					context.Safe.Update(safe);
+
+					safeTransaction.Total = -1 * dto.Total;
+					safeTransaction.Notes = dto.Notes != null ? dto.Notes : "";
+					safeTransaction.TypeID = (int)TransactionType.Admin_Expense;
+					safeTransaction.Type = TransactionType.Admin_Expense.ToString();
+
+					await context.SafeTransactions.AddAsync(safeTransaction);
+					await context.SaveChangesAsync();
+
+					response.ResponseID = 1;
+					response.ResponseValue!.ID = safe.ID;
+					response.ResponseValue!.Total = safe.Total;
+					return response;
+				}
 			}
 			return response;
 		}

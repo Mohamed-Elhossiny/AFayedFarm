@@ -5,6 +5,7 @@
 		MonthlySalary = 1,
 		Pay = 2,
 		Bouns = 3,
-		Income = 4
+		Income = 4,
+		Admin_Expense = 5
 	}
 }

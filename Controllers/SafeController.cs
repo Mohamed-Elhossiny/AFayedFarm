@@ -40,6 +40,15 @@ namespace AFayedFarm.Controllers
 				return NotFound();
 		}
 
+		[HttpPost("~/WithdrawFromSafe")]
+		public async Task<IActionResult> WithdrawFromSafe(WithdrawDto dto)
+		{
+			if (dto.Total <= 0)
+				return BadRequest("Enter valid amount");
+			var response = await safeRepo.Withdraw(dto);
+			return Ok(response.ResponseValue);
+		}
+
 		[HttpPost("~/GetRecords")]
 		public async Task<IActionResult> GetRecords(int pageNumber = 1, int pageSize = 500, int recordType = 0, DateTime? from = null, DateTime? to = null)
 		{
