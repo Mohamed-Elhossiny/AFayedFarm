@@ -131,6 +131,17 @@ namespace AFayedFarm.Controllers
 				return NotFound(dto); 
 		}
 
+		[HttpPut("~/UpdateExpenseType")]
+		public async Task<IActionResult> UpdateExpenseTypeAsync(int id, AddExpenseTypeDto dto)
+		{
+			if (id == 0)
+				return BadRequest("Enter Valid ID");
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+			var response = await expenseRepo.UpdateExpenseTypeAsync(id, dto);
+			return Ok(response.ResponseValue);
+		}
+
 		[HttpGet("~/GetExpensesForFarmRecord")]
 		public async Task<IActionResult> GetExpensesForFarmRecord(int id)
 		{

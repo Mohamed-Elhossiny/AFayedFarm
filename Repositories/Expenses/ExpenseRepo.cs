@@ -347,6 +347,24 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
+		public async Task<RequestResponse<ExpenseTypeDto>> UpdateExpenseTypeAsync(int id,AddExpenseTypeDto dto)
+		{
+			var response = new RequestResponse<ExpenseTypeDto> { ResponseID = 0, ResponseValue = new ExpenseTypeDto() };
+			var expenseType = await context.TypeOfExpenses.FindAsync(id);
+			if(expenseType!= null)
+			{
+				expenseType.ExpenseTypeName = dto.ExpenseTypeName;
+				context.TypeOfExpenses.Update(expenseType);
+				await context.SaveChangesAsync();
+
+				response.ResponseID = 1;
+				response.ResponseValue.Name = expenseType.ExpenseTypeName;
+				response.ResponseValue.ID = expenseType.ExpenseTypeID;
+				return response;
+			}
+			return response;
+		}
+
 		public async Task<RequestResponse<ExpenseRecordDto>> UpdateExpenseRecord(int id, AddExpenseRecordDto dto)
 		{
 			var response = new RequestResponse<ExpenseRecordDto> { ResponseID = 0, ResponseValue = new ExpenseRecordDto() };
