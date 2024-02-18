@@ -58,9 +58,9 @@ namespace AFayedFarm.Repositories.Clients
 				transactionDto.ClientID = transaction.ClientID;
 				transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
 				transactionDto.DriverName = transaction?.DriverName ?? "";
-				transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now.Date;
-				transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now.Date;
-				transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now.Date;
+				transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now;
+				transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now;
+				transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now;
 				transactionDto.Total = transaction?.Total ?? 0;
 				transactionDto.Payed = transaction?.Payed ?? 0;
 				transactionDto.Remaining = transaction?.Remaining ?? 0;
@@ -135,7 +135,7 @@ namespace AFayedFarm.Repositories.Clients
 			var transaction = new Transaction();
 			transaction.ClientID = (int)dto.ClientID!;
 			transaction.ShippingDate = (DateTime)dto.Date!;
-			transaction.Created_Date = DateTime.Now.Date;
+			transaction.Created_Date = DateTime.Now;
 			transaction.PayDate = (DateTime)dto.PayDate!;
 			transaction.Total = dto.Total;
 			transaction.Payed = dto.Payed;
@@ -243,6 +243,7 @@ namespace AFayedFarm.Repositories.Clients
 				{
 					Name = clientdb.ClientName,
 					ID = clientdb.ClientID,
+					Created_Date = clientdb.Create_Date
 				};
 				return Client;
 			}
@@ -342,7 +343,11 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<RequestResponse<List<TransactionMainDataDto>>> GetTransactionsByClientId(int clientId)
 		{
 			var response = new RequestResponse<List<TransactionMainDataDto>> { ResponseID = 0, ResponseValue = new List<TransactionMainDataDto>() };
-			var transactions = await context.Transactions.Where(c => c.ClientID == clientId).Include(c => c.Client).Include(c => c.TransactionProducts!).ThenInclude(c => c.Product).ToListAsync();
+			var transactions = await context.Transactions
+				.Where(c => c.ClientID == clientId)
+				.Include(c => c.Client)
+				.Include(c => c.TransactionProducts!)
+				.ThenInclude(c => c.Product).ToListAsync();
 			if (transactions.Count != 0)
 			{
 				var transactionListDto = new List<TransactionMainDataDto>();
@@ -357,7 +362,7 @@ namespace AFayedFarm.Repositories.Clients
 					transactionDto.ClientID = transaction.ClientID;
 					transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
 					transactionDto.DriverName = transaction?.DriverName ?? "";
-					transactionDto.Date = transaction?.Created_Date ?? DateTime.Now.Date;
+					transactionDto.Date = transaction?.Created_Date ?? DateTime.Now;
 					transactionDto.Notes = transaction?.Notes ?? "";
 					transactionDto.Total = transaction?.Total ?? 0;
 					transactionDto.Payed = transaction?.Payed ?? 0;
@@ -412,7 +417,7 @@ namespace AFayedFarm.Repositories.Clients
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date,
+				Created_Date = DateTime.Now,
 				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);
@@ -448,7 +453,8 @@ namespace AFayedFarm.Repositories.Clients
 
 			var financialtransactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Client)
-				.Where(c => c.CLientID == clientid && c.IsfromRecord == false).ToListAsync();
+				.Where(c => c.CLientID == clientid && c.IsfromRecord == false)
+				.OrderByDescending(c=>c.Created_Date).ToListAsync();
 
 			var financialtransactionRecordDb = financialtransactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -468,9 +474,9 @@ namespace AFayedFarm.Repositories.Clients
 						transactionDto.ClientID = transaction.ClientID;
 						transactionDto.ClientName = transaction?.Client?.ClientName ?? "";
 						transactionDto.DriverName = transaction?.DriverName ?? "";
-						transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now.Date;
-						transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now.Date;
-						transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now.Date;
+						transactionDto.Date = transaction?.ShippingDate ?? DateTime.Now;
+						transactionDto.PayDate = transaction?.PayDate ?? DateTime.Now;
+						transactionDto.CreatedDate = transaction?.Created_Date ?? DateTime.Now;
 						transactionDto.Notes = transaction?.Notes ?? "";
 						transactionDto.Total = transaction?.Total ?? 0;
 						transactionDto.Payed = transaction?.Payed ?? 0;

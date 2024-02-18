@@ -39,7 +39,7 @@ namespace AFayedFarm.Model
         public int? TypeID { get; set; }
         public string? Type { get; set; }
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; } = DateTime.Now;
 		public bool? IsfromRecord { get; set; }
 	}

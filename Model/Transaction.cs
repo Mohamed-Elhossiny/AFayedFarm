@@ -14,13 +14,13 @@ namespace AFayedFarm.Model
 
         public virtual ICollection<TransactionProduct>? TransactionProducts { get; set; }
 
-        [Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime ShippingDate { get; set; }
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; }
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? PayDate { get; set; }
 		public string? DriverName { get; set; }
 		public decimal? TotalCapcity { get; set; }
