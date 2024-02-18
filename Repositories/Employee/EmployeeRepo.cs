@@ -41,7 +41,8 @@ namespace AFayedFarm.Repositories.Employee
 				empolyee.ID = emp.EmpolyeeID;
 				empolyee.Salary = emp.Salary;
 				empolyee.Total = emp.TotalBalance;
-				empolyee.Created_Date = DateOnly.FromDateTime(emp.Create_Date ?? DateTime.Now);
+				empolyee.Created_Date = emp.Create_Date;
+				//empolyee.Created_Date = DateOnly.FromDateTime(emp.Create_Date ?? DateTime.Now);
 
 				response.ResponseID = 1;
 				response.ResponseValue = empolyee;
@@ -89,7 +90,7 @@ namespace AFayedFarm.Repositories.Employee
 						Name = f.Full_Name,
 						Salary = f.Salary,
 						Total = f.TotalBalance != null ? f.TotalBalance : 0,
-						Created_Date = DateOnly.FromDateTime(f.Create_Date ?? DateTime.Now),
+						Created_Date = f.Create_Date,
 					};
 					empList.Add(emp);
 				}
@@ -115,7 +116,7 @@ namespace AFayedFarm.Repositories.Employee
 				empolyee.ID = empDb.EmpolyeeID;
 				empolyee.Salary = empDb.Salary;
 				empolyee.Total = empDb.TotalBalance != null ? empDb.TotalBalance : 0;
-				empolyee.Created_Date = DateOnly.FromDateTime(empDb.Create_Date ?? DateTime.Now);
+				empolyee.Created_Date = empDb.Create_Date ?? DateTime.Now;
 
 				response.ResponseID = 1;
 				response.ResponseValue = empolyee;
@@ -142,7 +143,8 @@ namespace AFayedFarm.Repositories.Employee
 				response.ResponseValue.Name = empDb.Full_Name;
 				response.ResponseValue.ID = empDb.EmpolyeeID;
 				response.ResponseValue.Total = empDb.TotalBalance;
-				response.ResponseValue.Created_Date = DateOnly.FromDateTime(empDb.Create_Date ?? DateTime.Now);
+				response.ResponseValue.Created_Date = empDb.Create_Date ?? DateTime.Now;
+				//response.ResponseValue.Created_Date = DateOnly.FromDateTime(empDb.Create_Date ?? DateTime.Now);
 
 			}
 
@@ -233,7 +235,7 @@ namespace AFayedFarm.Repositories.Employee
 						TypeID = (int)TransactionType.MonthlySalary,
 						Type = TransactionType.MonthlySalary.ToString(),
 						Total = -1 * item.Salary,
-						Created_Date = DateTime.Now.Date
+						Created_Date = DateTime.Now
 					};
 					await context.SafeTransactions.AddAsync(transaction);
 
