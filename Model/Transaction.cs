@@ -30,5 +30,6 @@ namespace AFayedFarm.Model
 		public decimal? Payed { get; set; }
 		public decimal? Remaining { get; set; }
 		public string? Notes { get; set; }
+		public int? FinancialId { get; set; }
 	}
 }

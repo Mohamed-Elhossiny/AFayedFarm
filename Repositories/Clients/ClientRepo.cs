@@ -98,6 +98,39 @@ namespace AFayedFarm.Repositories.Clients
 		public async Task<RequestResponse<TransactionMainDataDto>> AddTransaction(AddTransactionMainDataDto dto)
 		{
 			var response = new RequestResponse<TransactionMainDataDto> { ResponseID = 0, ResponseValue = new TransactionMainDataDto() };
+
+
+			#region Add Transactions to Financial Safe
+
+			var safeTransaction = new SafeTransaction();
+			safeTransaction.SafeID = 2;
+			safeTransaction.CLientID = dto.ClientID;
+			safeTransaction.TypeID = dto.TypeId;
+			safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
+			safeTransaction.Total = dto.Payed;
+			safeTransaction.Notes = dto.Notes;
+			safeTransaction.IsfromRecord = true;
+
+			await context.SafeTransactions.AddAsync(safeTransaction);
+
+			var financialSafe = await context.Safe.FindAsync(2);
+			if (dto.TypeId == (int)TransactionType.Income)
+				financialSafe!.Total = financialSafe.Total + dto.Payed;
+
+			context.Safe.Update(financialSafe!);
+
+#warning Check Total for the client with Hossam
+
+			var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
+			if (clientDb!.Total == null)
+				clientDb.Total = 0;
+			clientDb!.Total += -1 * (dto.Total - dto.Payed);
+			context.Clients.Update(clientDb);
+
+			await context.SaveChangesAsync();
+			#endregion
+
+
 			var transaction = new Transaction();
 			transaction.ClientID = (int)dto.ClientID!;
 			transaction.ShippingDate = (DateTime)dto.Date!;
@@ -110,6 +143,7 @@ namespace AFayedFarm.Repositories.Clients
 			transaction.DeliveredToDriver = dto.DeliveredToDriver;
 			transaction.TotalCapcity = dto.CarCapacity;
 			transaction.Notes = dto.Notes;
+			transaction.FinancialId = safeTransaction.ID;
 
 			await context.Transactions.AddAsync(transaction);
 			await context.SaveChangesAsync();
@@ -141,35 +175,7 @@ namespace AFayedFarm.Repositories.Clients
 				await SubtractProductQuantityInStore(dto);
 			}
 
-			#region Add Transactions to Financial Safe
 
-			var safeTransaction = new SafeTransaction();
-			safeTransaction.SafeID = 2;
-			safeTransaction.CLientID = dto.ClientID;
-			safeTransaction.TypeID = dto.TypeId;
-			safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
-			safeTransaction.Total = dto.Payed;
-			safeTransaction.Notes = dto.Notes;
-			safeTransaction.IsfromRecord = true;
-
-			await context.SafeTransactions.AddAsync(safeTransaction);
-
-			var financialSafe = await context.Safe.FindAsync(2);
-			if (dto.TypeId == (int)TransactionType.Income)
-				financialSafe!.Total = financialSafe.Total + dto.Payed;
-
-			context.Safe.Update(financialSafe!);
-
-#warning Check Total for the client with Hossam
-
-			var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
-			if (clientDb!.Total == null)
-				clientDb.Total = 0;
-			clientDb!.Total += -1 * (dto.Total - dto.Payed);
-			context.Clients.Update(clientDb);
-
-			await context.SaveChangesAsync();
-			#endregion
 
 			// TO DO ==> Get Transaction Record
 
@@ -540,6 +546,51 @@ namespace AFayedFarm.Repositories.Clients
 					.Include(c => c.TransactionProducts!)
 					.ThenInclude(c => c.Product).FirstOrDefaultAsync();
 
+				#region Safe Transaction
+
+				var safeTransaction = new SafeTransaction();
+				if (dto.TypeId == (int)TransactionType.Income && dto.Payed != transaction.Payed)
+				{
+					decimal? oldPayAmount = 0;
+					decimal? incomePayed = dto.Payed;
+					var financailReocrdDb = await context.SafeTransactions.Where(p => p.ID == transaction.FinancialId).FirstOrDefaultAsync();
+					if (financailReocrdDb != null)
+					{
+						oldPayAmount = financailReocrdDb.Total;
+
+						safeTransaction.SafeID = 2;
+						safeTransaction.CLientID = dto.ClientID;
+						safeTransaction.TypeID = dto.TypeId;
+						safeTransaction.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Income.ToString();
+						safeTransaction.Total = dto.Payed;
+						safeTransaction.Notes = dto.Notes;
+
+						context.SafeTransactions.Update(safeTransaction);
+						await context.SaveChangesAsync();
+
+						var financialSafe = await context.Safe.FindAsync(2);
+						financialSafe!.Total -= oldPayAmount;
+						if (dto.TypeId == (int)TransactionType.Income)
+							financialSafe!.Total = financialSafe.Total + dto.Payed;
+
+						context.Safe.Update(financialSafe!);
+						await context.SaveChangesAsync();
+					}
+					var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
+					if (clientDb != null)
+					{
+						if (clientDb!.Total == null)
+							clientDb.Total = 0;
+
+						clientDb.Total = clientDb.Total + (incomePayed - transaction.Payed);
+
+						context.Clients.Update(clientDb);
+						await context.SaveChangesAsync();
+					}
+
+				}
+				#endregion
+
 				if (transaction != null)
 				{
 					transaction.ClientID = (int)dto.ClientID!;
@@ -552,6 +603,7 @@ namespace AFayedFarm.Repositories.Clients
 					transaction.DeliveredToDriver = dto.DeliveredToDriver;
 					transaction.TotalCapcity = dto.CarCapacity;
 					transaction.Notes = dto.Notes;
+					transaction.FinancialId = transaction.FinancialId;
 
 					context.Transactions.Update(transaction);
 					await context.SaveChangesAsync();
@@ -697,39 +749,37 @@ namespace AFayedFarm.Repositories.Clients
 						}
 					}
 
+					//#region Safe Transaction
+
+					//if (dto.TypeId == (int)TransactionType.Income && dto.Payed != transaction.Payed)
+					//{
+					//	var safeTransaction = new SafeTransaction();
+					//	safeTransaction.SafeID = 2;
+					//	safeTransaction.CLientID = dto.ClientID;
+					//	safeTransaction.TypeID = dto.TypeId;
+					//	safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
+					//	safeTransaction.Total = dto.Payed;
+					//	safeTransaction.Notes = dto.Notes;
+
+					//	await context.SafeTransactions.AddAsync(safeTransaction);
+
+					//	var financialSafe = await context.Safe.FindAsync(2);
+					//	if (dto.TypeId == (int)TransactionType.Income)
+					//		financialSafe!.Total = financialSafe.Total + dto.Payed;
+
+					//	context.Safe.Update(financialSafe!);
 
 
-					#region Safe Transaction
+					//	var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
+					//	if (clientDb.Total == null)
+					//		clientDb.Total = 0;
+					//	clientDb!.Total += -1 * (dto.Total - dto.Payed);
+					//	context.Clients.Update(clientDb);
 
-					if (dto.TypeId == (int)TransactionType.Income && dto.Payed != transaction.Payed)
-					{
-						var safeTransaction = new SafeTransaction();
-						safeTransaction.SafeID = 2;
-						safeTransaction.CLientID = dto.ClientID;
-						safeTransaction.TypeID = dto.TypeId;
-						safeTransaction.Type = ((TransactionType)dto.TypeId!).ToString();
-						safeTransaction.Total = dto.Payed;
-						safeTransaction.Notes = dto.Notes;
+					//	await context.SaveChangesAsync();
 
-						await context.SafeTransactions.AddAsync(safeTransaction);
-
-						var financialSafe = await context.Safe.FindAsync(2);
-						if (dto.TypeId == (int)TransactionType.Income)
-							financialSafe!.Total = financialSafe.Total + dto.Payed;
-
-						context.Safe.Update(financialSafe!);
-
-
-						var clientDb = await context.Clients.Where(f => f.ClientID == dto.ClientID).FirstOrDefaultAsync();
-						if (clientDb.Total == null)
-							clientDb.Total = 0;
-						clientDb!.Total += -1 * (dto.Total - dto.Payed);
-						context.Clients.Update(clientDb);
-
-						await context.SaveChangesAsync();
-
-					}
-					#endregion
+					//}
+					//#endregion
 					// TO DO ==> Get Transaction Record
 
 					var transactionDto = await GetTransactionByRecordId(transaction.TransactionID);
