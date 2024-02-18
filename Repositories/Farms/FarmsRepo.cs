@@ -23,7 +23,7 @@ namespace AFayedFarm.Repositories.Supplier
 				var Farm = new Farms()
 				{
 					FarmsName = farmDto.Name,
-					Create_Date = DateTime.Now.Date
+					Create_Date = DateTime.Now
 				};
 				await context.Farms.AddAsync(Farm);
 				await context.SaveChangesAsync();
@@ -78,7 +78,7 @@ namespace AFayedFarm.Repositories.Supplier
 				farmProduct.Quantity = farmDto.Quantity;
 				farmProduct.NetQuantity = farmDto.NetQuantity;
 				farmProduct.SupplyDate = farmDto.SupplyDate ?? DateTime.Now;
-				farmProduct.Created_Date = DateTime.Now.Date;
+				farmProduct.Created_Date = DateTime.Now;
 				farmProduct.CarNumber = farmDto.CarNumber;
 				farmProduct.Discount = farmDto.Discount;
 				farmProduct.Price = farmDto.Price;
@@ -195,8 +195,8 @@ namespace AFayedFarm.Repositories.Supplier
 						record.FarmsName = item.Farms.FarmsName;
 						record.ProductID = item?.Product?.ProductID;
 						record.ProductName = item?.Product?.ProductName;
-						record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate.Value.Date : DateTime.Now.Date;
-						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate : DateTime.Now;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now.Date;
 						record.Quantity = item?.Quantity;
 						record.Discount = item?.Discount;
 						record.NetQuantity = item?.NetQuantity;
@@ -248,9 +248,9 @@ namespace AFayedFarm.Repositories.Supplier
 				{
 					Name = farmDb.FarmsName,
 					ID = farmDb.FarmsID,
-					Created_Date = DateOnly.FromDateTime(farmDb.Create_Date ?? DateTime.Now.Date),
+					Created_Date = farmDb.Create_Date ?? DateTime.Now,
+					//Created_Date = DateOnly.FromDateTime(farmDb.Create_Date ?? DateTime.Now.Date),
 					Total = farmDb.TotalRemaining == null ? 0 : farmDb.TotalRemaining
-					//Total = total.ResponseValue
 				};
 				return Farm;
 			}
@@ -291,8 +291,8 @@ namespace AFayedFarm.Repositories.Supplier
 				record.FarmsName = recordDb.Farms.FarmsName;
 				record.ProductID = recordDb?.Product?.ProductID;
 				record.ProductName = recordDb?.Product?.ProductName;
-				record.SupplyDate = recordDb.SupplyDate;
-				record.Created_Date = recordDb.Created_Date.HasValue ? recordDb.Created_Date.Value.Date : DateTime.Now.Date;
+				record.SupplyDate = recordDb.SupplyDate.HasValue ? recordDb.SupplyDate : DateTime.Now;
+				record.Created_Date = recordDb.Created_Date.HasValue ? recordDb.Created_Date : DateTime.Now;
 				record.Quantity = recordDb.Quantity;
 				record.Discount = recordDb.Discount;
 				record.NetQuantity = recordDb.NetQuantity;
@@ -347,8 +347,8 @@ namespace AFayedFarm.Repositories.Supplier
 						record.FarmsName = item.Farms.FarmsName;
 						record.ProductID = item.Product!.ProductID;
 						record.ProductName = item.Product.ProductName;
-						record.SupplyDate = item.SupplyDate;
-						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate : DateTime.Now;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						record.Quantity = item.Quantity;
 						record.Discount = item.Discount;
 						record.NetQuantity = item.NetQuantity;
@@ -418,7 +418,8 @@ namespace AFayedFarm.Repositories.Supplier
 				ID = f.FarmsID,
 				Name = f.FarmsName,
 				Total = f.TotalRemaining,
-				Created_Date = DateOnly.FromDateTime(f.Create_Date ?? DateTime.Now)
+				Created_Date = f.Create_Date ?? DateTime.Now
+				//Created_Date = DateOnly.FromDateTime(f.Create_Date ?? DateTime.Now)
 			}).ToListAsync();
 
 			foreach (var item in farmsDb)
@@ -526,7 +527,7 @@ namespace AFayedFarm.Repositories.Supplier
 						financailReocrdDb.Type = farmDto.TypeId!= null ? ((TransactionType)farmDto.TypeId).ToString():TransactionType.Pay.ToString();
 						financailReocrdDb.Total = -1 * farmDto.Paied;
 						financailReocrdDb.Notes = farmDto.FarmsNotes;
-						financailReocrdDb.Created_Date = DateTime.Now.Date;
+						financailReocrdDb.Created_Date = DateTime.Now;
 						financailReocrdDb.IsfromRecord = true;
 
 						context.SafeTransactions.Update(financailReocrdDb);
@@ -560,7 +561,7 @@ namespace AFayedFarm.Repositories.Supplier
 				recordDb.ProductID = farmDto.ProductID;
 				recordDb.Quantity = farmDto.Quantity;
 				recordDb.NetQuantity = incomeNetQty;
-				recordDb.SupplyDate = farmDto.SupplyDate != null ? farmDto.SupplyDate.Value.Date : null;
+				recordDb.SupplyDate = farmDto.SupplyDate != null ? farmDto.SupplyDate : DateTime.Now;
 				recordDb.CarNumber = farmDto.CarNumber;
 				recordDb.Discount = farmDto.Discount;
 				recordDb.Price = farmDto.Price;
@@ -662,8 +663,8 @@ namespace AFayedFarm.Repositories.Supplier
 					record.FarmsName = item.Farms?.FarmsName;
 					record.ProductID = item.Product?.ProductID;
 					record.ProductName = item.Product?.ProductName;
-					record.SupplyDate = item.SupplyDate;
-					record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+					record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate : DateTime.Now;
+					record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 					record.Quantity = item.Quantity;
 					record.Discount = item.Discount;
 					record.NetQuantity = item.NetQuantity;

@@ -16,10 +16,10 @@ namespace AFayedFarm.Model
         public virtual Farms? Farms { get; set; }
         public virtual Product? Product { get; set; }
 		
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? SupplyDate { get; set; }
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }
 		public decimal? Discount { get; set; }
