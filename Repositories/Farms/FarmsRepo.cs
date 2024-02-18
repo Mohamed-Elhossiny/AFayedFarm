@@ -685,7 +685,7 @@ namespace AFayedFarm.Repositories.Supplier
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = -1 * dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date,
+				Created_Date = DateTime.Now,
 				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);
