@@ -25,12 +25,23 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			var safeDb = await context.Safe.FirstOrDefaultAsync();
 			if (safeDb != null)
 			{
+				var safeTransaction = new SafeTransaction();
 				if (dto.typeId == 4)
 				{
 					safeDb.Total += dto.Balance;
 					context.Safe.Update(safeDb);
 					await context.SaveChangesAsync();
+
+					safeTransaction.Total =  dto.Balance;
+					safeTransaction.Notes = "إيداع في الخزنة";
+					safeTransaction.TypeID = (int)TransactionType.Income;
+					safeTransaction.Type = TransactionType.Income.ToString();
+					safeTransaction.Created_Date = DateTime.Now;
+
+					await context.SafeTransactions.AddAsync(safeTransaction);
+					await context.SaveChangesAsync();
 				}
+
 				response.ResponseID = 1;
 				response.ResponseValue.ID = safeDb.ID;
 				response.ResponseValue.Total = safeDb.Total;
@@ -55,6 +66,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					safeTransaction.Notes = dto.Notes != null ? dto.Notes : "";
 					safeTransaction.TypeID = (int)TransactionType.Admin_Expense;
 					safeTransaction.Type = TransactionType.Admin_Expense.ToString();
+					safeTransaction.Created_Date = DateTime.Now;
 
 					await context.SafeTransactions.AddAsync(safeTransaction);
 					await context.SaveChangesAsync();
