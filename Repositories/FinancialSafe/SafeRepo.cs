@@ -91,26 +91,17 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			var allLists = await query.ToListAsync();
 
-			//var allLists = await context.SafeTransactions
-			//	.Include(c => c.Client)
-			//	.Include(c => c.Employee)
-			//	.Include(c => c.Farm)
-			//	.Include(c => c.Expense)
-			//	.Include(c => c.Fridge)
-			//	.OrderByDescending(c => c.Created_Date).ToListAsync();
-
-			//var allList = await allLists.ToListAsync();
 			var allList = allLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			if (allList.Count != 0)
 			{
-				int index = 1;
+				//int index = 1;
 				var allListDto = new List<AllFinancialRecordsDto>();
 				foreach (var item in allList)
 				{
 					var list = new AllFinancialRecordsDto();
 
-					list.index = index;
+					//list.index = index;
 					list.ID = item.ID;
 					list.SafeID = item.SafeID;
 					list.Total = item.Total;
@@ -133,7 +124,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 					list.FridgeID = item.FridgeID;
 					list.FridgeName = item.Fridge?.FridgeName ?? "";
-					++index;
+					//++index;
 
 					allListDto.Add(list);
 				}
@@ -171,13 +162,13 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			if (clientList.Count != 0)
 			{
-				int index = 1;
+				//int index = 1;
 				var clientListDto = new List<FinancialClientDto>();
 				foreach (var item in clientList)
 				{
 					var client = new FinancialClientDto();
 
-					client.index = index;
+					//client.index = index;
 					client.ID = item.ID;
 					client.SafeID = item.SafeID;
 					client.Total = item.Total;
@@ -187,7 +178,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					client.TypeID = item.TypeID;
 					client.ClientID = item.CLientID;
 					client.ClientName = item.Client?.ClientName ?? "";
-					++index;
+					//++index;
 
 					clientListDto.Add(client);
 				}
@@ -224,13 +215,13 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			if (employeeList.Count != 0)
 			{
-				int index = 1;
+				//int index = 1;
 				var empListDto = new List<FinancialEmployeeDto>();
 				foreach (var item in employeeList)
 				{
 					var emp = new FinancialEmployeeDto();
 
-					emp.index = index;
+					//emp.index = index;
 					emp.ID = item.ID;
 					emp.SafeID = item.SafeID;
 					emp.Total = item.Total;
@@ -240,7 +231,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					emp.TypeID = item.TypeID;
 					emp.EmpID = item.Emp_ID;
 					emp.EmpName = item.Employee?.Full_Name ?? "";
-					++index;
+					//++index;
 
 					empListDto.Add(emp);
 				}
@@ -276,13 +267,13 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			if (expenseList.Count != 0)
 			{
-				var index = 1;
+				//var index = 1;
 				var expenseListDto = new List<FinancialExpenseDto>();
 				foreach (var item in expenseList)
 				{
 					var expense = new FinancialExpenseDto();
 
-					expense.index = index;
+					//expense.index = index;
 					expense.ID = item.ID;
 					expense.SafeID = item.SafeID;
 					expense.Total = item.Total;
@@ -292,7 +283,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					expense.TypeID = item.TypeID;
 					expense.ExpenseID = item.ExpenseID;
 					expense.ExpenseName = item.Expense?.ExpenseName ?? "";
-					++index;
+					//++index;
 
 					expenseListDto.Add(expense);
 				}
@@ -327,13 +318,13 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			if (farmList.Count != 0)
 			{
-				var index = 1;
+				//var index = 1;
 				var farmListDto = new List<FinancialFarmDto>();
 				foreach (var item in farmList)
 				{
 					var farm = new FinancialFarmDto();
 
-					farm.index = index;
+					//farm.index = index;
 					farm.ID = item.ID;
 					farm.SafeID = item.SafeID;
 					farm.Total = item.Total;
@@ -343,7 +334,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					farm.TypeID = item.TypeID;
 					farm.FarmID = item.FarmID;
 					farm.FarmName = item.Farm?.FarmsName ?? "";
-					++index;
+					//++index;
 
 					farmListDto.Add(farm);
 				}
@@ -381,12 +372,12 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			if (fridgeList.Count != 0)
 			{
-				var index = 1;
+				//var index = 1;
 				var fridgeListDto = new List<FinancialFridgeDto>();
 				foreach (var item in fridgeList)
 				{
 					var fridge = new FinancialFridgeDto();
-					fridge.index = index;
+					//fridge.index = index;
 					fridge.ID = item.ID;
 					fridge.SafeID = item.SafeID;
 					fridge.Total = item.Total;
@@ -396,7 +387,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					fridge.TypeID = item.TypeID;
 					fridge.FridgeID = item.FridgeID;
 					fridge.FridgeName = item.Fridge?.FridgeName ?? "";
-					++index;
+					//++index;
 
 					fridgeListDto.Add(fridge);
 				}

@@ -25,14 +25,15 @@ namespace AFayedFarm.Repositories.Clients
 				var Client = new Client()
 				{
 					ClientName = clientDto.Name,
-					Create_Date = DateTime.Now.Date
+					Create_Date = DateTime.Now
 				};
 				await context.Clients.AddAsync(Client);
 				await context.SaveChangesAsync();
 				client.Name = Client.ClientName;
 				client.ID = Client.ClientID;
 				client.Total = 0;
-				client.Created_Date = DateOnly.FromDateTime(Client.Create_Date.Value);
+				client.Created_Date = Client.Create_Date;
+				//client.Created_Date = DateOnly.FromDateTime(Client.Create_Date.Value);
 				return client;
 			}
 
@@ -200,8 +201,9 @@ namespace AFayedFarm.Repositories.Clients
 				ID = c.ClientID,
 				Name = c.ClientName,
 				Total = c.Total ?? 0,
-				Created_Date = DateOnly.FromDateTime(c.Create_Date ?? DateTime.Now)
-			}).OrderByDescending(c => c.ID).ToListAsync();
+				Created_Date = c.Create_Date
+				//Created_Date = DateOnly.FromDateTime(c.Create_Date ?? DateTime.Now)
+			}).OrderByDescending(c => c.Created_Date).ToListAsync();
 			if (clientsDb.Count() != 0)
 				return clientsDb;
 			else
@@ -221,7 +223,8 @@ namespace AFayedFarm.Repositories.Clients
 
 					//############ TO DO Check Total with Hossam
 					Total = clientDb.Total ?? 0,
-					Created_Date = DateOnly.FromDateTime(clientDb.Create_Date ?? DateTime.Now)
+					Created_Date = clientDb.Create_Date
+					//Created_Date = DateOnly.FromDateTime(clientDb.Create_Date ?? DateTime.Now)
 				};
 				response.ResponseID = 1;
 				response.ResponseValue = Client;
@@ -530,7 +533,7 @@ namespace AFayedFarm.Repositories.Clients
 			var client = await GetClientById(clientid);
 			response.ResponseValue.Name = client.ResponseValue?.Name ?? "";
 			response.ResponseValue.ID = client.ResponseValue?.ID ?? 0;
-			response.ResponseValue.Date = client.ResponseValue?.Created_Date;
+			//response.ResponseValue.Date = client.ResponseValue?.Created_Date;
 			response.ResponseValue.Total = client.ResponseValue?.Total ?? 0;
 			return response;
 		}

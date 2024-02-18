@@ -9,7 +9,7 @@ namespace AFayedFarm.Model
         public int ClientID { get; set; }
         public string? ClientName { get; set; }
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Create_Date { get; set; }
         public decimal? Total { get; set; }
 
