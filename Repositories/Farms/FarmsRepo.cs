@@ -92,7 +92,13 @@ namespace AFayedFarm.Repositories.Supplier
 				await context.FarmsProducts.AddAsync(farmProduct);
 				await context.SaveChangesAsync();
 
-				await AddProductToStore(farmDto);
+				var addProductToStore = new AddRemoveProductFromStoreDto()
+				{
+					ProductID = farmDto.ProductID,
+					NetQuantity = farmDto.NetQuantity
+				};
+
+				await AddProductToStore(addProductToStore);
 
 				var farmrecordDto = await GetFarmRecordByID(farmProduct.FarmProductID);
 				//farmrecordDto.ResponseValue!.FinancialId = transaction.ID;
@@ -484,13 +490,23 @@ namespace AFayedFarm.Repositories.Supplier
 				var incomeNetQty = farmDto.NetQuantity;
 				if (farmDto.NetQuantity > recordDb.NetQuantity)
 				{
-					farmDto.NetQuantity = farmDto.NetQuantity - recordDb.NetQuantity;
-					await AddProductToStore(farmDto);
+					//farmDto.NetQuantity = farmDto.NetQuantity - recordDb.NetQuantity;
+					var addProductToStore = new AddRemoveProductFromStoreDto()
+					{
+						ProductID = farmDto.ProductID,
+						NetQuantity = farmDto.NetQuantity - recordDb.NetQuantity
+					};
+					await AddProductToStore(addProductToStore);
 				}
-				if (recordDb.NetQuantity > farmDto.NetQuantity)
+				else
 				{
-					farmDto.NetQuantity = recordDb.NetQuantity - farmDto.NetQuantity;
-					await RemoveProductFromStore(farmDto);
+					var removeProductfromStore = new AddRemoveProductFromStoreDto()
+					{
+						ProductID = farmDto.ProductID,
+						NetQuantity = recordDb.NetQuantity - farmDto.NetQuantity
+					};
+					//farmDto.NetQuantity = recordDb.NetQuantity - farmDto.NetQuantity;
+					await RemoveProductFromStore(removeProductfromStore);
 				}
 				var transaction = new SafeTransaction();
 				if (farmDto.TypeId == (int)TransactionType.Pay && farmDto.Paied != recordDb.Paied)
@@ -573,7 +589,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 		}
 
-		public async Task<RequestResponse<bool>> AddProductToStore(AddFarmRecordDto dto)
+		public async Task<RequestResponse<bool>> AddProductToStore(AddRemoveProductFromStoreDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
@@ -604,7 +620,7 @@ namespace AFayedFarm.Repositories.Supplier
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> RemoveProductFromStore(AddFarmRecordDto dto)
+		public async Task<RequestResponse<bool>> RemoveProductFromStore(AddRemoveProductFromStoreDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
