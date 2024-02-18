@@ -32,5 +32,6 @@ namespace AFayedFarm.Model
 		public string? FridgeNotes { get; set; }
 		public string? CarNumber { get; set; }
 		public virtual ICollection<ExpenseRecord>? ExpeneseRecordList { get; set; }
+		public int? FinancialId { get; set; }
 	}
 }
