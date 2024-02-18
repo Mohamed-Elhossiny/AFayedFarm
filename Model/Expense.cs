@@ -10,7 +10,7 @@ namespace AFayedFarm.Model
 		public string? ExpenseName { get; set; }
 		public decimal? TotalRemaining { get; set; } = default(decimal?);
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Create_Date { get; set; }
 
 		[ForeignKey("ExpenseType")]

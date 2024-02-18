@@ -25,7 +25,7 @@ namespace AFayedFarm.Repositories.Expenses
 				{
 					ExpenseName = expenseDto.Name,
 					ExpenseTypeId = expenseDto.ExpenseTypeId,
-					Create_Date = DateTime.Now.Date
+					Create_Date = DateTime.Now
 				};
 				await context.Expenses.AddAsync(Expense);
 				await context.SaveChangesAsync();
@@ -78,8 +78,8 @@ namespace AFayedFarm.Repositories.Expenses
 
 				expenseRecord.FarmRecordID = dto.FarmRecordID;
 				expenseRecord.ExpenseID = dto.ExpenseID;
-				expenseRecord.ExpenseDate = dto.ExpenseDate!.Value.ToLongDateString() != "" ? dto.ExpenseDate.Value.Date : DateTime.Now.Date;
-				expenseRecord.Created_Date = DateTime.Now.Date;
+				expenseRecord.ExpenseDate = dto.ExpenseDate!.Value.ToLongDateString() != "" ? dto.ExpenseDate : DateTime.Now;
+				expenseRecord.Created_Date = DateTime.Now;
 				expenseRecord.Quantity = dto.Quantity;
 				expenseRecord.Value = dto.Value;
 				expenseRecord.Price = dto.Price;
@@ -223,8 +223,8 @@ namespace AFayedFarm.Repositories.Expenses
 				expesnseRecordDto.ProductName = expenseRecord?.FarmRecord?.Product?.ProductName;
 				expesnseRecordDto.ExpenseName = expenseRecord?.Expense?.ExpenseName;
 				expesnseRecordDto.ExpenseTypeName = expenseRecord?.Expense?.ExpenseType?.ExpenseTypeName;
-				expesnseRecordDto.ExpenseDate = expenseRecord.ExpenseDate.HasValue ? expenseRecord.ExpenseDate.Value.Date : DateTime.Now.Date;
-				expesnseRecordDto.Created_Date = expenseRecord.Created_Date.HasValue ? expenseRecord.Created_Date.Value.Date : DateTime.Now.Date;
+				expesnseRecordDto.ExpenseDate = expenseRecord.ExpenseDate.HasValue ? expenseRecord.ExpenseDate : DateTime.Now;
+				expesnseRecordDto.Created_Date = expenseRecord.Created_Date.HasValue ? expenseRecord.Created_Date : DateTime.Now;
 				expesnseRecordDto.Quantity = expenseRecord.Quantity;
 				expesnseRecordDto.Value = expenseRecord.Value;
 				expesnseRecordDto.Price = expenseRecord.Price;
@@ -255,7 +255,8 @@ namespace AFayedFarm.Repositories.Expenses
 
 			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Expense)
-				.Where(c => c.ExpenseID == expenseId && c.IsfromRecord == false).OrderByDescending(c => c.Created_Date).ToListAsync();
+				.Where(c => c.ExpenseID == expenseId && c.IsfromRecord == false)
+				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -276,8 +277,8 @@ namespace AFayedFarm.Repositories.Expenses
 						expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 						expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 						expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
-						expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now.Date;
-						expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate : DateTime.Now;
+						expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date: DateTime.Now;
 						expesnseRecordDto.Quantity = item.Quantity;
 						expesnseRecordDto.Value = item.Value;
 						expesnseRecordDto.Price = item.Price;
@@ -392,7 +393,7 @@ namespace AFayedFarm.Repositories.Expenses
 						financailReocrdDb.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
 						financailReocrdDb.Total = -1 * dto.Paied;
 						financailReocrdDb.Notes = dto.ExpenseRecordNotes;
-						financailReocrdDb.Created_Date = DateTime.Now.Date;
+						financailReocrdDb.Created_Date = DateTime.Now;
 						financailReocrdDb.IsfromRecord = true;
 
 						context.SafeTransactions.Update(financailReocrdDb);
@@ -424,7 +425,7 @@ namespace AFayedFarm.Repositories.Expenses
 				var remaining = (dto.Total - dto.Paied);
 				expenseRecord.FarmRecordID = dto.FarmRecordID;
 				expenseRecord.ExpenseID = dto.ExpenseID;
-				expenseRecord.ExpenseDate = dto.ExpenseDate.HasValue ? dto.ExpenseDate.Value.Date : DateTime.Now.Date;
+				expenseRecord.ExpenseDate = dto.ExpenseDate.HasValue ? dto.ExpenseDate.Value : DateTime.Now;
 				expenseRecord.Quantity = dto.Quantity;
 				expenseRecord.Value = dto.Value;
 				expenseRecord.Price = dto.Price;
@@ -527,8 +528,8 @@ namespace AFayedFarm.Repositories.Expenses
 					expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 					expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 					expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType?.ExpenseTypeName;
-					expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now.Date;
-					expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+					expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now;
+					expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 					expesnseRecordDto.Quantity = item.Quantity;
 					expesnseRecordDto.Value = item.Value;
 					expesnseRecordDto.Price = item.Price;
@@ -572,8 +573,8 @@ namespace AFayedFarm.Repositories.Expenses
 						expesnseRecordDto.ProductName = item?.FarmRecord?.Product?.ProductName;
 						expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 						expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
-						expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate.Value.Date : DateTime.Now.Date;
-						expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate : DateTime.Now;
+						expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						expesnseRecordDto.Quantity = item.Quantity;
 						expesnseRecordDto.Value = item.Value;
 						expesnseRecordDto.Price = item.Price;
@@ -627,7 +628,7 @@ namespace AFayedFarm.Repositories.Expenses
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = -1 * dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date,
+				Created_Date = DateTime.Now,
 				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);

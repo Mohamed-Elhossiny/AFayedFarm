@@ -20,12 +20,12 @@ namespace AFayedFarm.Model
         public int? ExpenseID { get; set; }
         public virtual Expense? Expense { get; set; }
 
-		[DataType(DataType.Date)]
-		[Column(TypeName = "Date")]
+		//[DataType(DataType.Date)]
+		[Column(TypeName = "DateTime")]
 		public DateTime? ExpenseDate { get; set; }
 
-		[DataType(DataType.Date)]
-		[Column(TypeName = "Date")]
+		//[DataType(DataType.Date)]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; }
 		public decimal? Quantity { get; set; }
 		public decimal? Value { get; set; }
