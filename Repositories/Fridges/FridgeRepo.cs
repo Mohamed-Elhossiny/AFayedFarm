@@ -24,7 +24,7 @@ namespace AFayedFarm.Repositories.Fridges
 				var Fridge = new Fridge()
 				{
 					FridgeName = dto.Name,
-					Created_Date = DateTime.Now.Date
+					Created_Date = DateTime.Now
 				};
 				await context.Fridges.AddAsync(Fridge);
 				await context.SaveChangesAsync();
@@ -32,7 +32,8 @@ namespace AFayedFarm.Repositories.Fridges
 
 				response.ResponseValue.Name = Fridge.FridgeName;
 				response.ResponseValue.ID = Fridge.FridgeID;
-				response.ResponseValue.Created_Date = DateOnly.FromDateTime(Fridge.Created_Date ?? DateTime.Now.Date);
+				response.ResponseValue.Created_Date = Fridge.Created_Date ?? DateTime.Now;
+				//response.ResponseValue.Created_Date = DateOnly.FromDateTime(Fridge.Created_Date ?? DateTime.Now.Date);
 				response.ResponseValue.Total = Fridge.TotalRemaining != null ? Fridge.TotalRemaining : 0;
 				response.ResponseID = 1;
 			}
@@ -51,7 +52,7 @@ namespace AFayedFarm.Repositories.Fridges
 				fridgeProduct.Action = dto.Action;
 				fridgeProduct.ActionName = ((FridgeActionEnum)dto.Action!).ToString();
 				fridgeProduct.SupplyDate = dto.SupplyDate ?? DateTime.Now;
-				fridgeProduct.Created_Date = DateTime.Now.Date;
+				fridgeProduct.Created_Date = DateTime.Now;
 				fridgeProduct.Number = dto.Number;
 				fridgeProduct.Quantity = dto.Quantity;
 				fridgeProduct.Price = dto.Price;
@@ -88,6 +89,7 @@ namespace AFayedFarm.Repositories.Fridges
 				transaction.Total = -1 * dto.Payed;
 				transaction.Notes = dto.Notes;
 				transaction.IsfromRecord = true;
+				transaction.Created_Date = DateTime.Now;
 
 				await context.SafeTransactions.AddAsync(transaction);
 
@@ -128,7 +130,8 @@ namespace AFayedFarm.Repositories.Fridges
 				{
 					Name = fridgeDb.FridgeName,
 					ID = fridgeDb.FridgeID,
-					Created_Date = DateOnly.FromDateTime(fridgeDb.Created_Date ?? DateTime.Now.Date),
+					Created_Date = fridgeDb.Created_Date ?? DateTime.Now,
+					//Created_Date = DateOnly.FromDateTime(fridgeDb.Created_Date ?? DateTime.Now.Date),
 					Total = fridgeDb.TotalRemaining == null ? 0 : fridgeDb.TotalRemaining
 				};
 				response.ResponseID = 1;
@@ -150,7 +153,8 @@ namespace AFayedFarm.Repositories.Fridges
 					fridge.ID = item.FridgeID;
 					fridge.Name = item.FridgeName;
 					fridge.Total = item.TotalRemaining;
-					fridge.Created_Date = DateOnly.FromDateTime(item.Created_Date ?? DateTime.Now);
+					fridge.Created_Date = item.Created_Date ?? DateTime.Now;
+					//fridge.Created_Date = DateOnly.FromDateTime(item.Created_Date ?? DateTime.Now);
 					if (item.TotalRemaining == null)
 					{
 						var remaning = await CalculateTotalRemainingFromRecords(item.FridgeID);
@@ -287,8 +291,8 @@ namespace AFayedFarm.Repositories.Fridges
 				record.FridgeName = recordDb.Fridge.FridgeName;
 				record.ProductID = recordDb?.Product?.ProductID;
 				record.ProductName = recordDb?.Product?.ProductName;
-				record.SupplyDate = recordDb!.SupplyDate;
-				record.Created_Date = recordDb.Created_Date.HasValue ? recordDb.Created_Date.Value.Date : DateTime.Now.Date;
+				record.SupplyDate = recordDb.SupplyDate.HasValue ? recordDb.SupplyDate : DateTime.Now;
+				record.Created_Date = recordDb.Created_Date.HasValue ? recordDb.Created_Date : DateTime.Now;
 				record.Number = recordDb.Number;
 				record.Quantity = recordDb.Quantity;
 				record.Price = recordDb.Price;
@@ -311,7 +315,10 @@ namespace AFayedFarm.Repositories.Fridges
 			var response = new RequestResponse<List<FridgeRecordDto>>() { ResponseID = 0 };
 			var fridgeRecords = new List<FridgeRecordDto>();
 			var records = await context.FridgeRecords.Include(c => c.Fridge).Include(c => c.Product).OrderByDescending(c => c.FridgeRecordID).Where(c => c.FridgeID == fridgeID).ToListAsync();
-			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FridgeID == fridgeID).ToListAsync();
+			var transactionRecordDb = await context.SafeTransactions
+				.Include(c => c.Farm).
+				Where(c => c.FridgeID == fridgeID)
+				.OrderByDescending(c=>c.Created_Date).ToListAsync();
 
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
@@ -327,8 +334,8 @@ namespace AFayedFarm.Repositories.Fridges
 						record.FridgeName = item.Fridge.FridgeName;
 						record.ProductID = item?.Product?.ProductID;
 						record.ProductName = item?.Product?.ProductName;
-						record.SupplyDate = item!.SupplyDate;
-						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.SupplyDate = item.SupplyDate.HasValue? item.SupplyDate : DateTime.Now;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						record.Quantity = item.Quantity;
 						record.Price = item.Price;
 						record.Payed = item.Payed;
@@ -370,8 +377,15 @@ namespace AFayedFarm.Repositories.Fridges
 		{
 			var response = new RequestResponse<AllFridgeRecordsWithTotalDto>() { ResponseID = 0, ResponseValue = new AllFridgeRecordsWithTotalDto() };
 			var fridgeRecord = new List<FridgeRecordDto>();
-			var records = await context.FridgeRecords.Include(c => c.Fridge).Include(c => c.Product).OrderByDescending(c => c.FridgeRecordID).Where(c => c.FridgeID == fridgeID).ToListAsync();
-			var transactionRecordDb = await context.SafeTransactions.Include(c => c.Farm).Where(c => c.FridgeID == fridgeID).ToListAsync();
+			var records = await context.FridgeRecords
+				.Include(c => c.Fridge)
+				.Include(c => c.Product)
+				.OrderByDescending(c => c.Created_Date)
+				.Where(c => c.FridgeID == fridgeID).ToListAsync();
+			var transactionRecordDb = await context.SafeTransactions
+				.Include(c => c.Farm)
+				.Where(c => c.FridgeID == fridgeID)
+				.OrderByDescending(c=>c.Created_Date).ToListAsync();
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				if (records.Count != 0)
@@ -387,8 +401,8 @@ namespace AFayedFarm.Repositories.Fridges
 						record.FridgeName = item.Fridge.FridgeName;
 						record.ProductID = item?.Product?.ProductID;
 						record.ProductName = item?.Product?.ProductName;
-						record.SupplyDate = item!.SupplyDate;
-						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate : DateTime.Now;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						record.Quantity = item.Quantity;
 						record.Price = item.Price;
 						record.Number = item.Number;
@@ -468,7 +482,7 @@ namespace AFayedFarm.Repositories.Fridges
 						record.ProductID = item?.Product?.ProductID;
 						record.ProductName = item?.Product?.ProductName;
 						record.SupplyDate = item!.SupplyDate;
-						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date.Value.Date : DateTime.Now.Date;
+						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						record.Number = item.Number;
 						record.Quantity = item.Quantity;
 						record.Total = item.Total;
@@ -605,6 +619,8 @@ namespace AFayedFarm.Repositories.Fridges
 					transaction.Type = ((TransactionType)dto.TypeId!).ToString();
 					transaction.Total = -1 * dto.Payed;
 					transaction.Notes = dto.Notes;
+					transaction.IsfromRecord = true;
+					transaction.Created_Date = DateTime.Now;
 
 					await context.SafeTransactions.AddAsync(transaction);
 
@@ -630,7 +646,7 @@ namespace AFayedFarm.Repositories.Fridges
 				fridgeProduct.Action = dto.Action;
 				fridgeProduct.ActionName = ((FridgeActionEnum)dto.Action!).ToString();
 				fridgeProduct.SupplyDate = dto.SupplyDate ?? DateTime.Now;
-				fridgeProduct.Created_Date = DateTime.Now.Date;
+				fridgeProduct.Created_Date = DateTime.Now;
 				fridgeProduct.Number = dto.Number;
 				fridgeProduct.Quantity = incomeQuantity;
 				fridgeProduct.Price = dto.Price;
@@ -671,7 +687,7 @@ namespace AFayedFarm.Repositories.Fridges
 				Type = ((TransactionType)dto.TrasactionTypeID!).ToString(),
 				Total = -1 * dto.Total,
 				Notes = dto.Notes,
-				Created_Date = DateTime.Now.Date,
+				Created_Date = DateTime.Now,
 				IsfromRecord = false
 			};
 			await context.SafeTransactions.AddAsync(transaction);

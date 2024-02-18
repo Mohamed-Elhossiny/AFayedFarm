@@ -8,7 +8,7 @@ namespace AFayedFarm.Model
 		[Key]
 		public int FridgeID { get; set; }
 		public string? FridgeName { get; set; }
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; }
 		public decimal? TotalRemaining { get; set; }
 		public virtual ICollection<FridgeRecord>? FridgeRecords { get; set; }
