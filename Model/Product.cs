@@ -13,8 +13,8 @@ namespace AFayedFarm.Model
 		[Column(TypeName = "nvarchar(MAX)")]
 		public string? ProductNote { get; set; }
 
-		[DataType(DataType.Date)]
-		[Column(TypeName = "Date")]
+		//[DataType(DataType.Date)]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; }
         public virtual ICollection<FarmsProduct>? FarmsProducts { get; set; }
         public virtual ICollection<FridgeRecord>? FridgeProducts { get; set; }

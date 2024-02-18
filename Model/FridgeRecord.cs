@@ -17,10 +17,10 @@ namespace AFayedFarm.Model
         public int? Action { get; set; }
         public string? ActionName { get; set; }
 
-        [Column(TypeName = "Date")]
+        [Column(TypeName = "DateTime")]
 		public DateTime? SupplyDate { get; set; }
 
-		[Column(TypeName = "Date")]
+		[Column(TypeName = "DateTime")]
 		public DateTime? Created_Date { get; set; }
 		public decimal? Number { get; set; }
 		public decimal? Quantity { get; set; }

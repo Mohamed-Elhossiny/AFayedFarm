@@ -41,7 +41,6 @@ namespace AFayedFarm.Repositories.Store
 			}
 			return response;
 		}
-
 		public async Task<RequestResponse<StoreProductDto>> SetProductQtyToZero(int productID)
 		{
 			var response = new RequestResponse<StoreProductDto> { ResponseID = 0, ResponseValue = new StoreProductDto() };

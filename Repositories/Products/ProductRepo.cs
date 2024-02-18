@@ -23,7 +23,7 @@ namespace AFayedFarm.Repositories.Products
 				var product = new Product()
 				{
 					ProductName = dto.Name,
-					Created_Date = DateTime.Now.Date,
+					Created_Date = DateTime.Now,
 					//ProductNote = dto.Notes
 				};
 				await context.Products.AddAsync(product);
@@ -36,7 +36,8 @@ namespace AFayedFarm.Repositories.Products
 					ID = product.ProductID,
 					Name = product.ProductName,
 					Notes = product.ProductNote,
-					Created_Date = DateOnly.FromDateTime(product.Created_Date ?? DateTime.Now)
+					Created_Date = product.Created_Date ?? DateTime.Now
+					//Created_Date = DateOnly.FromDateTime(product.Created_Date ?? DateTime.Now)
 				};
 				response.ResponseID = 1;
 				response.ResponseValue = productDto;
@@ -61,7 +62,8 @@ namespace AFayedFarm.Repositories.Products
 						ID = item.ProductID,
 						Name = item.ProductName,
 						Notes = item.ProductNote,
-						Created_Date = DateOnly.FromDateTime(item.Created_Date ?? DateTime.Now)
+						Created_Date = item.Created_Date ?? DateTime.Now
+						//Created_Date = DateOnly.FromDateTime(item.Created_Date ?? DateTime.Now)
 					};
 					productListDto.Add(productDto);
 				}
@@ -94,7 +96,8 @@ namespace AFayedFarm.Repositories.Products
 					ID = productDb.ProductID,
 					Name = productDb.ProductName,
 					Notes = productDb.ProductNote,
-					Created_Date = DateOnly.FromDateTime(productDb.Created_Date ?? DateTime.Now)
+					Created_Date = productDb.Created_Date ?? DateTime.Now
+					//Created_Date = DateOnly.FromDateTime(productDb.Created_Date ?? DateTime.Now)
 				};
 
 				response.ResponseID = 1;
