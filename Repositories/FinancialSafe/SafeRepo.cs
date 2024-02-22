@@ -33,7 +33,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 					await context.SaveChangesAsync();
 
 					safeTransaction.Total =  dto.Balance;
-					safeTransaction.Notes = "إيداع في الخزنة";
+					safeTransaction.Notes = dto.Notes ?? "إيداع في الخزنة";
 					safeTransaction.TypeID = (int)TransactionType.Income;
 					safeTransaction.Type = TransactionType.Income.ToString();
 					safeTransaction.Created_Date = DateTime.Now;

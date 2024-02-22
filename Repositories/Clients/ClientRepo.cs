@@ -428,7 +428,8 @@ namespace AFayedFarm.Repositories.Clients
 			context.Safe.Update(financialSafe!);
 
 			// Subtract Pay Amount from Total of Client That we will want to collect ==> (-8000 + 5000 = -3000)
-
+			if (clientDb.Total == null)
+				clientDb.Total = 0;
 			clientDb.Total += dto.Total;
 			context.Clients.Update(clientDb);
 
