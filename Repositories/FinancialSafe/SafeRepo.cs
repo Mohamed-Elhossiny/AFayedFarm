@@ -98,7 +98,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 			if (to.HasValue)
 			{
-				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 
 			var allLists = await query.ToListAsync();
@@ -166,7 +166,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 			if (to.HasValue)
 			{
-				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 			var clientLists = await query.ToListAsync();
 
@@ -218,7 +218,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 			if (to.HasValue)
 			{
-				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 
 			var employeeLists = await query.ToListAsync();
@@ -271,7 +271,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 			if (to.HasValue)
 			{
-				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 			var expenseLists = await query.ToListAsync();
 			//var expenseList = await expenseLists.ToListAsync();
@@ -321,7 +321,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 			if (to.HasValue)
 			{
-				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 
 			var farmLists = await query.ToListAsync();
@@ -374,7 +374,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 			if (to.HasValue)
 			{
-				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value);
+				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 
 			var fridgeLists = await query.ToListAsync();
