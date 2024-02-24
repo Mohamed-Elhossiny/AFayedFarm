@@ -75,12 +75,12 @@ namespace AFayedFarm.Controllers
 				return BadRequest(ModelState);
 			}
 			if (dto.ExpenseTypeName == null || dto.ExpenseTypeName == "")
-				return BadRequest("Please enter type name");
+				return BadRequest("أدخل فئة المصروف");
 			var response = await expenseRepo.AddExpenseTypeAsync(dto);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else
-				return NotFound("يوجد مصروف بهذا الاسم");
+				return BadRequest("يوجد مصروف بهذا الاسم");
 		}
 
 		[HttpGet("~/GetAllExpensetypes")]

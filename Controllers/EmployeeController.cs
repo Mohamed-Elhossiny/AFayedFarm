@@ -45,8 +45,8 @@ namespace AFayedFarm.Controllers
 		{
 			if (id == 0)
 				return BadRequest("Invalid ID");
-			if(dto.Name =="" || dto.Salary == 0)
-				return BadRequest("Enter Employee Name and Salary");
+			if(dto.Name == "" || dto.Salary == 0)
+				return BadRequest(" أدخل اسم المظف والراتب صحيح");
 			var response = await repo.UpdateEmployee(id, dto);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
