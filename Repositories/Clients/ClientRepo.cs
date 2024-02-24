@@ -693,7 +693,9 @@ namespace AFayedFarm.Repositories.Clients
 										existingProduct.ProductTotal = item.Total;
 										existingProduct.Price = item.Price;
 
-										context.TransactionProducts.Update(existingProduct);
+										context.Entry(existingProduct).State = EntityState.Modified;
+
+										//context.TransactionProducts.Update(existingProduct);
 										await context.SaveChangesAsync();
 
 									}

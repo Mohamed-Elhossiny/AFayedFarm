@@ -67,7 +67,7 @@ namespace AFayedFarm.Repositories.Fridges
 
 				context.Safe.Update(financialSafe!);
 
-				var fridgeDb = await context.Fridges.Where(f => f.FridgeID == fridgeProduct.FridgeID).FirstOrDefaultAsync();
+				var fridgeDb = await context.Fridges.Where(f => f.FridgeID == dto.FridgeID).FirstOrDefaultAsync();
 				if (fridgeDb!.TotalRemaining == null)
 					fridgeDb.TotalRemaining = 0;
 				fridgeDb!.TotalRemaining += remaining;
