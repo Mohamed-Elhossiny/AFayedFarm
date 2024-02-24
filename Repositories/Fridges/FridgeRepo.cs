@@ -627,7 +627,7 @@ namespace AFayedFarm.Repositories.Fridges
 						oldPayAmount = -1 * financailReocrdDb.Total;
 
 						financailReocrdDb.SafeID = 2;
-						financailReocrdDb.FarmID = dto.FridgeID;
+						financailReocrdDb.FridgeID = dto.FridgeID;
 						financailReocrdDb.TypeID = dto.TypeId;
 						financailReocrdDb.Type = dto.TypeId != null ? ((TransactionType)dto.TypeId).ToString() : TransactionType.Pay.ToString();
 						financailReocrdDb.Total = -1 * dto.Payed;
@@ -658,34 +658,7 @@ namespace AFayedFarm.Repositories.Fridges
 					context.Fridges.Update(fridgeDb!);
 
 					await context.SaveChangesAsync();
-					//#region Add Transactions to Financial Safe
-
-					//var transaction = new SafeTransaction();
-					//transaction.SafeID = 2;
-					//transaction.FridgeID = dto.FridgeID;
-					//transaction.TypeID = dto.TypeId;
-					//transaction.Type = ((TransactionType)dto.TypeId!).ToString();
-					//transaction.Total = -1 * dto.Payed;
-					//transaction.Notes = dto.Notes;
-					//transaction.IsfromRecord = true;
-					//transaction.Created_Date = DateTime.Now;
-
-					//await context.SafeTransactions.AddAsync(transaction);
-
-					//var financialSafe = await context.Safe.FindAsync(2);
-					//if (dto.TypeId == (int)TransactionType.Pay)
-					//	financialSafe!.Total = financialSafe.Total - dto.Payed;
-
-					//context.Safe.Update(financialSafe!);
-
-					//var fridgeDb = await context.Fridges.Where(f => f.FridgeID == fridgeProduct.FridgeID).FirstOrDefaultAsync();
-					//if (fridgeDb!.TotalRemaining == null)
-					//	fridgeDb.TotalRemaining = 0;
-					//fridgeDb!.TotalRemaining -= fridgeProduct.Remaining;
-					//context.Fridges.Update(fridgeDb);
-
-					//await context.SaveChangesAsync();
-					//#endregion
+					
 				}
 
 

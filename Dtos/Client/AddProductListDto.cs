@@ -9,7 +9,7 @@
 		public decimal? Number { get; set; }
 		public decimal? Price { get; set; }
 		public decimal? Total { get; set; }
-		public int? StatusID { get; set; } = 4;
+		public int? StatusID { get; set; } = 1; //Current == 1
         //public decimal? ProductTotal { get; set; }
     }
 }

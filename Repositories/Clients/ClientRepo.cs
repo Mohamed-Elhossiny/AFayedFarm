@@ -629,6 +629,8 @@ namespace AFayedFarm.Repositories.Clients
 
 						foreach (var item in dto.ProductList)
 						{
+							if (item.StatusID == null)
+								item.StatusID = (int)Status.Current;
 							switch (item.StatusID)
 							{
 								case (int)Status.Updated:
