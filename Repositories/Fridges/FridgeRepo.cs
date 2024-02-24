@@ -2,6 +2,7 @@
 using AFayedFarm.Enums;
 using AFayedFarm.Global;
 using AFayedFarm.Model;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.EntityFrameworkCore;
 
 namespace AFayedFarm.Repositories.Fridges
@@ -76,7 +77,7 @@ namespace AFayedFarm.Repositories.Fridges
 				await context.SaveChangesAsync();
 				#endregion
 
-				
+
 				fridgeProduct.FridgeID = dto.FridgeID;
 				fridgeProduct.ProductID = dto.ProductID;
 				fridgeProduct.Action = dto.Action;
@@ -100,17 +101,24 @@ namespace AFayedFarm.Repositories.Fridges
 				// Remove From Store 
 				// Add To Fridge According to Action Type Enum
 
+				var addRemoveDto = new AddRemoveProductFridgeDto()
+				{
+					FridgeID = dto.FridgeID,
+					ProductID = dto.ProductID,
+					Quantity = dto.Quantity
+				};
+
 				if (dto.Action == (int)FridgeActionEnum.Entry)
 				{
-					await RemoveProductFromStore(dto);
-					await AddProductToFridge(dto);
+					await RemoveProductFromStore(addRemoveDto);
+					await AddProductToFridge(addRemoveDto);
 				}
 				if (dto.Action == (int)FridgeActionEnum.Exit)
 				{
-					await RemoveProductFromFridge(dto);
+					await RemoveProductFromFridge(addRemoveDto);
 				}
 
-				
+
 
 				// TO DO ==> Get FridgeRecordByID()
 
@@ -148,7 +156,7 @@ namespace AFayedFarm.Repositories.Fridges
 		{
 			var response = new RequestResponse<List<FridgeDto>> { ResponseID = 0 };
 			var allFridges = new List<FridgeDto>();
-			var fridgesDb = await context.Fridges.OrderByDescending(c=>c.Created_Date).ToListAsync();
+			var fridgesDb = await context.Fridges.OrderByDescending(c => c.Created_Date).ToListAsync();
 			if (fridgesDb.Count != 0)
 			{
 				foreach (var item in fridgesDb)
@@ -195,7 +203,7 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> RemoveProductFromStore(AddFridgeRecordDto dto)
+		public async Task<RequestResponse<bool>> RemoveProductFromStore(AddRemoveProductFridgeDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
@@ -216,7 +224,7 @@ namespace AFayedFarm.Repositories.Fridges
 				var newProductInStore = new StoreProduct();
 				newProductInStore.ProductID = dto.ProductID;
 				newProductInStore.StoreID = 2;
-				newProductInStore.Created_Date = DateTime.Now.Date;
+				newProductInStore.Created_Date = DateTime.Now;
 				newProductInStore.Quantity = dto.Quantity;
 
 				await context.StoreProducts.AddAsync(newProductInStore);
@@ -229,7 +237,7 @@ namespace AFayedFarm.Repositories.Fridges
 			}
 		}
 
-		public async Task<RequestResponse<bool>> AddProductToFridge(AddFridgeRecordDto dto)
+		public async Task<RequestResponse<bool>> AddProductToFridge(AddRemoveProductFridgeDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 
@@ -249,7 +257,7 @@ namespace AFayedFarm.Repositories.Fridges
 				{
 					fridgeProduct.ProductID = dto.ProductID;
 					fridgeProduct.FridgeID = dto.FridgeID;
-					fridgeProduct.Created_Date = DateTime.Now.Date;
+					fridgeProduct.Created_Date = DateTime.Now;
 					fridgeProduct.Quantity = dto.Quantity;
 
 					await context.FridgeProducts.AddAsync(fridgeProduct);
@@ -262,7 +270,7 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> RemoveProductFromFridge(AddFridgeRecordDto dto)
+		public async Task<RequestResponse<bool>> RemoveProductFromFridge(AddRemoveProductFridgeDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 
@@ -322,7 +330,7 @@ namespace AFayedFarm.Repositories.Fridges
 			var transactionRecordDb = await context.SafeTransactions
 				.Include(c => c.Farm).
 				Where(c => c.FridgeID == fridgeID)
-				.OrderByDescending(c=>c.Created_Date).ToListAsync();
+				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
@@ -338,7 +346,7 @@ namespace AFayedFarm.Repositories.Fridges
 						record.FridgeName = item.Fridge.FridgeName;
 						record.ProductID = item?.Product?.ProductID;
 						record.ProductName = item?.Product?.ProductName;
-						record.SupplyDate = item.SupplyDate.HasValue? item.SupplyDate : DateTime.Now;
+						record.SupplyDate = item.SupplyDate.HasValue ? item.SupplyDate : DateTime.Now;
 						record.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						record.Quantity = item.Quantity;
 						record.Price = item.Price;
@@ -389,7 +397,7 @@ namespace AFayedFarm.Repositories.Fridges
 			var transactionRecordDb = await context.SafeTransactions
 				.Include(c => c.Farm)
 				.Where(c => c.FridgeID == fridgeID)
-				.OrderByDescending(c=>c.Created_Date).ToListAsync();
+				.OrderByDescending(c => c.Created_Date).ToListAsync();
 			if (records.Count != 0 || transactionRecordDb.Count != 0)
 			{
 				if (records.Count != 0)
@@ -449,12 +457,12 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int fridgeID,int currentPage,int pageSize)
+		public async Task<RequestResponse<FridgeRecordsWithDataDto>> GetFridgeRecordWithFridgeDataByID(int fridgeID, int currentPage, int pageSize)
 		{
 			var response = new RequestResponse<FridgeRecordsWithDataDto>() { ResponseID = 0, ResponseValue = new FridgeRecordsWithDataDto() };
 			var fridgeRecord = new List<FridgeRecordDto>();
-			
-			var fridgerecords =await context.FridgeRecords
+
+			var fridgerecords = await context.FridgeRecords
 				.Include(c => c.Fridge)
 				.Include(c => c.Product)
 				.OrderByDescending(c => c.Created_Date)
@@ -462,9 +470,9 @@ namespace AFayedFarm.Repositories.Fridges
 
 			var records = fridgerecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
-			var transactionRecordDbs =await context.SafeTransactions
+			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Farm)
-				.OrderByDescending(c=>c.Created_Date)
+				.OrderByDescending(c => c.Created_Date)
 				.Where(c => c.FridgeID == fridgeID && c.IsfromRecord == false).ToListAsync();
 
 			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
@@ -582,36 +590,49 @@ namespace AFayedFarm.Repositories.Fridges
 				.Include(c => c.Product)
 				.Where(c => c.FridgeRecordID == recordID).FirstOrDefaultAsync();
 
+			var fridgeDb = await context.Fridges.Where(f => f.FridgeID == fridgeProduct.FridgeID).FirstOrDefaultAsync();
+
+
 			if (fridgeProduct != null)
 			{
-				
+
 				var incomeQuantity = dto.Quantity;
 
 				// TO DO
 				// Remove From Store 
 				// Add To Fridge According to Action Type Enum
 
+				var addRemoveDto = new AddRemoveProductFridgeDto();
+
+				addRemoveDto.FridgeID = dto.FridgeID;
+				addRemoveDto.ProductID = dto.ProductID;
+
 				if (dto.Action == (int)FridgeActionEnum.Entry && dto.Quantity > fridgeProduct.Quantity)
 				{
-					dto.Quantity = dto.Quantity - fridgeProduct.Quantity;
-					await RemoveProductFromStore(dto);
-					await AddProductToFridge(dto);
+					//dto.Quantity = dto.Quantity - fridgeProduct.Quantity;
+
+					addRemoveDto.Quantity = dto.Quantity - fridgeProduct.Quantity;
+
+					await RemoveProductFromStore(addRemoveDto);
+					await AddProductToFridge(addRemoveDto);
 				}
 				else if (dto.Action == (int)FridgeActionEnum.Entry && dto.Quantity < fridgeProduct.Quantity)
 				{
-					dto.Quantity = fridgeProduct.Quantity - dto.Quantity;
-					await RemoveProductFromFridge(dto);
-					await AddProductToStore(dto);
+
+					addRemoveDto.Quantity = fridgeProduct.Quantity - dto.Quantity;
+					await RemoveProductFromFridge(addRemoveDto);
+					await AddProductToStore(addRemoveDto);
 				}
-				else if (dto.Action == (int)FridgeActionEnum.Exit && dto.Quantity > fridgeProduct.Quantity)
+
+				if (dto.Action == (int)FridgeActionEnum.Exit && dto.Quantity > fridgeProduct.Quantity)
 				{
-					dto.Quantity = dto.Quantity - fridgeProduct.Quantity;
-					await RemoveProductFromFridge(dto);
+					addRemoveDto.Quantity = dto.Quantity - fridgeProduct.Quantity;
+					await RemoveProductFromFridge(addRemoveDto);
 				}
 				else if (dto.Action == (int)FridgeActionEnum.Exit && fridgeProduct.Quantity > dto.Quantity)
 				{
-					dto.Quantity = fridgeProduct.Quantity - dto.Quantity;
-					await RemoveProductFromFridge(dto);
+					addRemoveDto.Quantity = fridgeProduct.Quantity - dto.Quantity;
+					await AddProductToFridge(addRemoveDto);
 				}
 
 				if (dto.TypeId == (int)TransactionType.Pay && dto.Payed != fridgeProduct.Payed)
@@ -650,15 +671,35 @@ namespace AFayedFarm.Repositories.Fridges
 					}
 					#endregion
 
-					var fridgeDb = await context.Fridges.Where(f => f.FridgeID == fridgeProduct.FridgeID).FirstOrDefaultAsync();
-					if (dto.TypeId == (int)TransactionType.Pay && fridgeProduct.Payed < incomePayed)
-						fridgeDb!.TotalRemaining = fridgeDb.TotalRemaining - (incomePayed - fridgeProduct.Payed);
-					else
-						fridgeDb!.TotalRemaining = fridgeDb.TotalRemaining + (fridgeProduct.Payed - incomePayed);
-					context.Fridges.Update(fridgeDb!);
+					if (fridgeDb != null)
+					{
+						if (fridgeDb.TotalRemaining == null)
+							fridgeDb.TotalRemaining = 0;
 
-					await context.SaveChangesAsync();
-					
+						if (dto.TypeId == (int)TransactionType.Pay && fridgeProduct.Payed != incomePayed)
+							fridgeDb!.TotalRemaining = fridgeDb.TotalRemaining - (incomePayed - fridgeProduct.Payed);
+
+						context.Fridges.Update(fridgeDb!);
+
+						await context.SaveChangesAsync();
+					}
+				}
+
+				var oldRemaining = fridgeProduct.Remaining;
+				var newRemaining = dto.Total - dto.Payed;
+
+				if(newRemaining != oldRemaining && dto.Payed == fridgeProduct.Payed)
+				{
+					if (fridgeDb != null)
+					{
+						if (fridgeDb.TotalRemaining == null)
+							fridgeDb.TotalRemaining = 0;
+
+						fridgeDb.TotalRemaining = fridgeDb.TotalRemaining + (newRemaining - oldRemaining);
+
+						context.Fridges.Update(fridgeDb!);
+						await context.SaveChangesAsync();
+					}
 				}
 
 
@@ -667,13 +708,12 @@ namespace AFayedFarm.Repositories.Fridges
 				fridgeProduct.Action = dto.Action;
 				fridgeProduct.ActionName = ((FridgeActionEnum)dto.Action!).ToString();
 				fridgeProduct.SupplyDate = dto.SupplyDate ?? DateTime.Now;
-				fridgeProduct.Created_Date = DateTime.Now;
 				fridgeProduct.Number = dto.Number;
 				fridgeProduct.Quantity = incomeQuantity;
 				fridgeProduct.Price = dto.Price;
 				fridgeProduct.Total = dto.Total;
 				fridgeProduct.Payed = dto.Payed;
-				fridgeProduct.Remaining = fridgeProduct.Remaining - dto.Payed;
+				fridgeProduct.Remaining = dto.Total - dto.Payed;
 				fridgeProduct.FridgeNotes = dto.Notes;
 				fridgeProduct.CarNumber = dto.CarNumber;
 				fridgeProduct.FinancialId = fridgeProduct.FinancialId;
@@ -681,7 +721,7 @@ namespace AFayedFarm.Repositories.Fridges
 				context.FridgeRecords.Update(fridgeProduct);
 				await context.SaveChangesAsync();
 
-				
+
 
 				// TO DO ==> Get FridgeRecordByID()
 
@@ -733,7 +773,7 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<bool>> AddProductToStore(AddFridgeRecordDto dto)
+		public async Task<RequestResponse<bool>> AddProductToStore(AddRemoveProductFridgeDto dto)
 		{
 			var response = new RequestResponse<bool> { ResponseID = 0, ResponseValue = false };
 			var productInStore = await context.StoreProducts.Where(c => c.ProductID == dto.ProductID).FirstOrDefaultAsync();
@@ -752,7 +792,7 @@ namespace AFayedFarm.Repositories.Fridges
 				{
 					storeProduct.ProductID = dto.ProductID;
 					storeProduct.StoreID = 2;
-					storeProduct.Created_Date = DateTime.Now.Date;
+					storeProduct.Created_Date = DateTime.Now;
 					storeProduct.Quantity = dto.Quantity;
 
 					await context.StoreProducts.AddAsync(storeProduct);

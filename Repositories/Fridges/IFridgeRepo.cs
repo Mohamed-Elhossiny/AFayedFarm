@@ -10,10 +10,10 @@ namespace AFayedFarm.Repositories.Fridges
 		Task<RequestResponse<FridgeDto>> GetFridgeById(int id);
 		Task<RequestResponse<FridgeDto>> UpdateFridge(int id, AddFridgeDto dto);
 		Task<RequestResponse<FridgeRecordDto>> AddFridgeRecord(AddFridgeRecordDto farmDto);
-		Task<RequestResponse<bool>> RemoveProductFromStore(AddFridgeRecordDto dto);
-		Task<RequestResponse<bool>> RemoveProductFromFridge(AddFridgeRecordDto dto);
-		Task<RequestResponse<bool>> AddProductToFridge(AddFridgeRecordDto dto);
-		Task<RequestResponse<bool>> AddProductToStore(AddFridgeRecordDto dto);
+		Task<RequestResponse<bool>> RemoveProductFromStore(AddRemoveProductFridgeDto dto);
+		Task<RequestResponse<bool>> RemoveProductFromFridge(AddRemoveProductFridgeDto dto);
+		Task<RequestResponse<bool>> AddProductToFridge(AddRemoveProductFridgeDto dto);
+		Task<RequestResponse<bool>> AddProductToStore(AddRemoveProductFridgeDto dto);
 		Task<RequestResponse<FridgeRecordDto>> GetFridgeRecordByID(int recordID);
 		Task<RequestResponse<List<FridgeRecordDto>>> GetAllFridgesRecords(int fridgeID);
 		Task<RequestResponse<AllFridgeRecordsWithTotalDto>> GetAllFridgeRecordsWithTotal(int fridgeID);

@@ -80,7 +80,7 @@ namespace AFayedFarm.Controllers
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
 			else
-				return NotFound();
+				return NotFound("يوجد مصروف بهذا الاسم");
 		}
 
 		[HttpGet("~/GetAllExpensetypes")]
