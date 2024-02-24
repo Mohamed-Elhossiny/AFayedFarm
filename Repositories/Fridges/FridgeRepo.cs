@@ -115,6 +115,7 @@ namespace AFayedFarm.Repositories.Fridges
 				}
 				if (dto.Action == (int)FridgeActionEnum.Exit)
 				{
+					await AddProductToStore(addRemoveDto);
 					await RemoveProductFromFridge(addRemoveDto);
 				}
 

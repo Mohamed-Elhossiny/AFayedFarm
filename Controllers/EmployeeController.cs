@@ -19,7 +19,7 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> AddEmployee(AddEmployeeDto dto)
 		{
 			if (dto.Name == "")
-				return BadRequest("Enter Employee Name and Salary");
+				return BadRequest("أدخل اسم الموظف والراتب صحيح");
 			var response = await repo.AddEmployee(dto);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);
@@ -46,7 +46,7 @@ namespace AFayedFarm.Controllers
 			if (id == 0)
 				return BadRequest("Invalid ID");
 			if(dto.Name == "" || dto.Salary == 0)
-				return BadRequest(" أدخل اسم المظف والراتب صحيح");
+				return BadRequest(" أدخل اسم الموظف والراتب صحيح");
 			var response = await repo.UpdateEmployee(id, dto);
 			if (response.ResponseID == 1)
 				return Ok(response.ResponseValue);

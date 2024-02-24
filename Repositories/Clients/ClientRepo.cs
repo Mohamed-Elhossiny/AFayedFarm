@@ -656,7 +656,7 @@ namespace AFayedFarm.Repositories.Clients
 											var storeProductQty = new UpdateStoreProductDto
 											{
 												ProductID = item.ProductID,
-												Quantity = item.Quantity,
+												Quantity = (incomeQuantity - existingProduct.Qunatity),
 												StoreId = 2
 											};
 											await UpdateProductQuantityInStore(storeProductQty);
@@ -668,7 +668,7 @@ namespace AFayedFarm.Repositories.Clients
 											var storeProductBox = new UpdateStoreProductDto
 											{
 												ProductBoxID = item.ProductBoxID,
-												Number = item.Number,
+												Number = (incomeNumber - existingProduct.Number),
 												StoreId = 2
 											};
 											await UpdateProductBoxNunmberInStore(storeProductBox);
@@ -679,7 +679,7 @@ namespace AFayedFarm.Repositories.Clients
 											var newProductQtyList = new AddProductListDto()
 											{
 												ProductID = item.ProductID,
-												Quantity = item.Quantity,
+												Quantity = (existingProduct.Qunatity - incomeQuantity),
 												Price = item.Price,
 												Total = item.Total
 											};
@@ -691,7 +691,7 @@ namespace AFayedFarm.Repositories.Clients
 											var newProductBoxList = new AddProductListDto()
 											{
 												ProductID = item.ProductBoxID,
-												Number = item.Number,
+												Number = (existingProduct.Number - incomeNumber),
 												Price = item.Price,
 												Total = item.Total
 											};
