@@ -28,6 +28,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				var safeTransaction = new SafeTransaction();
 				if (dto.typeId == 4)
 				{
+					if (safeDb.Total == null)
+						safeDb.Total = 0;
 					safeDb.Total += dto.Balance;
 					context.Safe.Update(safeDb);
 					await context.SaveChangesAsync();
@@ -59,6 +61,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 				if (dto.Total != null)
 				{
+					if (safe.Total == null)
+						safe.Total = 0;
 					safe.Total -= dto.Total;
 					context.Safe.Update(safe);
 
@@ -90,7 +94,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				.Include(c => c.Farm)
 				.Include(c => c.Expense)
 				.Include(c => c.Fridge)
-				.OrderByDescending(c => c.Created_Date);
+				.OrderByDescending(c => c.Created_Date); 
 
 			if (from.HasValue)
 			{
@@ -102,6 +106,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 
 			var allLists = await query.ToListAsync();
+
+			var totalRecords = allLists.Count();
 
 			var allList = allLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -144,6 +150,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.PageSize = pageSize;
 				response.LastPage = (int)Math.Ceiling((double)allLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 				response.ResponseID = 1;
 				response.ResponseValue = allListDto;
 			}
@@ -160,6 +167,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				.Where(c => c.CLientID != null)
 				.OrderByDescending(c => c.Created_Date);
 
+
 			if (from.HasValue)
 			{
 				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date >= from.Value);
@@ -169,6 +177,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 			var clientLists = await query.ToListAsync();
+
+			var totalRecords = clientLists.Count();
 
 			var clientList = clientLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -199,6 +209,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.PageSize = pageSize;
 				response.LastPage = (int)Math.Ceiling((double)clientLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 			}
 
 			return response;
@@ -211,6 +222,9 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				.Include(c => c.Employee)
 				.Where(c => c.Emp_ID != null)
 				.OrderByDescending(c => c.Created_Date);
+
+
+			var totalRecords = await query.CountAsync();
 
 			if (from.HasValue)
 			{
@@ -252,6 +266,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.PageSize = pageSize;
 				response.LastPage = (int)Math.Ceiling((double)employeeLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 			}
 
 			return response;
@@ -274,7 +289,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date <= to.Value.AddDays(1));
 			}
 			var expenseLists = await query.ToListAsync();
-			//var expenseList = await expenseLists.ToListAsync();
+
+			var totalRecords = expenseLists.Count();
 			var expenseList = expenseLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			if (expenseList.Count != 0)
@@ -304,6 +320,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.PageSize = pageSize;
 				response.LastPage = (int)Math.Ceiling((double)expenseLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 			}
 
 			return response;
@@ -315,6 +332,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			var query = context.SafeTransactions.Include(c => c.Farm)
 				.Where(c => c.FarmID != null).OrderByDescending(c => c.Created_Date);
 
+
 			if (from.HasValue)
 			{
 				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date >= from.Value);
@@ -325,6 +343,8 @@ namespace AFayedFarm.Repositories.FinancialSafe
 			}
 
 			var farmLists = await query.ToListAsync();
+
+			var totalRecords = farmLists.Count();
 
 			var farmList = farmLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -355,6 +375,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.PageSize = pageSize;
 				response.LastPage = (int)Math.Ceiling((double)farmLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 			}
 
 			return response;
@@ -368,6 +389,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				.Where(c => c.FridgeID != null)
 				.OrderByDescending(c => c.Created_Date);
 
+
 			if (from.HasValue)
 			{
 				query = (IOrderedQueryable<SafeTransaction>)query.Where(c => c.Created_Date >= from.Value);
@@ -379,6 +401,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 
 			var fridgeLists = await query.ToListAsync();
 
+			var totalRecords = fridgeLists.Count();
 
 			var fridgeList = fridgeLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
@@ -408,6 +431,7 @@ namespace AFayedFarm.Repositories.FinancialSafe
 				response.PageSize = pageSize;
 				response.LastPage = (int)Math.Ceiling((double)fridgeLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 			}
 
 			return response;

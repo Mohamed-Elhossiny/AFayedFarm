@@ -60,7 +60,7 @@ namespace AFayedFarm.Controllers
 
 			var clientUpdated = await clientRepo.UpdateClient(id, clientDto);
 			if (clientUpdated.ResponseID == 1)
-				return Ok(clientUpdated);
+				return Ok(clientUpdated.ResponseValue);
 			else return BadRequest(clientUpdated.ResponseValue);
 		}
 

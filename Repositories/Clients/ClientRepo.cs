@@ -25,7 +25,8 @@ namespace AFayedFarm.Repositories.Clients
 				var Client = new Client()
 				{
 					ClientName = clientDto.Name,
-					Create_Date = DateTime.Now
+					Create_Date = DateTime.Now,
+					Total = 0
 				};
 				await context.Clients.AddAsync(Client);
 				await context.SaveChangesAsync();

@@ -13,6 +13,7 @@
         public int? CurrentPage { get; set; }
         public int? PageSize { get; set; }
         public int? LastPage { get; set; }
+        public int? TotalRecords { get; set; }
         public T? ResponseValue { get; set; }
 
         public void Dispose() { }
