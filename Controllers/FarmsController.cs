@@ -1,4 +1,5 @@
 ﻿using AFayedFarm.Dtos;
+using AFayedFarm.Global;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,48 +23,64 @@ namespace AFayedFarm.Controllers
 		[HttpPost("~/AddFarm")]
 		public async Task<IActionResult> AddFarmAsync(AddFarmDto farmDto)
 		{
+			var response = new RequestResponse<FarmDto> { ResponseID = 0, ResponseValue = new FarmDto() };
 			if (farmDto == null)
 				return BadRequest("Please Enter Farm Name");
 			var farm = await farmsRepo.AddFarmAsync(farmDto);
 			if (farm.ID != 0)
 			{
-				return Ok(farm);
+				response.ResponseID = 1;
+				response.ResponseValue = farm;
+				return Ok(response);
 			}
-			return Conflict("There is farm exists with the same name");
+			response.ResponseMessage = "There is farm exists with the same name";
+			return Ok(response);
 		}
 
 		[HttpGet("~/GetAllFarms")]
 		public async Task<IActionResult> GetAllFarms()
 		{
+			var response = new RequestResponse<List<FarmDto>> { ResponseID = 0, ResponseValue = new List<FarmDto>() };
 			var allFarms = await farmsRepo.GetFarmsAsync();
 			if (allFarms.Count() != 0)
-				return Ok(allFarms);
-			return Conflict("No Data Found");
+			{
+				response.ResponseValue = allFarms;
+				response.ResponseID = 1;
+				return Ok(response);
+			}
+			response.ResponseMessage = "No Data Found";
+			return Ok(response);
 		}
 
 		[HttpGet("~/GetFarmById")]
 		public async Task<IActionResult> GetFarmById(int id)
 		{
+			var response = new RequestResponse<FarmDto> { ResponseID = 0, ResponseValue = new FarmDto() };
 			var farmdb = await farmsRepo.GetFarmById(id);
 			if (farmdb.ID == 0)
-				return NotFound($"No Farm Found By ID {id}");
+			{
+				response.ResponseMessage = $"No Farm Found By ID {id}";
+				return Ok(response);
+			}
 			return Ok(farmdb);
 		}
 
 		[HttpPut("~/UpdateFarm")]
 		public async Task<IActionResult> UpdateFarm(int id, [FromBody] AddFarmDto farmDto)
 		{
-			var farmDb = await farmsRepo.GetFarmById(id);
-			if (farmDb.ID == 0)
-				return NotFound($"No farm found by this {id}");
 			if (farmDto.Name == "")
 				return BadRequest("Please Enter Farm Name");
-
+			var farmDb = await farmsRepo.GetFarmById(id);
+			if (farmDb.ID == 0)
+			{
+				var responseRequest = new RequestResponse<FarmDto> { ResponseID = 0, ResponseValue = new FarmDto() };
+				responseRequest.ResponseMessage = $"No farm found by this {id}";
+				return Ok(responseRequest);
+			}
 			var response = await farmsRepo.UpdateFarm(id, farmDto);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound(response.ResponseValue);
+			return Ok(response);
+			//else
+			//	return NotFound(response);
 		}
 
 		[HttpPost("~/AddFarmRecord")]
@@ -73,9 +90,12 @@ namespace AFayedFarm.Controllers
 				return BadRequest("Please Enter Farm And Product");
 			var response = await farmsRepo.AddFarmRecord(farmdto);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return BadRequest();
+			{
+				response.ResponseMessage = "Error in adding record";
+				return Ok(response);
+			}
 		}
 
 		[HttpGet("~/GetAllFarmRecords")]
@@ -83,9 +103,12 @@ namespace AFayedFarm.Controllers
 		{
 			var response = await farmsRepo.GetAllFarmRecordsWithTotal(farmid);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return NotFound("No Data Found");
+			{
+				response.ResponseMessage = "No Data Found";
+				return Ok(response);
+			}
 		}
 
 		[HttpGet("~/GetFarmRecord")]
@@ -93,9 +116,12 @@ namespace AFayedFarm.Controllers
 		{
 			var response = await farmsRepo.GetFarmRecordByID(recordId);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return NotFound("No Data Found");
+			{
+				response.ResponseMessage = "No Data Found";
+				return Ok(response);
+			}
 		}
 
 		[HttpPut("~/UpdateFarmRecord")]
@@ -105,38 +131,36 @@ namespace AFayedFarm.Controllers
 				return BadRequest("Please Select ID to update");
 			var response = await farmsRepo.UpdateFarmRecordAsync(recordId, farmdto);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return BadRequest(farmdto);
+			{
+				response.ResponseMessage = "Error in update record";
+				return Ok(response);
+			}
 		}
 
 
 		[HttpGet("~/GetFarmRecordWithData")]
-		public async Task<IActionResult> GetFarmsRecordWithData(int recordId,int pageNumber = 1,int pageSize = 100 )
+		public async Task<IActionResult> GetFarmsRecordWithData(int recordId, int pageNumber = 1, int pageSize = 500)
 		{
-			var response = await farmsRepo.GetFarmRecordWithFarmDataByID(recordId,pageNumber,pageSize);
+			var response = await farmsRepo.GetFarmRecordWithFarmDataByID(recordId, pageNumber, pageSize);
 			if (response.ResponseID == 1)
-				//return Ok(response);
-			return Ok(response.ResponseValue);
+				return Ok(response);
 			else if (response.ResponseValue?.ID == 0)
-				return NotFound($"NO Farm With this {recordId}");
+			{
+				response.ResponseMessage = $"NO Farm With this {recordId}";
+				return Ok(response);
+			}
 			else
 				response.ResponseMessage = "There is no records";
-				//return Ok(response);
-				return Ok(response.ResponseValue);
+			return Ok(response);
 		}
 
 		[HttpGet("~/AllProductsDetails")]
-		public async Task<IActionResult> AllProductsDetails(int pageNumber = 1,int pageSize = 500)
+		public async Task<IActionResult> AllProductsDetails(int pageNumber = 1, int pageSize = 500)
 		{
-			//if (id == 0)
-			//	return BadRequest("Enter Valid ID");
-			var response = await farmsRepo.GetProductsDetails(pageNumber,pageSize);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound(response.ResponseValue);
-
+			var response = await farmsRepo.GetProductsDetails(pageNumber, pageSize);
+			return Ok(response);
 		}
 
 		[HttpPost("~/PayToFarm")]
@@ -145,10 +169,7 @@ namespace AFayedFarm.Controllers
 			if (dto.Id == 0)
 				return BadRequest("Enter Valid Id");
 			var response = await farmsRepo.PayToFarm(dto);
-			if (response.ResponseID == 0)
-				return NotFound();
-			else
-				return Ok(response.ResponseValue);
+			return Ok(response);
 		}
 	}
 }

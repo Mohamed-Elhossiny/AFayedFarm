@@ -242,7 +242,7 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
-		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId, int currentPage = 1, int pageSize = 100)
+		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId, int currentPage, int pageSize)
 		{
 			var response = new RequestResponse<ExpenseRecordsWithDataDto> { ResponseID = 0, ResponseValue = new ExpenseRecordsWithDataDto() };
 			var expenseRecordLists = await context.ExpenseRecords
@@ -251,23 +251,23 @@ namespace AFayedFarm.Repositories.Expenses
 				.Where(c => c.ExpenseID == expenseId)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
-			var expenseRecordList = expenseRecordLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			//var expenseRecordList = expenseRecordLists.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Expense)
 				.Where(c => c.ExpenseID == expenseId && c.IsfromRecord == false)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
-			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			//var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 
-			if (expenseRecordList.Count != 0 || transactionRecordDb.Count != 0)
+			if (expenseRecordLists.Count != 0 || transactionRecordDbs.Count != 0)
 			{
 				var expesnseRecordListDto = new List<ExpenseRecordDto>();
 				var index = 1;
-				if (expenseRecordList.Count != 0)
+				if (expenseRecordLists.Count != 0)
 				{
-					foreach (var item in expenseRecordList)
+					foreach (var item in expenseRecordLists)
 					{
 						var expesnseRecordDto = new ExpenseRecordDto();
 						expesnseRecordDto.Id = index;
@@ -294,9 +294,9 @@ namespace AFayedFarm.Repositories.Expenses
 						expesnseRecordListDto.Add(expesnseRecordDto);
 					}
 				}
-				if (transactionRecordDb.Count != 0)
+				if (transactionRecordDbs.Count != 0)
 				{
-					foreach (var item in transactionRecordDb)
+					foreach (var item in transactionRecordDbs)
 					{
 						var transactionRecord = new ExpenseRecordDto();
 						transactionRecord.Id = index;
@@ -314,9 +314,12 @@ namespace AFayedFarm.Repositories.Expenses
 					}
 				}
 
+				expesnseRecordListDto = expesnseRecordListDto.Skip((currentPage - 1)*pageSize).Take(pageSize).ToList();
+
 				var totalRecords = expenseRecordLists.Count() + transactionRecordDbs.Count();
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
 				response.CurrentPage = currentPage;
+				response.TotalRecords = totalRecords;
 				response.PageSize = pageSize;
 				response.ResponseID = 1;
 				response.ResponseValue.ExpensesList = expesnseRecordListDto;

@@ -16,7 +16,7 @@ namespace AFayedFarm.Repositories.Products
 		}
 		public async Task<RequestResponse<ProductDto>> AddProduct(AddNewProductDto dto)
 		{
-			var response = new RequestResponse<ProductDto> { ResponseID = 0 };
+			var response = new RequestResponse<ProductDto> { ResponseID = 0,ResponseValue = new ProductDto() };
 			var productDB = await context.Products.Where(c => c.ProductName.ToLower() == dto.Name.ToLower()).SingleOrDefaultAsync();
 			if (productDB == null)
 			{
@@ -45,7 +45,7 @@ namespace AFayedFarm.Repositories.Products
 			return response;
 		}
 
-		public async Task<RequestResponse<List<ProductDto>>> GetAllProducts(int currentPage = 1,int pageSize = 100)
+		public async Task<RequestResponse<List<ProductDto>>> GetAllProducts(int currentPage,int pageSize)
 		{
 			var response = new RequestResponse<List<ProductDto>> { ResponseID = 0, ResponseValue = new List<ProductDto>() };
 			var productLists = await context.Products.OrderByDescending(c => c.Created_Date).ToListAsync();
@@ -71,6 +71,7 @@ namespace AFayedFarm.Repositories.Products
 				response.LastPage = (int)Math.Ceiling((double)productLists.Count() / pageSize);
 				response.CurrentPage = currentPage;
 				response.PageSize = pageSize;
+				response.TotalRecords = productLists.Count();
 
 				response.ResponseID = 1;
 				response.ResponseValue = productListDto;
@@ -80,7 +81,7 @@ namespace AFayedFarm.Repositories.Products
 
 		public async Task<RequestResponse<ProductDto>> UpdateProduct(int id, AddProductDto dto)
 		{
-			var response = new RequestResponse<ProductDto> { ResponseID = 0 };
+			var response = new RequestResponse<ProductDto> { ResponseID = 0,ResponseValue = new ProductDto() };
 			var productDb = await context.Products.Where(c => c.ProductID == id).FirstOrDefaultAsync();
 			if (productDb != null)
 			{

@@ -51,7 +51,7 @@ namespace AFayedFarm.Repositories.Employee
 			return response;
 		}
 
-		public async Task<RequestResponse<List<EmployeeDto>>> GetAllEmployee(int currentPage = 1, int pageSize = 100)
+		public async Task<RequestResponse<List<EmployeeDto>>> GetAllEmployee(int currentPage, int pageSize)
 		{
 			#region Check Monthly Salaries
 			var today = DateTime.UtcNow.Date;
@@ -99,6 +99,7 @@ namespace AFayedFarm.Repositories.Employee
 				response.PageSize = pageSize;
 				response.CurrentPage = currentPage;
 				response.LastPage = (int)Math.Ceiling((double)empDbs.Count() / pageSize);
+				response.TotalRecords = empDbs.Count();
 
 			}
 

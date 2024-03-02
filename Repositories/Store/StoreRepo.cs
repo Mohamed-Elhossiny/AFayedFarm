@@ -36,6 +36,7 @@ namespace AFayedFarm.Repositories.Store
 				response.LastPage = (int)Math.Ceiling((double)productsInStores.Count() / pageSize);
 				response.CurrentPage = currentPage;
 				response.PageSize = pageSize;
+				response.TotalRecords = productsInStores.Count();
 				response.ResponseID = 1;
 				response.ResponseValue = productList;
 			}

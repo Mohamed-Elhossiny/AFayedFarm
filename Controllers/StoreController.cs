@@ -11,31 +11,27 @@ namespace AFayedFarm.Controllers
 		private readonly IStoreRepo storeRepo;
 
 		public StoreController(IStoreRepo storeRepo)
-        {
+		{
 			this.storeRepo = storeRepo;
 		}
 
 		[HttpGet("~/GetStoreProducts")]
-		public async Task<IActionResult> GetStoreProducts(int currentPage = 1, int pageSize = 100)
+		public async Task<IActionResult> GetStoreProducts(int currentPage = 1, int pageSize = 500)
 		{
-			var response =await storeRepo.GetStoreProducts(currentPage,pageSize);
+			var response = await storeRepo.GetStoreProducts(currentPage, pageSize);
 			if (response.ResponseID == 1)
-				//return Ok(response);
-			return Ok(response.ResponseValue);
+				return Ok(response);
 			else
 				response.ResponseMessage = "There is no product in store";
-				//return Ok(response);
-				return NotFound();
+			return Ok(response);
+
 		}
 
 		[HttpPost("~/SetProductQtyToZero")]
 		public async Task<IActionResult> SetProductQtyToZero(int id)
 		{
 			var response = await storeRepo.SetProductQtyToZero(id);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound();
+			return Ok(response);
 		}
 
 	}

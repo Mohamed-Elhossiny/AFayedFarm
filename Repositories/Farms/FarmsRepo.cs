@@ -39,7 +39,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 		public async Task<RequestResponse<FarmRecordDto>> AddFarmRecord(AddFarmRecordDto farmDto)
 		{
-			var response = new RequestResponse<FarmRecordDto> { ResponseID = 0 };
+			var response = new RequestResponse<FarmRecordDto> { ResponseID = 0, ResponseValue = new FarmRecordDto() };
 			var farmProduct = new FarmsProduct();
 			if (farmDto != null)
 			{
@@ -88,7 +88,7 @@ namespace AFayedFarm.Repositories.Supplier
 				farmProduct.Remaining = remaining;
 				farmProduct.isPercentage = farmDto.isPercentage;
 				farmProduct.FinancialId = transaction.ID;
-				
+
 				await context.FarmsProducts.AddAsync(farmProduct);
 				await context.SaveChangesAsync();
 
@@ -279,7 +279,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 		public async Task<RequestResponse<FarmRecordDto>> GetFarmRecordByID(int recordID)
 		{
-			var response = new RequestResponse<FarmRecordDto> { ResponseID = 0 };
+			var response = new RequestResponse<FarmRecordDto> { ResponseID = 0, ResponseValue = new FarmRecordDto() };
 			var record = new FarmRecordDto();
 			var recordDb = await context.FarmsProducts
 				.Include(c => c.Farms)
@@ -324,21 +324,21 @@ namespace AFayedFarm.Repositories.Supplier
 				.OrderByDescending(c => c.Created_Date)
 				.Where(c => c.FarmsID == farmID).ToListAsync();
 
-			var records = framRecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			//var records = framRecords.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			var transactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Farm)
 				.Where(c => c.FarmID == farmID && c.IsfromRecord == false).OrderByDescending(c => c.Created_Date).ToListAsync();
 
-			var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			//var transactionRecordDb = transactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
-			if (records.Count != 0 || transactionRecordDb.Count != 0)
+			if (framRecords.Count != 0 || transactionRecordDbs.Count != 0)
 			{
 				var index = 1;
-				if (records.Count != 0)
+				if (framRecords.Count != 0)
 				{
 					decimal? remaining = 0;
-					foreach (var item in records)
+					foreach (var item in framRecords)
 					{
 						remaining = item.TotalPrice - item.Paied;
 						var record = new FarmRecordDto();
@@ -365,9 +365,9 @@ namespace AFayedFarm.Repositories.Supplier
 						farmsRecord.Add(record);
 					}
 				}
-				if (transactionRecordDb.Count != 0)
+				if (transactionRecordDbs.Count != 0)
 				{
-					foreach (var item in transactionRecordDb)
+					foreach (var item in transactionRecordDbs)
 					{
 						var transactionRecord = new FarmRecordDto();
 						transactionRecord.Id = index;
@@ -383,6 +383,9 @@ namespace AFayedFarm.Repositories.Supplier
 						farmsRecord.Add(transactionRecord);
 					}
 				}
+
+				farmsRecord = farmsRecord.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
 				var farmDataWithRecord = await GetFarmById(farmID);
 				var farmDB = await context.Farms.Where(f => f.FarmsID == farmID).FirstOrDefaultAsync();
 				var TotalRemainingWithRecord = farmDB!.TotalRemaining;
@@ -391,6 +394,7 @@ namespace AFayedFarm.Repositories.Supplier
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
 				response.CurrentPage = currentPage;
 				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
 				response.ResponseValue.Name = farmDataWithRecord.Name;
 				response.ResponseValue.ID = farmDataWithRecord.ID;
 				response.ResponseValue.Total = TotalRemainingWithRecord;
@@ -525,7 +529,7 @@ namespace AFayedFarm.Repositories.Supplier
 						financailReocrdDb.SafeID = 2;
 						financailReocrdDb.FarmID = farmDto.FarmsID;
 						financailReocrdDb.TypeID = farmDto.TypeId;
-						financailReocrdDb.Type = farmDto.TypeId!= null ? ((TransactionType)farmDto.TypeId).ToString():TransactionType.Pay.ToString();
+						financailReocrdDb.Type = farmDto.TypeId != null ? ((TransactionType)farmDto.TypeId).ToString() : TransactionType.Pay.ToString();
 						financailReocrdDb.Total = -1 * farmDto.Paied;
 						financailReocrdDb.Notes = farmDto.FarmsNotes;
 						financailReocrdDb.Created_Date = DateTime.Now;
@@ -550,11 +554,11 @@ namespace AFayedFarm.Repositories.Supplier
 					if (farmDto.TypeId == (int)TransactionType.Pay && recordDb.Paied < incomePayed)
 						farmDb!.TotalRemaining = farmDb.TotalRemaining - (incomePayed - recordDb.Paied);
 					else
-						farmDb!.TotalRemaining = farmDb.TotalRemaining + (recordDb.Paied - incomePayed );
+						farmDb!.TotalRemaining = farmDb.TotalRemaining + (recordDb.Paied - incomePayed);
 					context.Farms.Update(farmDb!);
 
 					await context.SaveChangesAsync();
-					
+
 				}
 
 				var remaining = (farmDto.Total - farmDto.Paied);
@@ -642,7 +646,7 @@ namespace AFayedFarm.Repositories.Supplier
 
 		public async Task<RequestResponse<List<FarmRecordWithoutDescriptionDto>>> GetProductsDetails(int pageNumber, int pageSize)
 		{
-			var response = new RequestResponse<List<FarmRecordWithoutDescriptionDto>>() { ResponseID = 0 };
+			var response = new RequestResponse<List<FarmRecordWithoutDescriptionDto>>() { ResponseID = 0, ResponseValue = new List<FarmRecordWithoutDescriptionDto>() };
 			var farmsRecord = new List<FarmRecordWithoutDescriptionDto>();
 
 			var farmRecords = await context.FarmsProducts
@@ -681,6 +685,11 @@ namespace AFayedFarm.Repositories.Supplier
 				}
 				response.ResponseID = 1;
 				response.ResponseValue = farmsRecord;
+				var totalRecords = farmRecords.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = pageNumber;
+				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
 				return response;
 			}
 			response.ResponseValue = farmsRecord;

@@ -22,10 +22,7 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetTotalbalance()
 		{
 			var response = await safeRepo.GetSafeBalance();
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound();
+			return Ok(response);
 		}
 
 		[HttpPost("~/AddBalanceToSafe")]
@@ -34,10 +31,7 @@ namespace AFayedFarm.Controllers
 			if (dto.Balance <= 0)
 				return BadRequest("Enter valid balance");
 			var response = await safeRepo.AddBalance(dto);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound();
+			return Ok(response);
 		}
 
 		[HttpPost("~/WithdrawFromSafe")]
@@ -46,7 +40,7 @@ namespace AFayedFarm.Controllers
 			if (dto.Total <= 0)
 				return BadRequest("Enter valid amount");
 			var response = await safeRepo.Withdraw(dto);
-			return Ok(response.ResponseValue);
+			return Ok(response);
 		}
 
 		[HttpPost("~/GetRecords")]
@@ -60,7 +54,7 @@ namespace AFayedFarm.Controllers
 			{
 				// All Records = 0
 				case 0:
-					var allRecords = await safeRepo.GetAllFinancialRecords(pageNumber, pageSize,from,to);
+					var allRecords = await safeRepo.GetAllFinancialRecords(pageNumber, pageSize, from, to);
 					if (allRecords.ResponseID == 1)
 						return Ok(allRecords);
 					else
@@ -114,7 +108,7 @@ namespace AFayedFarm.Controllers
 
 			}
 			return Ok($"Please enter valid record type{recordType}");
-			
+
 
 		}
 

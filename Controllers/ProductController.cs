@@ -21,36 +21,29 @@ namespace AFayedFarm.Controllers
 		[HttpGet("~/GetAllProducts")]
 		public async Task<IActionResult> GetAllProducts(int currentPage = 1, int pageSize = 500)
 		{
-			var response = await productRepo.GetAllProducts(currentPage,pageSize);
+			var response = await productRepo.GetAllProducts(currentPage, pageSize);
 			if (response.ResponseID == 1)
-				//return Ok(response);
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
 				response.ResponseMessage = "There is no products";
-				//return Ok(response);
-				return NotFound();
+			return Ok(response);
+
 		}
 
 		[HttpPost("~/AddNewProduct")]
 		public async Task<IActionResult> AddNewProduct(AddNewProductDto dto)
 		{
 			var response = await productRepo.AddProduct(dto);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else 
-				return NotFound();
+			return Ok(response);
 		}
 
 		[HttpPut("~/UpdateProduct")]
-		public async Task<IActionResult> UpdateProduct(int id,AddProductDto dto)
+		public async Task<IActionResult> UpdateProduct(int id, AddProductDto dto)
 		{
 			if (id == 0)
-				return BadRequest();
+				return BadRequest($"Enter valid id {id}");
 			var response = await productRepo.UpdateProduct(id, dto);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound();
+			return Ok(response);
 		}
 	}
 }

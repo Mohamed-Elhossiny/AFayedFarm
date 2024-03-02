@@ -534,6 +534,7 @@ namespace AFayedFarm.Repositories.Clients
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
 				response.CurrentPage = currentPage;
 				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
 
 				response.ResponseValue.TransactionsList = transactionListDto;
 				response.ResponseID = 1;

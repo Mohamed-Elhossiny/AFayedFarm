@@ -43,7 +43,7 @@ namespace AFayedFarm.Repositories.Fridges
 
 		public async Task<RequestResponse<FridgeRecordDto>> AddFridgeRecord(AddFridgeRecordDto dto)
 		{
-			var response = new RequestResponse<FridgeRecordDto> { ResponseID = 0 };
+			var response = new RequestResponse<FridgeRecordDto> { ResponseID = 0,ResponseValue = new FridgeRecordDto() };
 			var fridgeProduct = new FridgeRecord();
 			if (dto != null)
 			{
@@ -155,7 +155,7 @@ namespace AFayedFarm.Repositories.Fridges
 
 		public async Task<RequestResponse<List<FridgeDto>>> GetFridgesAsync()
 		{
-			var response = new RequestResponse<List<FridgeDto>> { ResponseID = 0 };
+			var response = new RequestResponse<List<FridgeDto>> { ResponseID = 0,ResponseValue = new List<FridgeDto>() };
 			var allFridges = new List<FridgeDto>();
 			var fridgesDb = await context.Fridges.OrderByDescending(c => c.Created_Date).ToListAsync();
 			if (fridgesDb.Count != 0)
@@ -540,6 +540,7 @@ namespace AFayedFarm.Repositories.Fridges
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
 				response.CurrentPage = currentPage;
 				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
 
 				response.ResponseValue.Name = fridgeDataWithRecord.ResponseValue!.Name;
 				response.ResponseValue.ID = fridgeDataWithRecord.ResponseValue.ID;
@@ -585,7 +586,7 @@ namespace AFayedFarm.Repositories.Fridges
 
 		public async Task<RequestResponse<FridgeRecordDto>> UpdateFridgeRecordAsync(int recordID, AddFridgeRecordDto dto)
 		{
-			var response = new RequestResponse<FridgeRecordDto> { ResponseID = 0 };
+			var response = new RequestResponse<FridgeRecordDto> { ResponseID = 0,ResponseValue = new FridgeRecordDto() };
 			var fridgeProduct = await context.FridgeRecords
 				.Include(c => c.Fridge)
 				.Include(c => c.Product)

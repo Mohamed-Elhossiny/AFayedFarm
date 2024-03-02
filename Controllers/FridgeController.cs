@@ -25,18 +25,17 @@ namespace AFayedFarm.Controllers
 			var response = await fridgeRepo.AddFridgeAsync(fridgeDto);
 			if (response.ResponseID != 0)
 			{
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			}
-			return Conflict("There is farm exists with the same name");
+			response.ResponseMessage = "There is farm exists with the same name";
+			return Ok(response);
 		}
 
 		[HttpGet("~/GetAllFridges")]
 		public async Task<IActionResult> GetAllFridges()
 		{
 			var allFarms = await fridgeRepo.GetFridgesAsync();
-			if (allFarms.ResponseID != 0)
-				return Ok(allFarms.ResponseValue);
-			return Ok(allFarms.ResponseValue);
+			return Ok(allFarms);
 		}
 
 		[HttpGet("~/GetFridgeById")]
@@ -44,24 +43,29 @@ namespace AFayedFarm.Controllers
 		{
 			var response = await fridgeRepo.GetFridgeById(id);
 			if (response.ResponseID == 0)
-				return NotFound($"No Fridge Found By ID {id}");
-			return Ok(response.ResponseValue);
+			{
+				response.ResponseMessage = $"No Fridge Found By ID {id}";
+				return Ok(response);
+			}
+			return Ok(response);
 		}
 
 		[HttpPut("~/UpdateFridge")]
 		public async Task<IActionResult> UpdateFridge(int id, [FromBody] AddFridgeDto farmDto)
 		{
-			var fridgeDb = await fridgeRepo.GetFridgeById(id);
-			if (fridgeDb.ResponseID == 0)
-				return NotFound($"No fridge found by this {id}");
 			if (farmDto.Name == "")
 				return BadRequest("Please Enter Farm Name");
 
+			var fridgeDb = await fridgeRepo.GetFridgeById(id);
+			if (fridgeDb.ResponseID == 0)
+			{
+				fridgeDb.ResponseMessage = $"No fridge found by this {id}";
+				return Ok(fridgeDb);
+			}
+
 			var response = await fridgeRepo.UpdateFridge(id, farmDto);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return NotFound(response.ResponseValue);
+			return Ok(response);
+
 		}
 
 		[HttpPost("~/AddFridgeRecord")]
@@ -70,10 +74,7 @@ namespace AFayedFarm.Controllers
 			if (fridgedto.FridgeID == 0 || fridgedto.ProductID == 0)
 				return BadRequest("Please Enter Fridge And Product");
 			var response = await fridgeRepo.AddFridgeRecord(fridgedto);
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return BadRequest();
+			return Ok(response);
 		}
 
 		[HttpGet("~/GetAllFridgeRecords")]
@@ -81,9 +82,12 @@ namespace AFayedFarm.Controllers
 		{
 			var response = await fridgeRepo.GetAllFridgeRecordsWithTotal(id);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return NotFound("No Data Found");
+			{
+				response.ResponseMessage = "No Data Found";
+				return Ok(response);
+			}
 		}
 
 		[HttpGet("~/GetFridgeRecord")]
@@ -91,9 +95,12 @@ namespace AFayedFarm.Controllers
 		{
 			var response = await fridgeRepo.GetFridgeRecordByID(id);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return NotFound("No Data Found");
+			{
+				response.ResponseMessage = "No Data Found";
+				return Ok(response);
+			}
 		}
 
 		[HttpPut("~/UpdateFridgeRecord")]
@@ -103,21 +110,24 @@ namespace AFayedFarm.Controllers
 				return BadRequest("Please Select ID to update");
 			var response = await fridgeRepo.UpdateFridgeRecordAsync(recordId, fridgedto);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
-				return BadRequest(fridgedto);
+			{
+				response.ResponseMessage = "Error in Update Fridge";
+				return Ok(response);
+			}
 		}
 
 		[HttpGet("~/GetFridgeRecordsWithData")]
-		public async Task<IActionResult> GetFridgeRecordWithData(int fridgeId,int pageNumber = 1,int pageSize = 100)
+		public async Task<IActionResult> GetFridgeRecordWithData(int fridgeId, int pageNumber = 1, int pageSize = 500)
 		{
-			var response = await fridgeRepo.GetFridgeRecordWithFridgeDataByID(fridgeId,pageNumber,pageSize);
+			var response = await fridgeRepo.GetFridgeRecordWithFridgeDataByID(fridgeId, pageNumber, pageSize);
 			if (response.ResponseID == 1)
-				//return Ok(response);
-			return Ok(response.ResponseValue);
+				return Ok(response);
+
 			else
 				response.ResponseMessage = "There is on records";
-				return Ok(response.ResponseValue);
+			return Ok(response);
 		}
 
 		[HttpPost("~/PayToFridge")]
@@ -126,10 +136,7 @@ namespace AFayedFarm.Controllers
 			if (dto.Id == 0)
 				return BadRequest("Enter Valid Id");
 			var response = await fridgeRepo.PayToFridge(dto);
-			if (response.ResponseID == 0)
-				return NotFound();
-			else
-				return Ok(response.ResponseValue);
+			return Ok(response);
 		}
 	}
 }
