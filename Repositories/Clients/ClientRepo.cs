@@ -195,20 +195,37 @@ namespace AFayedFarm.Repositories.Clients
 
 		}
 
-		public async Task<List<ClientDto>> GetClientAsync()
+		public async Task<RequestResponse<List<ClientDto>>> GetClientAsync(int currentPage, int pageSize)
 		{
-			var clientsDb = await context.Clients.Select(c => new ClientDto
+			var response = new RequestResponse<List<ClientDto>> { ResponseID = 0, ResponseValue = new List<ClientDto>() };
+			var clientsDb = await context.Clients.OrderByDescending(c=>c.Create_Date).ToListAsync();
+			var clientList = clientsDb.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+			if (clientList.Count() != 0)
 			{
-				ID = c.ClientID,
-				Name = c.ClientName,
-				Total = c.Total ?? 0,
-				Created_Date = c.Create_Date
-				//Created_Date = DateOnly.FromDateTime(c.Create_Date ?? DateTime.Now)
-			}).OrderByDescending(c => c.Created_Date).ToListAsync();
-			if (clientsDb.Count() != 0)
-				return clientsDb;
-			else
-				return new List<ClientDto>();
+				var list = new List<ClientDto>();
+				foreach (var item in clientList)
+				{
+					var client = new ClientDto();
+					client.ID = item.ClientID;
+					client.Name = item.ClientName;
+					client.Total = item.Total ??0;
+					client.Created_Date = item.Create_Date;
+
+					list.Add(client);
+				}
+				response.ResponseID = 1;
+				response.ResponseValue = list;
+
+				var totalRecords = clientsDb.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = currentPage;
+				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
+
+				return response;
+			}
+			return response;
 		}
 
 		public async Task<RequestResponse<ClientDto>> GetClientById(int id)
@@ -451,23 +468,23 @@ namespace AFayedFarm.Repositories.Clients
 				.Include(c => c.TransactionProducts!).ThenInclude(c => c.Product)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
-			var transactions = transactionsDb.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			//var transactions = transactionsDb.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 			var financialtransactionRecordDbs = await context.SafeTransactions
 				.Include(c => c.Client)
 				.Where(c => c.CLientID == clientid && c.IsfromRecord == false)
 				.OrderByDescending(c => c.Created_Date).ToListAsync();
 
-			var financialtransactionRecordDb = financialtransactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+			//var financialtransactionRecordDb = financialtransactionRecordDbs.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
-			if (transactions.Count != 0 || financialtransactionRecordDb.Count != 0)
+			if (transactionsDb.Count != 0 || financialtransactionRecordDbs.Count != 0)
 			{
 				var transactionListDto = new List<TransactionMainDataDto>();
 
-				if (transactions.Count != 0)
+				if (transactionsDb.Count != 0)
 				{
 
-					foreach (var transaction in transactions)
+					foreach (var transaction in transactionsDb)
 					{
 						var transactionDto = new TransactionMainDataDto();
 						var productListDto = new List<ProductListDto>();
@@ -513,9 +530,9 @@ namespace AFayedFarm.Repositories.Clients
 					}
 				}
 
-				if (financialtransactionRecordDb.Count != 0)
+				if (financialtransactionRecordDbs.Count != 0)
 				{
-					foreach (var item in financialtransactionRecordDb)
+					foreach (var item in financialtransactionRecordDbs)
 					{
 						var financialtransactionRecord = new TransactionMainDataDto();
 						financialtransactionRecord.ID = item.ID;
@@ -529,6 +546,8 @@ namespace AFayedFarm.Repositories.Clients
 						transactionListDto.Add(financialtransactionRecord);
 					}
 				}
+
+				transactionListDto = transactionListDto.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
 				var totalRecords = transactionsDb.Count() + financialtransactionRecordDbs.Count();
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);

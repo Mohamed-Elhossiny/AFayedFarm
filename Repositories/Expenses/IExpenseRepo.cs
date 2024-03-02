@@ -6,7 +6,7 @@ namespace AFayedFarm.Repositories.Expenses
 	public interface IExpenseRepo
 	{
 		Task<RequestResponse<ExpenseDto>> AddExpenseAsync(AddExpenseDto expenseDto);
-		Task<RequestResponse<List<ExpenseDto>>> GetExpenseAsync();
+		Task<RequestResponse<List<ExpenseDto>>> GetExpenseAsync(int pageNumber, int pageSize);
 		Task<RequestResponse<ExpenseDto>> GetExpenseByID(int id);
 		Task<RequestResponse<ExpenseDto>> UpdateExpenseAsync(int id, AddExpenseDto expenseDto);
 		Task<RequestResponse<ExpenseTypeDto>> AddExpenseTypeAsync(AddExpenseTypeDto dto);

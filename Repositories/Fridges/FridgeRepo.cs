@@ -153,21 +153,24 @@ namespace AFayedFarm.Repositories.Fridges
 			return response;
 		}
 
-		public async Task<RequestResponse<List<FridgeDto>>> GetFridgesAsync()
+		public async Task<RequestResponse<List<FridgeDto>>> GetFridgesAsync(int pageNumber, int pageSize)
 		{
 			var response = new RequestResponse<List<FridgeDto>> { ResponseID = 0,ResponseValue = new List<FridgeDto>() };
 			var allFridges = new List<FridgeDto>();
 			var fridgesDb = await context.Fridges.OrderByDescending(c => c.Created_Date).ToListAsync();
-			if (fridgesDb.Count != 0)
+
+			var list = fridgesDb.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+			if (list.Count() != 0)
 			{
-				foreach (var item in fridgesDb)
+				foreach (var item in list)
 				{
 					var fridge = new FridgeDto();
 					fridge.ID = item.FridgeID;
 					fridge.Name = item.FridgeName;
 					fridge.Total = item.TotalRemaining;
 					fridge.Created_Date = item.Created_Date ?? DateTime.Now;
-					//fridge.Created_Date = DateOnly.FromDateTime(item.Created_Date ?? DateTime.Now);
+					
 					if (item.TotalRemaining == null)
 					{
 						var remaning = await CalculateTotalRemainingFromRecords(item.FridgeID);
@@ -177,6 +180,14 @@ namespace AFayedFarm.Repositories.Fridges
 				}
 				response.ResponseID = 1;
 				response.ResponseValue = allFridges;
+
+				var totalRecords = fridgesDb.Count();
+
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = pageNumber;
+				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
+
 				return response;
 			}
 			response.ResponseValue = allFridges;

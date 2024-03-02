@@ -37,16 +37,9 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetAllClients")]
-		public async Task<IActionResult> GetAllClients()
+		public async Task<IActionResult> GetAllClients(int pageNumber = 1, int pageSize = 500)
 		{
-			var response = new RequestResponse<List<ClientDto>> { ResponseID = 0, ResponseValue = new List<ClientDto>() };
-			var allClients = await clientRepo.GetClientAsync();
-			if (allClients.Count() != 0)
-			{
-				response.ResponseID = 1;
-				response.ResponseValue = allClients;
-				return Ok(response);
-			}
+			var response = await clientRepo.GetClientAsync(pageNumber,pageSize);
 			return Ok(response);
 		}
 
@@ -103,11 +96,11 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetTransactionsWithClientData")]
-		public async Task<IActionResult> GetTransactionsWithClientData(int clientID, int currentPage = 1, int pageSize = 500)
+		public async Task<IActionResult> GetTransactionsWithClientData(int clientID, int pageNumber = 1, int pageSize = 500)
 		{
 			if (clientID == 0)
 				return BadRequest();
-			var response = await clientRepo.GetTransactionsWithCleintData(clientID, currentPage, pageSize);
+			var response = await clientRepo.GetTransactionsWithCleintData(clientID, pageNumber, pageSize);
 			return Ok(response);
 		}
 

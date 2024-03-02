@@ -13,7 +13,7 @@ namespace AFayedFarm.Controllers
 		private readonly IExpenseRepo expenseRepo;
 
 		public ExpensesController(IExpenseRepo expenseRepo)
-        {
+		{
 			this.expenseRepo = expenseRepo;
 		}
 		[HttpPost("~/AddExpense")]
@@ -34,11 +34,9 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetAllExpenses")]
-		public async Task<IActionResult> GetAllExpenses()
+		public async Task<IActionResult> GetAllExpenses(int pageNumber = 1, int pageSize = 500)
 		{
-			var response = await expenseRepo.GetExpenseAsync();
-			if (response.ResponseID == 1)
-				return Ok(response);
+			var response = await expenseRepo.GetExpenseAsync(pageNumber,pageSize);
 			return Ok(response);
 		}
 
@@ -68,8 +66,6 @@ namespace AFayedFarm.Controllers
 				return Ok(response);
 			}
 			var requestResponse = await expenseRepo.UpdateExpenseAsync(id, expenseDto);
-			if (requestResponse.ResponseID == 1)
-				return Ok(requestResponse);
 			return Ok(requestResponse);
 		}
 
@@ -96,12 +92,9 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetAllExepenseTypes()
 		{
 			var response = await expenseRepo.GetAllExpenseTypes();
-			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
-			else
-				return Ok(response.ResponseValue);
+			return Ok(response);
 		}
-		
+
 		[HttpPost("~/AddExpenseRecord")]
 		public async Task<IActionResult> AddExpenseRecord(AddExpenseRecordDto dto)
 		{
@@ -110,10 +103,8 @@ namespace AFayedFarm.Controllers
 			if (dto == null)
 				return BadRequest();
 			var response = await expenseRepo.AddExpenseRecordAsync(dto);
-			if (response.ResponseID == 1)
-				return Ok(response);
-			else
-				return Ok(response);
+			return Ok(response);
+
 		}
 
 		[HttpGet("~/GetExpenseRecordById")]
@@ -121,7 +112,7 @@ namespace AFayedFarm.Controllers
 		{
 			var response = await expenseRepo.GetExpenseRecordById(id);
 			if (response.ResponseID == 1)
-				return Ok(response.ResponseValue);
+				return Ok(response);
 			else
 			{
 				response.ResponseMessage = $"No Expense Record with ID {id}";
@@ -136,11 +127,9 @@ namespace AFayedFarm.Controllers
 				return BadRequest();
 			if (dto.ExpenseID == null || dto.ExpenseID == 0)
 				return BadRequest();
-			var response = await expenseRepo.UpdateExpenseRecord(id,dto);
-			if (response.ResponseID == 1)
-				return Ok(response);
-			else
-				return Ok(response);
+			var response = await expenseRepo.UpdateExpenseRecord(id, dto);
+			return Ok(response);
+
 		}
 
 		[HttpPut("~/UpdateExpenseType")]
@@ -160,18 +149,16 @@ namespace AFayedFarm.Controllers
 			if (id == 0)
 				return BadRequest("Please enter valid record id");
 			var response = await expenseRepo.GetExpensesForFarmRecord(id);
-			if (response.ResponseID == 1)
-				return Ok(response);
-			else
-				return Ok(response);
+			return Ok(response);
+
 		}
 
 		[HttpGet("~/GetExpensesWithData")]
-		public async Task<IActionResult> GetExpensesWithData(int id,int pageNumber = 1,int pageSize = 500)
+		public async Task<IActionResult> GetExpensesWithData(int id, int pageNumber = 1, int pageSize = 500)
 		{
 			if (id == 0)
 				return BadRequest("There is no data for this id");
-			var response = await expenseRepo.GetExpensesRecordsWithDataByExpenseId(id,pageNumber,pageSize);
+			var response = await expenseRepo.GetExpensesRecordsWithDataByExpenseId(id, pageNumber, pageSize);
 			if (response.ResponseID == 1)
 				return Ok(response);
 			else

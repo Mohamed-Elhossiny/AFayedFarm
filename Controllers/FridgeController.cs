@@ -32,9 +32,9 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetAllFridges")]
-		public async Task<IActionResult> GetAllFridges()
+		public async Task<IActionResult> GetAllFridges(int pageNumber = 1, int pageSize = 500)
 		{
-			var allFarms = await fridgeRepo.GetFridgesAsync();
+			var allFarms = await fridgeRepo.GetFridgesAsync(pageNumber,pageSize);
 			return Ok(allFarms);
 		}
 

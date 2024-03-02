@@ -64,11 +64,9 @@ namespace AFayedFarm.Controllers
 			var response = await repo.GetAllEmployee(currentPage,pageSize);
 			if (response.ResponseID == 1)
 				return Ok(response);
-			//return Ok(response.ResponseValue);
 			else
 				response.ResponseMessage = "There is no employee";
 				return Ok(response);
-				//return NotFound();
 		}
 
 		[HttpPost("~/PayToEmployee")]

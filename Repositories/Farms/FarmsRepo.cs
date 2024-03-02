@@ -415,8 +415,9 @@ namespace AFayedFarm.Repositories.Supplier
 			return response;
 		}
 
-		public async Task<List<FarmDto>> GetFarmsAsync()
+		public async Task<RequestResponse<List<FarmDto>>> GetFarmsAsync(int pageNumber,int pageSize)
 		{
+			var response = new RequestResponse<List<FarmDto>> { ResponseID = 0, ResponseValue = new List<FarmDto>() };
 			var AllFarms = new List<FarmDto>();
 			var farmsDb = await context.Farms.OrderByDescending(c => c.Create_Date).Select(f => new FarmDto
 			{
@@ -424,19 +425,35 @@ namespace AFayedFarm.Repositories.Supplier
 				Name = f.FarmsName,
 				Total = f.TotalRemaining,
 				Created_Date = f.Create_Date ?? DateTime.Now
-				//Created_Date = DateOnly.FromDateTime(f.Create_Date ?? DateTime.Now)
 			}).ToListAsync();
 
-			foreach (var item in farmsDb)
+			var list = farmsDb.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+			if (list.Count() != 0)
 			{
-				if (item.Total == null)
+
+				foreach (var item in list)
 				{
-					var remaning = await CalculateTotalRemainingFromRecords((int)item.ID!);
-					item.Total = remaning.ResponseValue;
+					if (item.Total == null)
+					{
+						var remaning = await CalculateTotalRemainingFromRecords((int)item.ID!);
+						item.Total = remaning.ResponseValue;
+					}
+					AllFarms.Add(item);
 				}
-				AllFarms.Add(item);
+
+				response.ResponseID = 1;
+				response.ResponseValue = AllFarms;
+
+				var totalRecords = farmsDb.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = pageNumber;
+				response.PageSize = pageSize;
+				response.TotalRecords = totalRecords;
+				return response;
+
 			}
-			return AllFarms;
+			return response;
 		}
 
 		public async Task<RequestResponse<decimal>> CalculateTotalRemainingFromRecords(int farmsID)

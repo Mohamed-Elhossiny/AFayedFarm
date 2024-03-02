@@ -17,7 +17,7 @@ namespace AFayedFarm.Repositories.Expenses
 
 		public async Task<RequestResponse<ExpenseDto>> AddExpenseAsync(AddExpenseDto expenseDto)
 		{
-			var response = new RequestResponse<ExpenseDto>() { ResponseValue = new ExpenseDto() };
+			var response = new RequestResponse<ExpenseDto>() { ResponseID = 0, ResponseValue = new ExpenseDto() };
 			var expensedb = context.Expenses.Include(c => c.ExpenseType).Where(f => f.ExpenseName!.ToLower() == expenseDto.Name!.ToLower()).FirstOrDefault();
 			if (expensedb == null)
 			{
@@ -148,7 +148,7 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
-		public async Task<RequestResponse<List<ExpenseDto>>> GetExpenseAsync()
+		public async Task<RequestResponse<List<ExpenseDto>>> GetExpenseAsync(int pageNumber, int pageSize)
 		{
 			var response = new RequestResponse<List<ExpenseDto>>() { ResponseID = 0, ResponseValue = new List<ExpenseDto>() };
 
@@ -161,9 +161,12 @@ namespace AFayedFarm.Repositories.Expenses
 				ExpenseTypeName = c.ExpenseTypeId != 0 ? c.ExpenseType!.ExpenseTypeName : "",
 				Type = c.ExpenseTypeId != 0 ? c.ExpenseTypeId : 0,
 			}).ToListAsync();
-			if (expensesDb.Count != 0)
+
+			var list = expensesDb.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+			if (list.Count != 0)
 			{
-				foreach (var item in expensesDb)
+				foreach (var item in list)
 				{
 					if (item.TotalRemaining == null)
 					{
@@ -175,13 +178,19 @@ namespace AFayedFarm.Repositories.Expenses
 
 				response.ResponseValue = expenseListDto;
 				response.ResponseID = 1;
+
+				var totalRecords = expensesDb.Count();
+				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+				response.CurrentPage = pageNumber;
+				response.TotalRecords = totalRecords;
+				response.PageSize = pageSize;
 			}
 			return response;
 		}
 
 		public async Task<RequestResponse<ExpenseDto>> GetExpenseByID(int id)
 		{
-			var response = new RequestResponse<ExpenseDto>() { ResponseValue = new ExpenseDto() };
+			var response = new RequestResponse<ExpenseDto>() { ResponseID = 0, ResponseValue = new ExpenseDto() };
 			var expenseDb = await context.Expenses.Include(c => c.ExpenseType).Where(e => e.ExpenseID == id).FirstOrDefaultAsync();
 			if (expenseDb != null)
 			{
@@ -242,7 +251,7 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
-		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId, int currentPage, int pageSize)
+		public async Task<RequestResponse<ExpenseRecordsWithDataDto>> GetExpensesRecordsWithDataByExpenseId(int expenseId, int pageNumber, int pageSize)
 		{
 			var response = new RequestResponse<ExpenseRecordsWithDataDto> { ResponseID = 0, ResponseValue = new ExpenseRecordsWithDataDto() };
 			var expenseRecordLists = await context.ExpenseRecords
@@ -278,7 +287,7 @@ namespace AFayedFarm.Repositories.Expenses
 						expesnseRecordDto.ExpenseName = item?.Expense?.ExpenseName;
 						expesnseRecordDto.ExpenseTypeName = item?.Expense?.ExpenseType.ExpenseTypeName;
 						expesnseRecordDto.ExpenseDate = item.ExpenseDate.HasValue ? item.ExpenseDate : DateTime.Now;
-						expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date: DateTime.Now;
+						expesnseRecordDto.Created_Date = item.Created_Date.HasValue ? item.Created_Date : DateTime.Now;
 						expesnseRecordDto.Quantity = item.Quantity;
 						expesnseRecordDto.Value = item.Value;
 						expesnseRecordDto.Price = item.Price;
@@ -314,11 +323,11 @@ namespace AFayedFarm.Repositories.Expenses
 					}
 				}
 
-				expesnseRecordListDto = expesnseRecordListDto.Skip((currentPage - 1)*pageSize).Take(pageSize).ToList();
+				expesnseRecordListDto = expesnseRecordListDto.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
 				var totalRecords = expenseRecordLists.Count() + transactionRecordDbs.Count();
 				response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
-				response.CurrentPage = currentPage;
+				response.CurrentPage = pageNumber;
 				response.TotalRecords = totalRecords;
 				response.PageSize = pageSize;
 				response.ResponseID = 1;
@@ -351,11 +360,11 @@ namespace AFayedFarm.Repositories.Expenses
 			return response;
 		}
 
-		public async Task<RequestResponse<ExpenseTypeDto>> UpdateExpenseTypeAsync(int id,AddExpenseTypeDto dto)
+		public async Task<RequestResponse<ExpenseTypeDto>> UpdateExpenseTypeAsync(int id, AddExpenseTypeDto dto)
 		{
 			var response = new RequestResponse<ExpenseTypeDto> { ResponseID = 0, ResponseValue = new ExpenseTypeDto() };
 			var expenseType = await context.TypeOfExpenses.FindAsync(id);
-			if(expenseType!= null)
+			if (expenseType != null)
 			{
 				expenseType.ExpenseTypeName = dto.ExpenseTypeName;
 				context.TypeOfExpenses.Update(expenseType);
@@ -641,7 +650,9 @@ namespace AFayedFarm.Repositories.Expenses
 				financialSafe!.Total = financialSafe.Total - dto.Total;
 			context.Safe.Update(financialSafe!);
 
-			// Subtract Pay Amount from Total Remaining of Fram
+			// Subtract Pay Amount from Total Remaining of Expense
+			if (expenseDb.TotalRemaining == null)
+				expenseDb.TotalRemaining = 0;
 			expenseDb.TotalRemaining -= dto.Total;
 			context.Expenses.Update(expenseDb);
 

@@ -6,7 +6,7 @@ namespace AFayedFarm.Repositories.Fridges
 	public interface IFridgeRepo
 	{
 		Task<RequestResponse<FridgeDto>> AddFridgeAsync(AddFridgeDto dto);
-		Task<RequestResponse<List<FridgeDto>>> GetFridgesAsync();
+		Task<RequestResponse<List<FridgeDto>>> GetFridgesAsync(int pageNumber,int pageSize);
 		Task<RequestResponse<FridgeDto>> GetFridgeById(int id);
 		Task<RequestResponse<FridgeDto>> UpdateFridge(int id, AddFridgeDto dto);
 		Task<RequestResponse<FridgeRecordDto>> AddFridgeRecord(AddFridgeRecordDto farmDto);

@@ -38,16 +38,11 @@ namespace AFayedFarm.Controllers
 		}
 
 		[HttpGet("~/GetAllFarms")]
-		public async Task<IActionResult> GetAllFarms()
+		public async Task<IActionResult> GetAllFarms(int pageNumber = 1, int pageSize = 500)
 		{
-			var response = new RequestResponse<List<FarmDto>> { ResponseID = 0, ResponseValue = new List<FarmDto>() };
-			var allFarms = await farmsRepo.GetFarmsAsync();
-			if (allFarms.Count() != 0)
-			{
-				response.ResponseValue = allFarms;
-				response.ResponseID = 1;
+			var response = await farmsRepo.GetFarmsAsync(pageNumber,pageSize);
+			if (response.ResponseID == 1)
 				return Ok(response);
-			}
 			response.ResponseMessage = "No Data Found";
 			return Ok(response);
 		}

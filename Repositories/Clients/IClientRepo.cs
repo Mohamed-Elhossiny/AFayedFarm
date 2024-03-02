@@ -10,7 +10,7 @@ namespace AFayedFarm.Repositories.Clients
 		////Add RequestResponse as a return for old Function
 		Task<ClientDto> AddClientAsync(AddClientDto clientDto);
 		Task<ClientDto> GetClientByName(string clientName);
-		Task<List<ClientDto>> GetClientAsync();
+		Task<RequestResponse<List<ClientDto>>> GetClientAsync(int currentPage, int pageSize);
 		Task<RequestResponse<ClientDto>> GetClientById(int id);
 		Task<RequestResponse<ClientDto>> UpdateClient(int id, AddClientDto clientDto);
 		Task<RequestResponse<TransactionMainDataDto>> AddTransaction(AddTransactionMainDataDto dto);
