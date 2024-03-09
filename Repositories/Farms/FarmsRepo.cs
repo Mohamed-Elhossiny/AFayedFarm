@@ -456,6 +456,42 @@ namespace AFayedFarm.Repositories.Supplier
 			return response;
 		}
 
+		#region Offline
+		//public async Task<RequestResponse<List<FarmRecordsWithFarmDataDto>>> GetAllFarmsOffline(int pageNumber, int pageSize)
+		//{
+		//	var response = new RequestResponse<List<FarmRecordsWithFarmDataDto>> { ResponseID = 0, ResponseValue = new List<FarmRecordsWithFarmDataDto>() };
+		//	var AllFarms = new List<FarmRecordsWithFarmDataDto>();
+		//	var farmsDb = await context.Farms.OrderByDescending(c => c.Create_Date).ToListAsync();
+
+		//	var list = farmsDb.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+		//	if (list.Count() != 0)
+		//	{
+
+		//		//foreach (var item in list)
+		//		//{
+		//		//	if (item.Total == null)
+		//		//	{
+		//		//		var remaning = await CalculateTotalRemainingFromRecords((int)item.ID!);
+		//		//		item.Total = remaning.ResponseValue;
+		//		//	}
+		//		//	AllFarms.Add(item);
+		//		//}
+
+		//		response.ResponseID = 1;
+		//		response.ResponseValue = AllFarms;
+
+		//		var totalRecords = farmsDb.Count();
+		//		response.LastPage = (int)Math.Ceiling((double)totalRecords / pageSize);
+		//		response.CurrentPage = pageNumber;
+		//		response.PageSize = pageSize;
+		//		response.TotalRecords = totalRecords;
+		//		return response;
+
+		//	}
+		//	return response;
+		//}
+		#endregion
 		public async Task<RequestResponse<decimal>> CalculateTotalRemainingFromRecords(int farmsID)
 		{
 			var response = new RequestResponse<decimal> { ResponseID = 0, ResponseValue = 0 };

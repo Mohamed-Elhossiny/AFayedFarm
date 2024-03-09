@@ -10,14 +10,14 @@
 		/// </summary>
 		public int? ResponseID { get; set; }
 		public string? ResponseMessage { get; set; }
-        public int? CurrentPage { get; set; }
-        public int? PageSize { get; set; }
-        public int? LastPage { get; set; }
-        public int? TotalRecords { get; set; }
-        public T? ResponseValue { get; set; }
+		public int? CurrentPage { get; set; }
+		public int? PageSize { get; set; }
+		public int? LastPage { get; set; }
+		public int? TotalRecords { get; set; }
+		public T? ResponseValue { get; set; }
 
-        public void Dispose() { }
-		
-		
+		public void Dispose() { }
+
+
 	}
 }

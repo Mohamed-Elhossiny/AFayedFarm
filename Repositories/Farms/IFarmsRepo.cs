@@ -8,6 +8,7 @@ namespace AFayedFarm.Repositories.Supplier
 		Task<FarmDto> AddFarmAsync(AddFarmDto farmDto);
 		Task<FarmDto> GetFarmByName(string farmName);
 		Task<RequestResponse<List<FarmDto>>> GetFarmsAsync(int pageNumber,int pageSize);
+		//Task<RequestResponse<List<FarmRecordsWithFarmDataDto>>> GetAllFarmsOffline(int pageNumber, int pageSize);
 		Task<FarmDto> GetFarmById(int id);
 		Task<RequestResponse<FarmDto>> UpdateFarm(int id,AddFarmDto farmDto);
 		Task<RequestResponse<FarmRecordDto>> AddFarmRecord(AddFarmRecordDto farmDto);

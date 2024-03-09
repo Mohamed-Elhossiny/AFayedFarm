@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -39,6 +40,15 @@ namespace AFayedFarm
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+			
+			// Increase Time of the request
+			builder.Services.Configure<HttpClientFactoryOptions>(options =>
+			{
+				options.HttpClientActions.Add(client =>
+				{
+					client.Timeout = TimeSpan.FromMinutes(30); 
+				});
+			});
 
 			builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 

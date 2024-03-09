@@ -40,9 +40,30 @@ namespace AFayedFarm.Controllers
 		[HttpGet("~/GetAllFarms")]
 		public async Task<IActionResult> GetAllFarms(int pageNumber = 1, int pageSize = 500)
 		{
-			var response = await farmsRepo.GetFarmsAsync(pageNumber,pageSize);
+			var response = await farmsRepo.GetFarmsAsync(pageNumber, pageSize);
 			if (response.ResponseID == 1)
 				return Ok(response);
+			response.ResponseMessage = "No Data Found";
+			return Ok(response);
+		}
+
+		[HttpGet("~/GetAllFarmsOffline")]
+		public async Task<IActionResult> GetAllFarmsOffline(int pageNumber = 1, int pageSize = 500)
+		{
+			RequestResponse<List<FarmDto>>? response = await farmsRepo.GetFarmsAsync(pageNumber, pageSize);
+			if (response.ResponseID == 1)
+			{
+				foreach (var item in response.ResponseValue!)
+				{
+					RequestResponse<FarmRecordsWithFarmDataDto> records = await farmsRepo.GetFarmRecordWithFarmDataByID((int)item.ID!, 1, 100);
+					if (records.ResponseID == 1)
+					{
+						//response.ResponseValue.ForEach(f => f.OfflineRecords = records.ResponseValue!.FarmRecords);
+						item.OfflineRecords = records.ResponseValue?.FarmRecords;
+					}
+				}
+				return Ok(response);
+			}
 			response.ResponseMessage = "No Data Found";
 			return Ok(response);
 		}
