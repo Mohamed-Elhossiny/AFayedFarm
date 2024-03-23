@@ -1,6 +1,8 @@
 ﻿using AFayedFarm.Dtos;
+using AFayedFarm.Repositories.Expenses;
 using AFayedFarm.Repositories.Fridges;
 using AFayedFarm.Repositories.Supplier;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,8 +36,28 @@ namespace AFayedFarm.Controllers
 		[HttpGet("~/GetAllFridges")]
 		public async Task<IActionResult> GetAllFridges(int pageNumber = 1, int pageSize = 500)
 		{
-			var allFarms = await fridgeRepo.GetFridgesAsync(pageNumber,pageSize);
+			var allFarms = await fridgeRepo.GetFridgesAsync(pageNumber, pageSize);
 			return Ok(allFarms);
+		}
+
+		[HttpGet("~/GetAllFridgesOffline")]
+		public async Task<IActionResult> GetAllFridgesOffline(int pageNumber = 1, int pageSize = 500)
+		{
+			var response = await fridgeRepo.GetFridgesAsync(pageNumber, pageSize);
+			if (response.ResponseID == 1)
+			{
+				foreach (var item in response.ResponseValue)
+				{
+					var records = await fridgeRepo.GetFridgeRecordWithFridgeDataByID((int)(item.ID ?? 0), pageNumber, pageSize);
+					if (records.ResponseID == 1)
+					{
+						item.OfflineRecords = records.ResponseValue?.FridgeRecords;
+					}
+				}
+				return Ok(response);
+			}
+			response.ResponseMessage = "No Data Found";
+			return Ok(response);
 		}
 
 		[HttpGet("~/GetFridgeById")]
