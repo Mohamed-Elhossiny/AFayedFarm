@@ -2,6 +2,7 @@
 using AFayedFarm.Dtos.Client;
 using AFayedFarm.Global;
 using AFayedFarm.Repositories.Clients;
+using AFayedFarm.Repositories.Fridges;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,26 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetAllClients(int pageNumber = 1, int pageSize = 500)
 		{
 			var response = await clientRepo.GetClientAsync(pageNumber,pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet("~/GetAllClientsOffline")]
+		public async Task<IActionResult> GetAllClientsOffline(int pageNumber = 1, int pageSize = 500)
+		{
+			var response = await clientRepo.GetClientAsync(pageNumber, pageSize);
+			if (response.ResponseID == 1)
+			{
+				foreach (var item in response.ResponseValue)
+				{
+					var records = await clientRepo.GetTransactionsWithCleintData(item.ID ?? 0, pageNumber, pageSize);
+					if (records.ResponseID == 1)
+					{
+						item.OfflineRecords = records.ResponseValue?.TransactionsList;
+					}
+				}
+				return Ok(response);
+			}
+			response.ResponseMessage = "No Data Found";
 			return Ok(response);
 		}
 

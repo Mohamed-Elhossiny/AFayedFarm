@@ -1,4 +1,6 @@
-﻿namespace AFayedFarm.Dtos
+﻿using AFayedFarm.Dtos.Client;
+
+namespace AFayedFarm.Dtos
 {
 	public class ClientDto
 	{
@@ -6,6 +8,6 @@
 		public string? Name { get; set; }
 		public decimal? Total { get; set; }
 		public DateTime? Created_Date { get; set; }
-
+		public List<TransactionMainDataDto>? OfflineRecords { get; set; } = new List<TransactionMainDataDto>();
 	}
 }
