@@ -1,4 +1,5 @@
 ﻿using AFayedFarm.Dtos;
+using AFayedFarm.Global;
 using AFayedFarm.Repositories.Expenses;
 using AFayedFarm.Repositories.Supplier;
 using Microsoft.AspNetCore.Http;
@@ -37,6 +38,26 @@ namespace AFayedFarm.Controllers
 		public async Task<IActionResult> GetAllExpenses(int pageNumber = 1, int pageSize = 500)
 		{
 			var response = await expenseRepo.GetExpenseAsync(pageNumber,pageSize);
+			return Ok(response);
+		}
+
+		[HttpGet("~/GetAllExpensesOffline")]
+		public async Task<IActionResult> GetAllExpensesOffline(int pageNumber = 1, int pageSize = 500)
+		{
+			var response = await expenseRepo.GetExpenseAsync(pageNumber, pageSize);
+			if (response.ResponseID == 1)
+			{
+				foreach (var item in response.ResponseValue)
+				{
+					var records = await expenseRepo.GetExpensesRecordsWithDataByExpenseId(item.ID, pageNumber, pageSize);
+					if (records.ResponseID == 1)
+					{
+						item.OfflineRecords = records.ResponseValue?.ExpensesList;
+					}
+				}
+				return Ok(response);
+			}
+			response.ResponseMessage = "No Data Found";
 			return Ok(response);
 		}
 

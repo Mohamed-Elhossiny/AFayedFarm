@@ -6,5 +6,6 @@
 		public string? Name { get; set; }
 		public decimal? Total { get; set; }
 		public DateTime? Created_Date { get; set; }
+
 	}
 }

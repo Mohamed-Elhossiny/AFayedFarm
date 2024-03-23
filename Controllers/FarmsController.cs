@@ -55,10 +55,9 @@ namespace AFayedFarm.Controllers
 			{
 				foreach (var item in response.ResponseValue!)
 				{
-					RequestResponse<FarmRecordsWithFarmDataDto> records = await farmsRepo.GetFarmRecordWithFarmDataByID((int)item.ID!, 1, 100);
+					RequestResponse<FarmRecordsWithFarmDataDto> records = await farmsRepo.GetFarmRecordWithFarmDataByID((int)item.ID, pageNumber, pageSize);
 					if (records.ResponseID == 1)
 					{
-						//response.ResponseValue.ForEach(f => f.OfflineRecords = records.ResponseValue!.FarmRecords);
 						item.OfflineRecords = records.ResponseValue?.FarmRecords;
 					}
 				}
